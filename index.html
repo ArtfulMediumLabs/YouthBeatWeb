@@ -49,17 +49,48 @@ var bdsdPatterns = [
   "23-BDSD.wav",
   "24-BDSD.wav"];
 
+var hhPatterns = [
+  "01-Hihat.wav",
+  "02-Hihat.wav",
+  "03-Hihat.wav",
+  "04-Hihat.wav",
+  "05-Hihat.wav",
+  "06-Hihat.wav",
+  "07-Hihat.wav",
+  "08-Hihat.wav",
+  "09-Hihat.wav",
+  "10-Hihat.wav",
+  "11-Hihat.wav",
+  "12-Hihat.wav",
+  "13-Hihat.wav",
+  "14-Hihat.wav",
+  "15-Hihat.wav",
+  "16-Hihat.wav",
+  "17-Hihat.wav",
+  "18-Hihat.wav",
+  "19-Hihat.wav",
+  "20-Hihat.wav",
+  "21-Hihat.wav",
+  "22-Hihat.wav",
+  "23-Hihat.wav",
+  "24-Hihat.wav"];
+
 var bdsdURLs = bdsdPatterns.map(fileName => "Sounds/Rhythm/Kit_1/BDSD_90bpm/" + fileName)
+var hhURLs = hhPatterns.map(fileName => "Sounds/Rhythm/Kit_1/Hihat_90bpm/" + fileName)
 
-// var bdsdPlayer = new Tone.Player({url: bdsdURLs[0], loop:true}).toMaster().sync().start(0)
-var bdsdPlayers = new Tone.Players(bdsdURLs).toMaster()
+var bdsdPlayers = createPlayers(bdsdURLs)
+var hhPlayers = createPlayers(hhURLs)
 
-for(var playerName in bdsdURLs) {
-    var player = bdsdPlayers.get(playerName)
+function createPlayers(URLs) { 
+  var players = new Tone.Players(URLs).toMaster()
+  for(var playerName in URLs) {
+    var player = players.get(playerName)
     player.loop = true
     player.mute = true
     player.sync().start()
   }
+  return players
+}
 
 Tone.Buffer.on('load', function(){
 	console.log("all buffers loaded")
@@ -74,21 +105,22 @@ var stage = new Konva.Stage({
 
 // then create layer
 var layer = new Konva.Layer();
-var bdsdCircles = drawCircles(bdsdPlayers, bdsdURLs);
-// var hhCircles = drawCircles();
+var bdsdCircles = drawCircles(0, 0, bdsdPlayers, bdsdURLs);
+var hhCircles = drawCircles(250, 0, hhPlayers, hhURLs);
 
 
-function drawCircles(players, loopUrls) { 
+function drawCircles(originX, originY, players, loopUrls) { 
   var circleGroup = new Konva.Group()
 
   var spacing = 6
   var radius = 22
-  var x = 0 + spacing / 2 + radius
-  var y = 0 + spacing / 2 + radius
+  var x = originX + spacing / 2 + radius
+  var y = originY + spacing / 2 + radius
 
   var index = 0
+  var test = []
   for (i = 0; i < 3; i++) {
-    y = 0 + spacing / 2 + radius;
+    y = originY + spacing / 2 + radius;
     for (j = 0; j < 8; j++ ) {
       var circle = new Konva.Circle({
         x: x,
@@ -118,10 +150,13 @@ function drawCircles(players, loopUrls) {
       //   clickFunction(circleGroup, players, loopUrls);
       // });
     
-    var test = loopFunction.bind(this, index)
-    text.on('click', function() {
-        test()
-      })
+    // var test = loopFunction.bind(this, index)
+    // text.on('click', function() {
+    //     test()
+    //   })
+
+    test.push(i)
+    text.on('click', loopFunction(index, circleGroup, players, loopUrls));
 
       y += spacing + radius * 2
       index++;
@@ -132,31 +167,26 @@ function drawCircles(players, loopUrls) {
   return circleGroup
 }
 
-function loopFunction(i) {
-  console.log("loop function: ", i);
-}
-
-function loopFunction2(i) {
-  console.log("loop function", i);
-  return function(buttons, players, loopUrls) {
+function loopFunction(i, buttonGroup, players, loopUrls) {
+  return function() {
     console.log("index:\t", i);
-    console.log("buttons:\t", buttons);
+    console.log("buttonGroup:\t", buttonGroup);
     console.log("players:\t", players);
     console.log("loopUrls:\t", loopUrls);
-    triggerLoop(i, buttons, players, loopUrls)
+    triggerLoop(i, buttonGroup, players, loopUrls)
   };
 }
 
-function triggerLoop(index, buttons, players, loopUrls) {
+function triggerLoop(index, buttonGroup, players, loopUrls) {
   console.log("triggerLoop " + index);
-  selectButton(index, buttons);
+  selectButton(index, buttonGroup);
   toggleLoop(index, players, loopUrls);
 }
 
-function selectButton(index, buttons) {
+function selectButton(index, buttonGroup) {
   console.log("selectLoop " + index);
 
-  var nodes = layer.find('Circle')
+  var nodes = buttonGroup.find('Circle')
   nodes.forEach(node => {
     node.fill(node.id() == index ? 'green' : 'red');
     // console.log(node.id(), node.fill())
@@ -194,6 +224,7 @@ function toggleLoop(index, players, loopUrls) {
 
 
 layer.add(bdsdCircles);
+layer.add(hhCircles);
 stage.add(layer);
 // layer.draw();
   </script>
