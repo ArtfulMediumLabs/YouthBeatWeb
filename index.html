@@ -17,6 +17,12 @@
 <body>
   <div id="container"></div>
   <script type="text/javascript">
+
+Tone.Transport.bpm.value = 90;
+Tone.Transport.loop = true;
+Tone.Transport.loopStart = "0";
+Tone.Transport.loopEnd = "2m";
+
 var bdsdPatterns = [
   "01-BDSD.wav",
   "02-BDSD.wav",
@@ -45,12 +51,14 @@ var bdsdPatterns = [
 
 var bdsdURLs = bdsdPatterns.map(fileName => "Sounds/Rhythm/Kit_1/BDSD_90bpm/" + fileName)
 
-var bdsdPlayer = new Tone.Player(bdsdURLs[0]).toMaster()
+// var bdsdPlayer = new Tone.Player({url: bdsdURLs[0], loop:true}).toMaster().sync().start(0)
 var bdsdPlayers = new Tone.Players(bdsdURLs).toMaster()
 
 for(var playerName in bdsdURLs) {
     var player = bdsdPlayers.get(playerName)
     player.loop = true
+    player.mute = true
+    player.sync().start()
   }
 
 Tone.Buffer.on('load', function(){
@@ -66,90 +74,126 @@ var stage = new Konva.Stage({
 
 // then create layer
 var layer = new Konva.Layer();
-
-var hhCircles = new Array();
-// create our shape
-// button.heightAnchor.constraint(equalToConstant: 44.0).isActive = true
-// button.widthAnchor.constraint(equalToConstant: 44.0).isActive = true
-// button.contentEdgeInsets = UIEdgeInsets(top: 13, left: 13, bottom: 13, right: 13)
-// button.setTitleColor(UIColor.gray, for: .normal)
-// button.setTitleColor(UIColor.black, for: .highlighted)
-// button.setTitleColor(UIColor.white, for: .selected)
-// button.titleLabel?.font = .systemFont(ofSize: 12)
+var bdsdCircles = drawCircles(bdsdPlayers, bdsdURLs);
+// var hhCircles = drawCircles();
 
 
-var spacing = 6
-var radius = 22
-var x = 0 + spacing / 2 + radius
-var y = 0 + spacing / 2 + radius
+function drawCircles(players, loopUrls) { 
+  var circleGroup = new Konva.Group()
 
-// var totalWidth = 2 * radius * 3 + 2 * spacing;
-// var totalHeight = 2 * radius * 8 + 7 * spacing;
-// var hihatCircles = new Konva.Group({x: 0, y: 0, width: totalWidth, height: totalHeight})
-var hihatCircles = new Konva.Group()
+  var spacing = 6
+  var radius = 22
+  var x = 0 + spacing / 2 + radius
+  var y = 0 + spacing / 2 + radius
 
-var index = 0
-for (i = 0; i < 3; i++) {
-  y = 0 + spacing / 2 + radius;
-  for (j = 0; j < 8; j++ ) {
-    var circle = new Konva.Circle({
-      x: x,
-      y: y,
-      radius: radius,
-      fill: 'red',
-      id: index
-    });  
-    layer.add(circle);
+  var index = 0
+  for (i = 0; i < 3; i++) {
+    y = 0 + spacing / 2 + radius;
+    for (j = 0; j < 8; j++ ) {
+      var circle = new Konva.Circle({
+        x: x,
+        y: y,
+        radius: radius,
+        fill: 'red',
+        id: index
+      });  
+      layer.add(circle);
 
-    var text = new Konva.Text({
-      x: x - radius,
-      y: y - radius,
-      text: index + 1,
-      fontSize: 12,
-      fill: 'white',
-      width: radius * 2,
-      height: radius *2,
-      align: 'center',
-      verticalAlign: 'middle'
-    });
-    hihatCircles.add(circle)
-    hihatCircles.add(text);
+      var text = new Konva.Text({
+        x: x - radius,
+        y: y - radius,
+        text: index + 1,
+        fontSize: 12,
+        fill: 'white',
+        width: radius * 2,
+        height: radius *2,
+        align: 'center',
+        verticalAlign: 'middle'
+      });
+      circleGroup.add(circle)
+      circleGroup.add(text);
 
-    text.on('click', loopFunction(index))
+      // var clickFunction = loopFunction(index)
+      // text.on('click', function(e) { 
+      //   clickFunction(circleGroup, players, loopUrls);
+      // });
+    
+    var test = loopFunction.bind(this, index)
+    text.on('click', function() {
+        test()
+      })
 
-    y += spacing + radius * 2
-    index++;
+      y += spacing + radius * 2
+      index++;
+    }
+    x += spacing + radius * 2;
   }
-  x += spacing + radius * 2;
+
+  return circleGroup
 }
 
 function loopFunction(i) {
-  return function() {
-    triggerLoop(i)
+  console.log("loop function: ", i);
+}
+
+function loopFunction2(i) {
+  console.log("loop function", i);
+  return function(buttons, players, loopUrls) {
+    console.log("index:\t", i);
+    console.log("buttons:\t", buttons);
+    console.log("players:\t", players);
+    console.log("loopUrls:\t", loopUrls);
+    triggerLoop(i, buttons, players, loopUrls)
   };
 }
 
-function triggerLoop(index) {
+function triggerLoop(index, buttons, players, loopUrls) {
   console.log("triggerLoop " + index);
-  selectLoop(index)
+  selectButton(index, buttons);
+  toggleLoop(index, players, loopUrls);
 }
 
-function selectLoop(index) {
+function selectButton(index, buttons) {
   console.log("selectLoop " + index);
+
   var nodes = layer.find('Circle')
   nodes.forEach(node => {
     node.fill(node.id() == index ? 'green' : 'red');
     // console.log(node.id(), node.fill())
     layer.draw()
   })
-  bdsdPlayers.stopAll()
-  let player = bdsdPlayers.get(index)
-  console.log(player)
-  player.start()
+
+  toggleLoop(index)
+  
+}
+
+var toggle = false
+
+function toggleLoop(index, players, loopUrls) {
+  console.log("toggleLoop", index, players, loopUrls)
+  Tone.context.resume()
+
+  if (toggle) {
+    players.stopAll()
+    toggle = false
+    return;  
+  }
+
+  for(var playerName in loopUrls) {
+    var player = players.get(playerName)
+    // console.log(playerName, index, playerName == index, player.mute)
+    player.mute = playerName != index
+  }
+
+  if (Tone.Transport.state != "started") {
+   Tone.Transport.start()
+  }
+
+  // toggle = true
 }
 
 
-layer.add(hihatCircles);
+layer.add(bdsdCircles);
 stage.add(layer);
 // layer.draw();
   </script>
