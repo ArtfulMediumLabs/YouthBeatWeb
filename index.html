@@ -119,6 +119,8 @@ function createOneShots(URLs) {
 
 Tone.Buffer.on('load', function(){
 	console.log("all buffers loaded")
+  buffersLoaded = true
+  updateLoading()
 })
 
   // first we need to create a stage
@@ -127,6 +129,23 @@ var stage = new Konva.Stage({
   width: 1028,
   height: 768 - 200
 });
+
+var layer = new Konva.Layer();
+
+var loadingText = new Konva.Text({
+        x: stage.width() / 2,
+        y: stage.height() / 2,
+        text: 'Loading..',
+        fontSize: 30,
+        fill: 'black'
+      });
+layer.add(loadingText)
+var buffersLoaded = false
+var imagesLoaded = false
+
+function updateLoading() {
+  loadingText.visible(buffersLoaded && imagesLoaded)
+}
 
 // then create layer
 var spacing = 6
@@ -141,8 +160,6 @@ var doubleFillHeight = 2 * fillDiameter + spacing
 var centeredFillHeight = doubleFillHeight / 2 + fillDiameter/2
 var stageThird = stage.width() / 5
 
-
-var layer = new Konva.Layer();
 var bdsdCircles = drawCircles(0, 0, bdsdPlayers, bdsdURLs, '#F9BAF9', '#C687C6');
 var hhCircles = drawCircles(hhOriginX, 0, hhPlayers, hhURLs, '#9ECCEF', '#6B99BC');
 
@@ -171,6 +188,8 @@ function drawFillCircles(originX, originY, start, count, players) {
           layer.add(lonestar);
         }
         layer.batchDraw();
+        imagesLoaded = true;
+        updateLoading()
       };
       imageObj.src = 'img/lonestar-2.png';
 
