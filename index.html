@@ -117,6 +117,9 @@ function createOneShots(URLs) {
   return new Tone.Players(URLs).toMaster()
 }
 
+var buffersLoaded = false
+var imagesLoaded = false
+
 Tone.Buffer.on('load', function(){
 	console.log("all buffers loaded")
   buffersLoaded = true
@@ -135,13 +138,11 @@ var layer = new Konva.Layer();
 var loadingText = new Konva.Text({
         x: stage.width() / 2,
         y: stage.height() / 2,
-        text: 'Loading..',
+        text: 'Loading...',
         fontSize: 30,
         fill: 'black'
       });
 layer.add(loadingText)
-var buffersLoaded = false
-var imagesLoaded = false
 
 function updateLoading() {
   loadingText.visible(buffersLoaded && imagesLoaded)
