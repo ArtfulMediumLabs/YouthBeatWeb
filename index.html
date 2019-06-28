@@ -143,8 +143,8 @@ var stageThird = stage.width() / 5
 
 
 var layer = new Konva.Layer();
-var bdsdCircles = drawCircles(0, 0, bdsdPlayers, bdsdURLs);
-var hhCircles = drawCircles(hhOriginX, 0, hhPlayers, hhURLs);
+var bdsdCircles = drawCircles(0, 0, bdsdPlayers, bdsdURLs, '#F9BAF9', '#C687C6');
+var hhCircles = drawCircles(hhOriginX, 0, hhPlayers, hhURLs, '#9ECCEF', '#6B99BC');
 
 var fillCirclesA = drawFillCircles(stageThird - fillWidth / 2, stage.height() - centeredFillHeight, 0, 4, fillPlayers)
 var fillCirclesB = drawFillCircles(stageThird * 2.5 - fillWidth / 2, stage.height() - doubleFillHeight, 4, 4, fillPlayers)
@@ -191,7 +191,7 @@ function triggerOneShot(index, players) {
   player.start()
 }
 
-function drawCircles(originX, originY, players, loopUrls) { 
+function drawCircles(originX, originY, players, loopUrls, fillColor, activeColor) { 
   var circleGroup = new Konva.Group()
 
   var spacing = 6
@@ -208,7 +208,7 @@ function drawCircles(originX, originY, players, loopUrls) {
         x: x,
         y: y,
         radius: radius,
-        fill: 'red',
+        fill: fillColor,
         id: index
       });  
       layer.add(circle);
@@ -218,16 +218,17 @@ function drawCircles(originX, originY, players, loopUrls) {
         y: y - radius,
         text: index + 1,
         fontSize: 12,
-        fill: 'white',
+        fill: 'grey',
         width: radius * 2,
         height: radius *2,
         align: 'center',
-        verticalAlign: 'middle'
+        verticalAlign: 'middle',
+        id: index
       });
       circleGroup.add(circle)
       circleGroup.add(text);
 
-      text.on('click', loopFunction(index, circleGroup, players, loopUrls));
+      text.on('click', loopFunction(index, circleGroup, players, loopUrls, fillColor, activeColor));
 
       y += spacing + radius * 2
       index++;
@@ -238,30 +239,38 @@ function drawCircles(originX, originY, players, loopUrls) {
   return circleGroup
 }
 
-function loopFunction(i, buttonGroup, players, loopUrls) {
+function loopFunction(i, buttonGroup, players, loopUrls, fillColor, activeColor) {
   return function() {
     console.log("index:\t", i);
     console.log("buttonGroup:\t", buttonGroup);
     console.log("players:\t", players);
     console.log("loopUrls:\t", loopUrls);
-    triggerLoop(i, buttonGroup, players, loopUrls)
+    console.log("fillColor:\t", fillColor);
+    console.log("activeColor:\t", activeColor);
+    triggerLoop(i, buttonGroup, players, loopUrls, fillColor, activeColor)
   };
 }
 
-function triggerLoop(index, buttonGroup, players, loopUrls) {
+function triggerLoop(index, buttonGroup, players, loopUrls, fillColor, activeColor) {
   console.log("triggerLoop " + index);
   toggleLoop(index, players, loopUrls);
-  selectButton(buttonGroup, players);
+  selectButton(buttonGroup, players, fillColor, activeColor);
 }
 
-function selectButton(buttonGroup, players) {
+function selectButton(buttonGroup, players, fillColor, activeColor) {
   console.log("selectButton");
 
   var nodes = buttonGroup.find('Circle')
-  nodes.forEach((node, i) => {
-    node.fill(!players.get(i).mute ? 'green' : 'red');
-    layer.draw()
+  nodes.forEach(node => {
+    var index = node.id()
+    node.fill(!players.get(index).mute ? activeColor : fillColor);
   })
+  nodes = buttonGroup.find('Text')
+  nodes.forEach(node => {
+    var index = node.id()
+    node.fill(!players.get(index).mute ? 'white' : 'grey');
+  })
+  layer.batchDraw();
 }
 
 function toggleLoop(index, players, loopUrls) {
