@@ -75,11 +75,32 @@ var hhPatterns = [
   "23-Hihat.wav",
   "24-Hihat.wav"];
 
+var fills = [
+  "Heavy 10.4_90_1beats FIX C6.wav",
+  "Heavy 10.3_90_1beats FIX C#6.wav",
+  "Heavy 10.2_90_2beats FIX D6.wav",
+  "Heavy 10.1_90_2beats FIX D#6.wav",
+  "Dez.4_90 C5.wav",
+  "Dez.3_90 C#5.wav",
+  "Dez.2_90 D5.wav",
+  "Dez.1_90 D#5.wav",
+  "Dez 2.4_90 E5.wav",
+  "Dez 2.3_90 F5.wav",
+  "Dez 2.2_90 F#5.wav",
+  "Dez 2.1_90 G5.wav",
+  "Big.1_90 C7.wav",
+  "Big.2_90 C#7.wav",
+  "Big.3_90 D7.wav",
+  "Big.4_90 D#7.wav",
+  "Big.4_90 D#7.wav"];
+
 var bdsdURLs = bdsdPatterns.map(fileName => "Sounds/Rhythm/Kit_1/BDSD_90bpm/" + fileName)
 var hhURLs = hhPatterns.map(fileName => "Sounds/Rhythm/Kit_1/Hihat_90bpm/" + fileName)
+var fillURLs = fills.map(fileName => "Sounds/BeatsPalette90/" + encodeURIComponent(fileName))
 
 var bdsdPlayers = createPlayers(bdsdURLs)
 var hhPlayers = createPlayers(hhURLs)
+var fillPlayers = createOneShots(fillURLs)
 
 function createPlayers(URLs) { 
   var players = new Tone.Players(URLs).toMaster()
@@ -92,6 +113,10 @@ function createPlayers(URLs) {
   return players
 }
 
+function createOneShots(URLs) {
+  return new Tone.Players(URLs).toMaster()
+}
+
 Tone.Buffer.on('load', function(){
 	console.log("all buffers loaded")
 })
@@ -99,28 +124,85 @@ Tone.Buffer.on('load', function(){
   // first we need to create a stage
 var stage = new Konva.Stage({
   container: 'container',   // id of container <div>
-  width: 500,
-  height: 500
+  width: 1028,
+  height: 768 - 200
 });
 
 // then create layer
+var spacing = 6
+var radius = 22
+var segmentWidth = spacing * 2 + radius * 2 * 3
+var hhOriginX = stage.width() - segmentWidth
+
+var fillSpacing = 8
+var fillDiameter = 44
+var fillWidth = 4 * fillDiameter + 3 * spacing
+var doubleFillHeight = 2 * fillDiameter + spacing
+var centeredFillHeight = doubleFillHeight / 2 + fillDiameter/2
+var stageThird = stage.width() / 5
+
+
 var layer = new Konva.Layer();
 var bdsdCircles = drawCircles(0, 0, bdsdPlayers, bdsdURLs);
-var hhCircles = drawCircles(250, 0, hhPlayers, hhURLs);
+var hhCircles = drawCircles(hhOriginX, 0, hhPlayers, hhURLs);
 
+var fillCirclesA = drawFillCircles(stageThird - fillWidth / 2, stage.height() - centeredFillHeight, 0, 4, fillPlayers)
+var fillCirclesB = drawFillCircles(stageThird * 2.5 - fillWidth / 2, stage.height() - doubleFillHeight, 4, 4, fillPlayers)
+var fillCirclesC = drawFillCircles(stageThird * 2.5 - fillWidth / 2, stage.height() - fillDiameter, 8, 4, fillPlayers)
+var fillCirclesD = drawFillCircles(stageThird * 4 - fillWidth / 2, stage.height() - centeredFillHeight, 12, 4, fillPlayers)
+
+function drawFillCircles(originX, originY, start, count, players) {
+  var spacing = 8
+  var diameter = 44
+      var imageObj = new Image();
+      imageObj.onload = function() {
+        for (i = start; i < (start + count); i++) {
+          var lonestar = new Konva.Image({
+            x: originX + (diameter + spacing) * (i - start),
+            y: originY,
+            image: imageObj,
+            width: 44,
+            height: 44
+          });
+          console.log(lonestar.x())
+          lonestar.on('click', oneShotFunction(i, players))
+
+          // add the shape to the layer
+          layer.add(lonestar);
+        }
+        layer.batchDraw();
+      };
+      imageObj.src = '/img/lonestar-2.png';
+
+}
+
+function oneShotFunction(i, players) {
+  return function() {
+    triggerOneShot(i, players)
+  };
+}
+
+function triggerOneShot(index, players) {
+  console.log("triggerOneShot " + index);
+ Tone.context.resume()
+
+  var player = players.get(index)
+  console.log(player)
+  player.start()
+}
 
 function drawCircles(originX, originY, players, loopUrls) { 
   var circleGroup = new Konva.Group()
 
   var spacing = 6
   var radius = 22
-  var x = originX + spacing / 2 + radius
-  var y = originY + spacing / 2 + radius
+  var x = originX + radius //+ spacing / 2 + radius
+  var y = originY + radius //+ spacing / 2 + radius
 
   var index = 0
   var test = []
   for (i = 0; i < 3; i++) {
-    y = originY + spacing / 2 + radius;
+    y = originY + radius //+ spacing / 2 + radius;
     for (j = 0; j < 8; j++ ) {
       var circle = new Konva.Circle({
         x: x,
@@ -145,18 +227,7 @@ function drawCircles(originX, originY, players, loopUrls) {
       circleGroup.add(circle)
       circleGroup.add(text);
 
-      // var clickFunction = loopFunction(index)
-      // text.on('click', function(e) { 
-      //   clickFunction(circleGroup, players, loopUrls);
-      // });
-    
-    // var test = loopFunction.bind(this, index)
-    // text.on('click', function() {
-    //     test()
-    //   })
-
-    test.push(i)
-    text.on('click', loopFunction(index, circleGroup, players, loopUrls));
+      text.on('click', loopFunction(index, circleGroup, players, loopUrls));
 
       y += spacing + radius * 2
       index++;
@@ -179,49 +250,69 @@ function loopFunction(i, buttonGroup, players, loopUrls) {
 
 function triggerLoop(index, buttonGroup, players, loopUrls) {
   console.log("triggerLoop " + index);
-  selectButton(index, buttonGroup);
   toggleLoop(index, players, loopUrls);
+  selectButton(buttonGroup, players);
 }
 
-function selectButton(index, buttonGroup) {
-  console.log("selectLoop " + index);
+function selectButton(buttonGroup, players) {
+  console.log("selectButton");
 
   var nodes = buttonGroup.find('Circle')
-  nodes.forEach(node => {
-    node.fill(node.id() == index ? 'green' : 'red');
-    // console.log(node.id(), node.fill())
+  nodes.forEach((node, i) => {
+    node.fill(!players.get(i).mute ? 'green' : 'red');
     layer.draw()
   })
-
-  toggleLoop(index)
-  
 }
-
-var toggle = false
 
 function toggleLoop(index, players, loopUrls) {
   console.log("toggleLoop", index, players, loopUrls)
   Tone.context.resume()
 
-  if (toggle) {
+  if (false) {
     players.stopAll()
-    toggle = false
     return;  
   }
 
   for(var playerName in loopUrls) {
     var player = players.get(playerName)
     // console.log(playerName, index, playerName == index, player.mute)
-    player.mute = playerName != index
+    if (playerName == index) {
+      if (player.mute) {
+        player.mute = false
+        if (Tone.Transport.state != "started") {
+          Tone.Transport.start()
+        }
+      } else {
+        player.mute = true
+      }
+    } else {
+      player.mute = true
+    }
+    
   }
-
-  if (Tone.Transport.state != "started") {
-   Tone.Transport.start()
-  }
-
-  // toggle = true
 }
 
+function autoStopTransport() {
+  if (!someLoop()) {
+    Tone.Transport.stop()
+  }
+}
+
+function someLoop() {
+  for(var playerName in bdsdURLs) {
+    var player = bdsdPlayers.get(playerName)
+    if (!player.mute) {
+      return true
+    }
+  }
+  for(var playerName in hhURLs) {
+    var player = hhPlayers.get(playerName)
+    if (!player.mute) {
+      return true
+    }
+  }
+  return false
+}
 
 layer.add(bdsdCircles);
 layer.add(hhCircles);
