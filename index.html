@@ -146,6 +146,7 @@ layer.add(loadingText)
 
 function updateLoading() {
   loadingText.visible(buffersLoaded && imagesLoaded)
+  layer.batchDraw();
 }
 
 // then create layer
