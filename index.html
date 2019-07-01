@@ -143,11 +143,15 @@ var stage = new Konva.Stage({
 var layer = new Konva.Layer();
 
 var loadingText = new Konva.Text({
-        x: stage.width() / 2,
-        y: stage.height() / 2,
+        x: stage.width() / 2 - 150,
+        y: stage.height() / 2 - 100,
         text: 'Loading...',
         fontSize: 30,
-        fill: 'black'
+        fill: 'black',
+        width: 300,
+        height: 100,
+        verticalAlign: 'middle',
+        align: 'center'
       });
 layer.add(loadingText)
 
