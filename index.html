@@ -145,7 +145,8 @@ var loadingText = new Konva.Text({
 layer.add(loadingText)
 
 function updateLoading() {
-  loadingText.visible(buffersLoaded && imagesLoaded)
+  var isLoaded = buffersLoaded && imagesLoaded
+  loadingText.visible(!isLoaded)
   layer.batchDraw();
 }
 
