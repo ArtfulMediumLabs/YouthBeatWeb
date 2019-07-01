@@ -18,12 +18,30 @@
     margin: 40px auto;
     width: 1028px;
   }
+  audio {
+    width: 300px;
+  }
 </style>
 </head>
 
 <body>
   <div id="container" class="center"></div>
+  <div class=center" style="width:20%">
+    <audio controls></audio>
+  </div>
   <script type="text/javascript">
+
+const audio = document.querySelector('audio');
+const actx  = Tone.context;
+const dest  = actx.createMediaStreamDestination();
+const recorder = new MediaRecorder(dest.stream);
+const chunks = [];
+
+recorder.ondataavailable = evt => chunks.push(evt.data);
+recorder.onstop = evt => {
+  let blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
+  audio.src = URL.createObjectURL(blob);
+};
 
 Tone.Transport.bpm.value = 90;
 Tone.Transport.loop = true;
@@ -110,7 +128,7 @@ var hhPlayers = createPlayers(hhURLs)
 var fillPlayers = createOneShots(fillURLs)
 
 function createPlayers(URLs) { 
-  var players = new Tone.Players(URLs).toMaster()
+  var players = new Tone.Players(URLs).toMaster().connect(dest)
   for(var playerName in URLs) {
     var player = players.get(playerName)
     player.loop = true
@@ -121,7 +139,7 @@ function createPlayers(URLs) {
 }
 
 function createOneShots(URLs) {
-  return new Tone.Players(URLs).toMaster()
+  return new Tone.Players(URLs).toMaster().connect(dest)
 }
 
 var buffersLoaded = false
@@ -217,7 +235,8 @@ function oneShotFunction(i, players) {
 
 function triggerOneShot(index, players) {
   console.log("triggerOneShot " + index);
- Tone.context.resume()
+  Tone.context.resume()
+  autoStartRecord()
 
   var player = players.get(index)
   console.log(player)
@@ -309,6 +328,7 @@ function selectButton(buttonGroup, players, fillColor, activeColor) {
 function toggleLoop(index, players, loopUrls) {
   console.log("toggleLoop", index, players, loopUrls)
   Tone.context.resume()
+  autoStartRecord()
 
   if (false) {
     players.stopAll()
@@ -331,6 +351,12 @@ function toggleLoop(index, players, loopUrls) {
       player.mute = true
     }
     
+  }
+}
+
+function autoStartRecord() {
+  if (recorder.state != 'recording') {
+    recorder.start()
   }
 }
 
