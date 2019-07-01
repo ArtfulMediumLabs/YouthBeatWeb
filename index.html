@@ -26,7 +26,8 @@
 
 <body>
   <div id="container" class="center"></div>
-  <div class=center" style="width:20%">
+  <div id ="toolbar" class=center" style="width:20%">
+    <button id="recordButton" type="button" onclick="toggleRecord()">RECORD</button>
     <audio controls></audio>
   </div>
   <script type="text/javascript">
@@ -40,7 +41,9 @@ const chunks = [];
 recorder.ondataavailable = evt => chunks.push(evt.data);
 recorder.onstop = evt => {
   let blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
-  audio.src = URL.createObjectURL(blob);
+  let url = URL.createObjectURL(blob);
+  audio.src = url;
+  // download(blob, url);
 };
 
 Tone.Transport.bpm.value = 90;
@@ -179,7 +182,6 @@ function updateLoading() {
   layer.batchDraw();
 }
 
-// then create layer
 var spacing = 6
 var radius = 22
 var segmentWidth = spacing * 2 + radius * 2 * 3
@@ -236,7 +238,7 @@ function oneShotFunction(i, players) {
 function triggerOneShot(index, players) {
   console.log("triggerOneShot " + index);
   Tone.context.resume()
-  autoStartRecord()
+  // autoStartRecord()
 
   var player = players.get(index)
   console.log(player)
@@ -328,7 +330,7 @@ function selectButton(buttonGroup, players, fillColor, activeColor) {
 function toggleLoop(index, players, loopUrls) {
   console.log("toggleLoop", index, players, loopUrls)
   Tone.context.resume()
-  autoStartRecord()
+  // autoStartRecord()
 
   if (false) {
     players.stopAll()
@@ -360,6 +362,10 @@ function autoStartRecord() {
   }
 }
 
+function stopRecord() {
+  recorder.stop()
+}
+
 function autoStopTransport() {
   if (!someLoop()) {
     Tone.Transport.stop()
@@ -380,6 +386,30 @@ function someLoop() {
     }
   }
   return false
+}
+
+function toggleRecord() {
+  var recordButton = document.getElementById("recordButton");
+  if (recordButton.innerText == "RECORD") {
+    autoStartRecord()
+    recordButton.innerText = "STOP"
+  } else {
+    stopRecord()
+    recordButton.innerText = "RECORD"
+  }
+}
+
+function download(blob, url) {
+  var toolbar = document.getElementById("toolbar");
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  document.body.appendChild(a);
+  a.href = url;
+  a.download = 'song.ogg';
+  a.innerText = 'download';
+  toolbar.appendChild(a);
+  // a.click();
+  // window.URL.revokeObjectURL(url);
 }
 
 layer.add(bdsdCircles);
