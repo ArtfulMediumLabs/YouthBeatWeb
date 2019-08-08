@@ -77,6 +77,32 @@ var bdsdPatterns = [
   "23-BDSD.wav",
   "24-BDSD.wav"];
 
+var bdDisplayPattern = [
+  "B-------S-------B-----S---------",
+  "B---------------B-----S---------",
+  "B-----S-----B---B-------S-------",
+  "B-----B-----B-----------B-------",
+  "B-------S---B-------B---S-------",
+  "B-----------B-----------B-------",
+  "B-------------B-B-----------B---",
+  "B---------------------------B---",
+  "S-----S-B---S-------S---B-S---B-",
+  "B-R---R-B-R-R-B-R---R-B-R-R---R-",
+  "S-----------B-B---S-------B-----",
+  "B---B---S---S-S---B---S---------",
+  "B-----B---S-S-S---B---S---BBB---",
+  "S-S---S-B-B-B-----S-S-B---B---B-",
+  "BBB---S---B-B---S---BBBB--S---S-",
+  "S-B-S-S-B-BBS-B-S---SBBBS-S-B-BS",
+  "SBB---S-B-S-B-B-S---S--BS-S-----",
+  "SB--B--B-BS-S-SS-B-B--BSBS----B-",
+  "B-----S-B--B--B-S---BB-B--S-B--B",
+  "--S---B-S-B---S---S---S-B-B-S---",
+  "B-----B-S---B-S-B---S-B---S-B---",
+  "S-----S-B-B---S---SSS-S-BB--B---",
+  "B-B---S---S---S-B---B---SB--B-S-",
+  "--B---S---S-B-----B-----S-------"];
+
 var hhPatterns = [
   "01-Hihat.wav",
   "02-Hihat.wav",
@@ -102,6 +128,32 @@ var hhPatterns = [
   "22-Hihat.wav",
   "23-Hihat.wav",
   "24-Hihat.wav"];
+
+var hhDisplayPattern = [
+  "X-------X-------X-------X-------",
+  "X---X---X---X---X---X---X---X---",
+  "X---X-----------X---X-----------",
+  "X-----X---------X-----X---------",
+  "X---X---X-------X---X---X-------",
+  "X-----X-----X---X-----X-----X---",
+  "X-X-X---X-X-X---X-X-X---X-X-X---",
+  "X-X---X-X-X---X-X-X---X-X-X---X-",
+  "X---X-X-X---X-X-X---X-X-X---X-X-",
+  "X-X-X-X-----X---X-X-X-X-----X---",
+  "X---X-X---X-X---X---X-X---X-X---",
+  "X-X---X-X---X-X-X-X---X-X---X-X-",
+  "X-X-X---X-X-X---X-X-X---X-X-X---",
+  "X-X---X-X-X---X-X-X---X-X-X---X-",
+  "X-X---X---X-X---X---X---X---X---",
+  "X-X-X-X-X-X-X-X-X-X---X-X---X-X-",
+  "X---X-X---X-X-X-X---X---X-X---X-",
+  "X-----X-----X---X-----X-----X-X-",
+  "X-----X-----X---X---X-------X---",
+  "----X-X-----X-X-----X-X-----X-X-",
+  "--X---X---X-X---X---X---X---X---",
+  "--X-X-X-----X-------X---X-X-----",
+  "------X-X-X-X-------X-X-X-------",
+  "--X-X---X-X---X-X---X-X---X-X---"]
 
 var fills = [
   "Heavy 10.4_90_1beats FIX C6.wav",
@@ -185,7 +237,7 @@ function updateLoading() {
 var spacing = 6
 var radius = 22
 var segmentWidth = spacing * 2 + radius * 2 * 3
-var hhOriginX = stage.width() - segmentWidth
+var hhOriginX = stage.width() - 155 - segmentWidth
 
 var fillSpacing = 8
 var fillDiameter = 44
@@ -194,8 +246,23 @@ var doubleFillHeight = 2 * fillDiameter + spacing
 var centeredFillHeight = doubleFillHeight / 2 + fillDiameter/2
 var stageThird = stage.width() / 5
 
-var bdsdCircles = drawCircles(0, 0, bdsdPlayers, bdsdURLs, '#F9BAF9', '#C687C6');
-var hhCircles = drawCircles(hhOriginX, 0, hhPlayers, hhURLs, '#9ECCEF', '#6B99BC');
+var patternOriginX = stage.width() / 2
+var patternOriginY = 165
+var patternWidth = 34
+var innerMidRadius = 97 + patternWidth / 2
+var outerMidRadius = 97 + patternWidth * 1.5
+var innerPatternRing = drawPatternRing(patternOriginX, patternOriginY, 97, 97 + patternWidth, '#F5F1F0')
+var outerPatternRing = drawPatternRing(patternOriginX, patternOriginY, 97 + patternWidth, 97 + patternWidth * 2, '#D9D9D9')
+
+var innerPattern = new Konva.Group()
+layer.add(innerPattern)
+var outerPattern = new Konva.Group()
+layer.add(outerPattern)
+drawEmptyPattern(innerPattern, innerMidRadius)
+drawEmptyPattern(outerPattern, outerMidRadius)
+
+var bdsdCircles = drawCircles(155, 0, bdsdPlayers, bdsdURLs, '#F9BAF9', '#C687C6', innerPattern, bdDisplayPattern, innerMidRadius);
+var hhCircles = drawCircles(hhOriginX, 0, hhPlayers, hhURLs, '#9ECCEF', '#6B99BC', outerPattern, hhDisplayPattern, outerMidRadius);
 
 var fillCirclesA = drawFillCircles(stageThird - fillWidth / 2, stage.height() - centeredFillHeight, 0, 4, fillPlayers)
 var fillCirclesB = drawFillCircles(stageThird * 2.5 - fillWidth / 2, stage.height() - doubleFillHeight, 4, 4, fillPlayers)
@@ -245,7 +312,9 @@ function triggerOneShot(index, players) {
   player.start()
 }
 
-function drawCircles(originX, originY, players, loopUrls, fillColor, activeColor) { 
+function drawCircles(originX, originY, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius) { 
+  console.log("targetPatterns\t",targetPatterns);
+  console.log("targetRadius\t",targetRadius);
   var circleGroup = new Konva.Group()
 
   var spacing = 6
@@ -282,7 +351,7 @@ function drawCircles(originX, originY, players, loopUrls, fillColor, activeColor
       circleGroup.add(circle)
       circleGroup.add(text);
 
-      text.on('click', loopFunction(index, circleGroup, players, loopUrls, fillColor, activeColor));
+      text.on('click', loopFunction(index, circleGroup, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius));
 
       y += spacing + radius * 2
       index++;
@@ -293,7 +362,42 @@ function drawCircles(originX, originY, players, loopUrls, fillColor, activeColor
   return circleGroup
 }
 
-function loopFunction(i, buttonGroup, players, loopUrls, fillColor, activeColor) {
+function drawPatternRing(originX, originY, innerRadius, outerRadius, fill) {
+  var ring = new Konva.Ring({
+        x: originX,
+        y: originY,
+        innerRadius: innerRadius,
+        outerRadius: outerRadius,
+        fill: fill
+      });
+  layer.add(ring);
+  
+  [0,4,8,12].forEach(function(step) { 
+    drawPulse(originX, originY, innerRadius, outerRadius, step); 
+  })
+
+  return ring;
+}
+
+function drawPulse(originX, originY, innerRadius, outerRadius, step) {
+  var segmentDegree = 360/16
+  var rotation = -90 + step * segmentDegree - segmentDegree/2
+  var arc = new Konva.Arc({
+        x: originX,
+        y: originY,
+        innerRadius: innerRadius,
+        outerRadius: outerRadius,
+        angle: segmentDegree,
+        fill: '#FFF2C6',
+        stroke: '#FFF2C6',
+        strokeWidth: 1,
+        rotation: rotation
+      });
+    layer.add(arc)
+    return arc
+}
+
+function loopFunction(i, buttonGroup, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius) {
   return function() {
     console.log("index:\t", i);
     console.log("buttonGroup:\t", buttonGroup);
@@ -301,7 +405,10 @@ function loopFunction(i, buttonGroup, players, loopUrls, fillColor, activeColor)
     console.log("loopUrls:\t", loopUrls);
     console.log("fillColor:\t", fillColor);
     console.log("activeColor:\t", activeColor);
+    console.log("targetPatterns:\t", targetPatterns);
+    console.log("targetRadius", targetRadius);
     triggerLoop(i, buttonGroup, players, loopUrls, fillColor, activeColor)
+    drawPattern(targetGroup, targetPatterns[i], targetRadius)
   };
 }
 
@@ -354,6 +461,67 @@ function toggleLoop(index, players, loopUrls) {
     }
     
   }
+}
+
+function drawEmptyPattern(targetGroup, radius) {
+  for (var i = 0; i < 16; i++) {
+    var tick = createTick(patternOriginX, patternOriginY, radius, i)
+    targetGroup.add(tick)
+  }
+}
+
+function drawPattern(targetGroup, pattern, radius) {
+  targetGroup.removeChildren()
+  var noteColors = {
+    "B" : "#C687C6",
+    "S" : "#6B63AA",
+    "R" : "#D88766",
+    "X" : "#6B99BC"
+  }
+
+  for (var i = 0; i < pattern.length; i++) {
+    var note = pattern.charAt(i);
+    if (note == '-' && i % 2 == 0) {
+      var step = i / 2
+      var tick = createTick(patternOriginX, patternOriginY, radius, step)
+      targetGroup.add(tick)
+    } else if (noteColors.hasOwnProperty(note)) {
+      var noteColor = noteColors[note];
+      var noteNode = createNote(i, noteColor, patternOriginX, patternOriginY, radius)
+      targetGroup.add(noteNode)
+    }
+  }
+  layer.batchDraw();
+}
+
+function createTick(originX, originY, radius, step) {
+  var stroke = "#646464";
+  var segmentDegree = 360/16
+  var rotation = -90 + step * segmentDegree
+  var tick = new Konva.Circle({
+        x: originX,
+        y: originY,
+        radius: 3,
+        stroke: stroke,
+        strokeWidth: 1,
+        rotation: rotation
+      });
+  tick.offsetX(-radius)
+  return tick
+}
+
+function createNote(step, color, originX, originY, radius) {
+  var segmentDegree = 360/32
+  var rotation = -90 + step * segmentDegree
+  var note = new Konva.Circle({
+        x: originX,
+        y: originY,
+        radius: 8,
+        fill: color,
+        rotation: rotation
+      });
+      note.offsetX(-radius)
+  return note
 }
 
 function autoStartRecord() {
