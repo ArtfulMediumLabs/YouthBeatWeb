@@ -51,6 +51,25 @@ Tone.Transport.loop = true;
 Tone.Transport.loopStart = "0";
 Tone.Transport.loopEnd = "2m";
 
+var loop = new Tone.Loop(function(time){
+  // get time in 32 notes
+  // var step = Tone.TransportTime().quantize("16n")
+
+  var progressStep = Math.floor(Tone.Transport.progress * 64) % 32
+  activeBDSDStep = someBDSDLoop() ? progressStep : 0;
+  activeHHStep = someHHLoop() ? progressStep : 0;
+  
+  if (bdsdData.selected >= 0) {
+    var step = 
+    drawPattern(innerPattern, bdDisplayPattern[bdsdData.selected], innerMidRadius, progressStep)
+  }
+  if (hhData.selected >= 0) {
+    drawPattern(outerPattern, hhDisplayPattern[hhData.selected], outerMidRadius, progressStep)
+  }
+}, "32n");
+
+loop.start();
+
 var bdsdPatterns = [
   "01-BDSD.wav",
   "02-BDSD.wav",
@@ -182,6 +201,14 @@ var bdsdPlayers = createPlayers(bdsdURLs)
 var hhPlayers = createPlayers(hhURLs)
 var fillPlayers = createOneShots(fillURLs)
 
+var bdsdData = {
+  selected: -1
+}
+
+var hhData = {
+  selected: -1
+};
+
 function createPlayers(URLs) { 
   var players = new Tone.Players(URLs).toMaster().connect(dest)
   for(var playerName in URLs) {
@@ -201,7 +228,6 @@ var buffersLoaded = false
 var imagesLoaded = false
 
 Tone.Buffer.on('load', function(){
-	console.log("all buffers loaded")
   buffersLoaded = true
   updateLoading()
 })
@@ -261,8 +287,8 @@ layer.add(outerPattern)
 drawEmptyPattern(innerPattern, innerMidRadius)
 drawEmptyPattern(outerPattern, outerMidRadius)
 
-var bdsdCircles = drawCircles(155, 0, bdsdPlayers, bdsdURLs, '#F9BAF9', '#C687C6', innerPattern, bdDisplayPattern, innerMidRadius);
-var hhCircles = drawCircles(hhOriginX, 0, hhPlayers, hhURLs, '#9ECCEF', '#6B99BC', outerPattern, hhDisplayPattern, outerMidRadius);
+var bdsdCircles = drawCircles(155, 0, bdsdData, bdsdPlayers, bdsdURLs, '#F9BAF9', '#C687C6', innerPattern, bdDisplayPattern, innerMidRadius);
+var hhCircles = drawCircles(hhOriginX, 0, hhData, hhPlayers, hhURLs, '#9ECCEF', '#6B99BC', outerPattern, hhDisplayPattern, outerMidRadius);
 
 var fillCirclesA = drawFillCircles(stageThird - fillWidth / 2, stage.height() - centeredFillHeight, 0, 4, fillPlayers)
 var fillCirclesB = drawFillCircles(stageThird * 2.5 - fillWidth / 2, stage.height() - doubleFillHeight, 4, 4, fillPlayers)
@@ -282,7 +308,6 @@ function drawFillCircles(originX, originY, start, count, players) {
             width: 44,
             height: 44
           });
-          console.log(lonestar.x())
           lonestar.on('click', oneShotFunction(i, players))
 
           // add the shape to the layer
@@ -303,18 +328,14 @@ function oneShotFunction(i, players) {
 }
 
 function triggerOneShot(index, players) {
-  console.log("triggerOneShot " + index);
   Tone.context.resume()
   // autoStartRecord()
 
   var player = players.get(index)
-  console.log(player)
   player.start()
 }
 
-function drawCircles(originX, originY, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius) { 
-  console.log("targetPatterns\t",targetPatterns);
-  console.log("targetRadius\t",targetRadius);
+function drawCircles(originX, originY, data, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius) { 
   var circleGroup = new Konva.Group()
 
   var spacing = 6
@@ -351,7 +372,7 @@ function drawCircles(originX, originY, players, loopUrls, fillColor, activeColor
       circleGroup.add(circle)
       circleGroup.add(text);
 
-      text.on('click', loopFunction(index, circleGroup, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius));
+      text.on('click', loopFunction(index, circleGroup, data, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius));
 
       y += spacing + radius * 2
       index++;
@@ -393,34 +414,28 @@ function drawPulse(originX, originY, innerRadius, outerRadius, step) {
         strokeWidth: 1,
         rotation: rotation
       });
+    if (step == 0) {
+      arc.stroke('#636363');
+      arc.strokeWidth(1);
+    }
     layer.add(arc)
     return arc
 }
 
-function loopFunction(i, buttonGroup, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius) {
+function loopFunction(i, buttonGroup, data, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius) {
   return function() {
-    console.log("index:\t", i);
-    console.log("buttonGroup:\t", buttonGroup);
-    console.log("players:\t", players);
-    console.log("loopUrls:\t", loopUrls);
-    console.log("fillColor:\t", fillColor);
-    console.log("activeColor:\t", activeColor);
-    console.log("targetPatterns:\t", targetPatterns);
-    console.log("targetRadius", targetRadius);
-    triggerLoop(i, buttonGroup, players, loopUrls, fillColor, activeColor)
-    drawPattern(targetGroup, targetPatterns[i], targetRadius)
+    triggerLoop(i, buttonGroup, players, loopUrls, fillColor, activeColor);
+    drawPattern(targetGroup, targetPatterns[i], targetRadius);
+    data.selected = i;
   };
 }
 
 function triggerLoop(index, buttonGroup, players, loopUrls, fillColor, activeColor) {
-  console.log("triggerLoop " + index);
   toggleLoop(index, players, loopUrls);
   selectButton(buttonGroup, players, fillColor, activeColor);
 }
 
 function selectButton(buttonGroup, players, fillColor, activeColor) {
-  console.log("selectButton");
-
   var nodes = buttonGroup.find('Circle')
   nodes.forEach(node => {
     var index = node.id()
@@ -435,7 +450,6 @@ function selectButton(buttonGroup, players, fillColor, activeColor) {
 }
 
 function toggleLoop(index, players, loopUrls) {
-  console.log("toggleLoop", index, players, loopUrls)
   Tone.context.resume()
   // autoStartRecord()
 
@@ -446,7 +460,6 @@ function toggleLoop(index, players, loopUrls) {
 
   for(var playerName in loopUrls) {
     var player = players.get(playerName)
-    // console.log(playerName, index, playerName == index, player.mute)
     if (playerName == index) {
       if (player.mute) {
         player.mute = false
@@ -459,8 +472,19 @@ function toggleLoop(index, players, loopUrls) {
     } else {
       player.mute = true
     }
-    
   }
+
+  autoStopTransport()
+}
+
+function firstPlayer(players, loopUrls) {
+    for(var playerName in loopUrls) {
+      var player = players.get(playerName)
+      if (player.mute) {
+        return index
+      }
+    }
+    return -1
 }
 
 function drawEmptyPattern(targetGroup, radius) {
@@ -470,7 +494,7 @@ function drawEmptyPattern(targetGroup, radius) {
   }
 }
 
-function drawPattern(targetGroup, pattern, radius) {
+function drawPattern(targetGroup, pattern, radius, step = 0) {
   targetGroup.removeChildren()
   var noteColors = {
     "B" : "#C687C6",
@@ -480,10 +504,17 @@ function drawPattern(targetGroup, pattern, radius) {
   }
 
   for (var i = 0; i < pattern.length; i++) {
+
+    if (i == step  && i % 2 == 0) {
+      var normalizedStep = i / 2
+      var activeSegment = createActiveSegment(patternOriginX, patternOriginY, radius - patternWidth / 2, radius + patternWidth / 2, normalizedStep);
+      targetGroup.add(activeSegment);
+    }
+
     var note = pattern.charAt(i);
     if (note == '-' && i % 2 == 0) {
-      var step = i / 2
-      var tick = createTick(patternOriginX, patternOriginY, radius, step)
+      var normalizedStep = i / 2
+      var tick = createTick(patternOriginX, patternOriginY, radius, normalizedStep)
       targetGroup.add(tick)
     } else if (noteColors.hasOwnProperty(note)) {
       var noteColor = noteColors[note];
@@ -491,11 +522,37 @@ function drawPattern(targetGroup, pattern, radius) {
       targetGroup.add(noteNode)
     }
   }
+
+  // draw active step
+
+  // do I need to draw the active step before the other pattern? 
+  // do I need to skip the active step when drawing the other notes
+  // consider 32nd notes
+
   layer.batchDraw();
 }
 
+function createActiveSegment(originX, originY, innerRadius, outerRadius, step) {
+  var segmentDegree = 360/16
+  var rotation = -90 + step * segmentDegree - segmentDegree/2
+  var arc = new Konva.Arc({
+        x: originX,
+        y: originY,
+        innerRadius: innerRadius,
+        outerRadius: outerRadius,
+        angle: segmentDegree,
+        fill: '#FFF2C6',
+        rotation: rotation
+      });
+  if (step == 0) {
+    arc.stroke('#636363');
+    arc.strokeWidth(1);
+  }
+  return arc
+}
+
 function createTick(originX, originY, radius, step) {
-  var stroke = "#646464";
+  var stroke = "#636363";
   var segmentDegree = 360/16
   var rotation = -90 + step * segmentDegree
   var tick = new Konva.Circle({
@@ -541,19 +598,28 @@ function autoStopTransport() {
 }
 
 function someLoop() {
+  console.log("bdsd:", someBDSDLoop(), "hh:",someHHLoop());
+  return someBDSDLoop() || someHHLoop();
+}
+
+function someBDSDLoop() {
   for(var playerName in bdsdURLs) {
     var player = bdsdPlayers.get(playerName)
     if (!player.mute) {
       return true
     }
   }
+  return false;
+}
+
+function someHHLoop() {
   for(var playerName in hhURLs) {
     var player = hhPlayers.get(playerName)
     if (!player.mute) {
       return true
     }
   }
-  return false
+  return false;
 }
 
 function toggleRecord() {
