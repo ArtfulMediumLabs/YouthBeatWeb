@@ -272,9 +272,9 @@ var doubleFillHeight = 2 * fillDiameter + spacing
 var centeredFillHeight = doubleFillHeight / 2 + fillDiameter/2
 var stageThird = stage.width() / 5
 
-var patternOriginX = stage.width() / 2
-var patternOriginY = 165
 var patternWidth = 34
+var patternOriginX = stage.width() / 2
+var patternOriginY = 165 + patternWidth
 var innerMidRadius = 97 + patternWidth / 2
 var outerMidRadius = 97 + patternWidth * 1.5
 var innerPatternRing = drawPatternRing(patternOriginX, patternOriginY, 97, 97 + patternWidth, '#F5F1F0')
@@ -286,6 +286,7 @@ var outerPattern = new Konva.Group()
 layer.add(outerPattern)
 drawEmptyPattern(innerPattern, innerMidRadius)
 drawEmptyPattern(outerPattern, outerMidRadius)
+drawNumbers(outerMidRadius + patternWidth);
 
 var bdsdCircles = drawCircles(155, 0, bdsdData, bdsdPlayers, bdsdURLs, '#F9BAF9', '#C687C6', innerPattern, bdDisplayPattern, innerMidRadius);
 var hhCircles = drawCircles(hhOriginX, 0, hhData, hhPlayers, hhURLs, '#9ECCEF', '#6B99BC', outerPattern, hhDisplayPattern, outerMidRadius);
@@ -420,6 +421,40 @@ function drawPulse(originX, originY, innerRadius, outerRadius, step) {
     }
     layer.add(arc)
     return arc
+}
+
+function drawNumbers(radius) {
+  var number0 = drawNumber(radius - patternWidth/4, 0, 0)
+  layer.add(number0);
+  var number16 = drawNumber(radius + patternWidth/4, 16, 16)
+  layer.add(number16);
+  for (var i = 1; i < 16; i++) {
+    var number = drawNumber(radius, i, i)
+    layer.add(number)
+  }
+  layer.batchDraw();
+}
+
+function drawNumber(radius, number, step) {
+  var segment = Math.PI * 2 / 16 
+  var dAlpha = - Math.PI / 2 + step * segment;
+  var dx = Math.cos(dAlpha) * radius;
+  var dy = Math.sin(dAlpha) * radius;
+    
+  var label = new Konva.Text({
+    x: patternOriginX + dx,
+    y: patternOriginY + dy,
+    text: number.toString(),
+    fontSize: 12,
+    fill: '#636363',
+    width: 20,
+    height: 20,
+    align: "center",
+    verticalAlign: "middle",
+    offsetX: 10,
+    offsetY: 10
+  });
+  return label
 }
 
 function loopFunction(i, buttonGroup, data, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius) {
