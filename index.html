@@ -35,16 +35,16 @@
 const audio = document.querySelector('audio');
 const actx  = Tone.context;
 const dest  = actx.createMediaStreamDestination();
-const recorder = new MediaRecorder(dest.stream);
+// const recorder = new MediaRecorder(dest.stream);
 const chunks = [];
 
-recorder.ondataavailable = evt => chunks.push(evt.data);
-recorder.onstop = evt => {
-  let blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
-  let url = URL.createObjectURL(blob);
-  audio.src = url;
-  // download(blob, url);
-};
+// recorder.ondataavailable = evt => chunks.push(evt.data);
+// recorder.onstop = evt => {
+//   let blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
+//   let url = URL.createObjectURL(blob);
+//   audio.src = url;
+//   // download(blob, url);
+// };
 
 Tone.Transport.bpm.value = 90;
 Tone.Transport.loop = true;
