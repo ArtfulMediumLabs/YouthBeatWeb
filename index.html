@@ -277,13 +277,39 @@ var patternOriginX = stage.width() / 2
 var patternOriginY = 165 + patternWidth
 var innerMidRadius = 97 + patternWidth / 2
 var outerMidRadius = 97 + patternWidth * 1.5
-var innerPatternRing = drawPatternRing(patternOriginX, patternOriginY, 97, 97 + patternWidth, '#F5F1F0')
-var outerPatternRing = drawPatternRing(patternOriginX, patternOriginY, 97 + patternWidth, 97 + patternWidth * 2, '#D9D9D9')
+
+var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97, 97 + patternWidth, '#F5F1F0', true, false, function(){ console.log("[inner] direct block"); toggleLoop(bdsdData.selected, bdsdPlayers, bdsdURLs);}, function(){ console.log("[inner] interior block"); toggleInterior();}, function(){ console.log("[inner] exterior block"); toggleInterior();})
+var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97 + patternWidth, 97 + patternWidth * 2, '#D9D9D9', false, true, function(){ console.log("[outer] direct block"); toggleLoop(hhData.selected, hhPlayers, hhURLs);}, function(){ console.log("[outer] interior block")}, function(){ console.log("[outer] exterior block")})
+
+function toggleInterior() {
+  console.log('toggleInterior');
+  if (someHHLoop() && someBDSDLoop()) {
+    // STOP
+    toggleLoop(bdsdData.selected, bdsdPlayers, bdsdURLs);
+    toggleLoop(hhData.selected, hhPlayers, hhURLs);
+  } else if (someHHLoop() && !someBDSDLoop()) {
+    // START
+    toggleLoop(bdsdData.selected, bdsdPlayers, bdsdURLs);
+  } else if (!someHHLoop() && someBDSDLoop()) {
+    // START
+    toggleLoop(hhData.selected, hhPlayers, hhURLs);
+  } else if (!someHHLoop() && !someBDSDLoop()) {
+    //START
+    toggleLoop(bdsdData.selected, bdsdPlayers, bdsdURLs);
+    toggleLoop(hhData.selected, hhPlayers, hhURLs);
+  }
+}
+
+
+layer.add(outerPatternControl);
+layer.add(innerPatternControl);
+
 
 var innerPattern = new Konva.Group()
-layer.add(innerPattern)
+innerPatternControl.add(innerPattern)
 var outerPattern = new Konva.Group()
-layer.add(outerPattern)
+outerPatternControl.add(outerPattern)
+
 drawEmptyPattern(innerPattern, innerMidRadius)
 drawEmptyPattern(outerPattern, outerMidRadius)
 drawNumbers(outerMidRadius + patternWidth);
@@ -384,7 +410,46 @@ function drawCircles(originX, originY, data, players, loopUrls, fillColor, activ
   return circleGroup
 }
 
-function drawPatternRing(originX, originY, innerRadius, outerRadius, fill) {
+function createPatternControl(originX, originY, innerRadius, outerRadius, fill, enableInteriorClick = false, enableExteriorClick = false, directClick, interiorClick, exteriorClick) {
+  var patternControl = new Konva.Group();
+
+  var patternRing = createPatternRing(originX, originY, innerRadius, outerRadius, fill);
+  patternRing.hitFunc(function(context) {
+      context.beginPath();
+      var innerArcRadius = enableInteriorClick ? 0 : innerRadius;
+      var outerArcRadius = enableExteriorClick ? outerRadius + patternWidth : outerRadius;
+      context.arc(0, 0, innerArcRadius, 0, Math.PI * 2, true);
+      context.arc(0, 0, outerArcRadius, 0, Math.PI * 2, true);
+      context.fillStrokeShape(this);
+    })
+    patternRing.on('click', function(event) {
+      var point = this.getStage().getPointerPosition();
+      var distance = Math.pow((point.x - this.x()),2) + Math.pow((point.y - this.y()),2)
+      var interior = distance <= Math.pow(innerRadius, 2)
+      var exterior = distance >= Math.pow(outerRadius, 2)
+      if (interior) {
+        console.log('interior click')
+        interiorClick()
+      } else if (exterior) {
+        console.log('exterior click')
+        exteriorClick()
+      } else {
+        console.log('click')
+        directClick()
+      }
+      console.log("pattern", innerRadius, event, point, distance, interior, exterior);
+  })
+  patternControl.add(patternRing);
+
+  [0,4,8,12].forEach(function(step) { 
+    var pulse = createPulse(originX, originY, innerRadius, outerRadius, step); 
+    patternControl.add(pulse);
+  })
+
+  return patternControl
+}
+
+function createPatternRing(originX, originY, innerRadius, outerRadius, fill) {
   var ring = new Konva.Ring({
         x: originX,
         y: originY,
@@ -392,16 +457,11 @@ function drawPatternRing(originX, originY, innerRadius, outerRadius, fill) {
         outerRadius: outerRadius,
         fill: fill
       });
-  layer.add(ring);
-  
-  [0,4,8,12].forEach(function(step) { 
-    drawPulse(originX, originY, innerRadius, outerRadius, step); 
-  })
 
   return ring;
 }
 
-function drawPulse(originX, originY, innerRadius, outerRadius, step) {
+function createPulse(originX, originY, innerRadius, outerRadius, step) {
   var segmentDegree = 360/16
   var rotation = -90 + step * segmentDegree - segmentDegree/2
   var arc = new Konva.Arc({
@@ -413,13 +473,14 @@ function drawPulse(originX, originY, innerRadius, outerRadius, step) {
         fill: '#FFF2C6',
         stroke: '#FFF2C6',
         strokeWidth: 1,
-        rotation: rotation
+        rotation: rotation,
+        listening: false
       });
     if (step == 0) {
       arc.stroke('#636363');
       arc.strokeWidth(1);
     }
-    layer.add(arc)
+
     return arc
 }
 
