@@ -202,11 +202,11 @@ var hhPlayers = createPlayers(hhURLs)
 var fillPlayers = createOneShots(fillURLs)
 
 var bdsdData = {
-  selected: -1
+  selected: 0
 }
 
 var hhData = {
-  selected: -1
+  selected: 0
 };
 
 function createPlayers(URLs) { 
@@ -257,6 +257,12 @@ layer.add(loadingText)
 function updateLoading() {
   var isLoaded = buffersLoaded && imagesLoaded
   loadingText.visible(!isLoaded)
+  if (isLoaded) {
+    selectButton(bdsdCircles, bdsdData, '#F9BAF9', '#C687C6')
+    drawPattern(innerPattern, bdDisplayPattern[bdsdData.selected], innerMidRadius, 0)
+    selectButton(hhCircles, hhData, '#9ECCEF', '#6B99BC')
+    drawPattern(outerPattern, hhDisplayPattern[hhData.selected], outerMidRadius, 0)
+  }
   layer.batchDraw();
 }
 
@@ -511,39 +517,47 @@ function drawNumber(radius, number, step) {
 
 function loopFunction(i, buttonGroup, data, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius) {
   return function() {
-    triggerLoop(i, buttonGroup, players, loopUrls, fillColor, activeColor);
-    drawPattern(targetGroup, targetPatterns[i], targetRadius);
     data.selected = i;
+    selectLoop(i, players, loopUrls);
+    selectButton(buttonGroup, data, fillColor, activeColor);
+    drawPattern(targetGroup, targetPatterns[i], targetRadius);
   };
 }
 
-function triggerLoop(index, buttonGroup, players, loopUrls, fillColor, activeColor) {
-  toggleLoop(index, players, loopUrls);
-  selectButton(buttonGroup, players, fillColor, activeColor);
-}
-
-function selectButton(buttonGroup, players, fillColor, activeColor) {
+function selectButton(buttonGroup, data, fillColor, activeColor) {
   var nodes = buttonGroup.find('Circle')
   nodes.forEach(node => {
-    var index = node.id()
-    node.fill(!players.get(index).mute ? activeColor : fillColor);
+    node.fill(node.id() == data.selected ? activeColor : fillColor);
   })
   nodes = buttonGroup.find('Text')
   nodes.forEach(node => {
-    var index = node.id()
-    node.fill(!players.get(index).mute ? 'white' : 'grey');
+    node.fill(node.id() == data.selected ? 'white' : 'grey');
   })
   layer.batchDraw();
+}
+
+function selectLoop(index, players, loopUrls) {
+  if (!playing(players, loopUrls)) { return; }
+
+  for(var playerName in loopUrls) {
+    var player = players.get(playerName)
+    player.mute = playerName != index
+  }
+}
+
+function playing(players, loopUrls) {
+  for(var playerName in loopUrls) {
+    var player = players.get(playerName)
+    if (!player.mute) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function toggleLoop(index, players, loopUrls) {
   Tone.context.resume()
   // autoStartRecord()
-
-  if (false) {
-    players.stopAll()
-    return;  
-  }
 
   for(var playerName in loopUrls) {
     var player = players.get(playerName)
