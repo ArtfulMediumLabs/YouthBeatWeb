@@ -278,11 +278,10 @@ var patternOriginY = 165 + patternWidth
 var innerMidRadius = 97 + patternWidth / 2
 var outerMidRadius = 97 + patternWidth * 1.5
 
-var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97, 97 + patternWidth, '#F5F1F0', true, false, function(){ console.log("[inner] direct block"); toggleLoop(bdsdData.selected, bdsdPlayers, bdsdURLs);}, function(){ console.log("[inner] interior block"); toggleInterior();}, function(){ console.log("[inner] exterior block"); toggleInterior();})
-var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97 + patternWidth, 97 + patternWidth * 2, '#D9D9D9', false, true, function(){ console.log("[outer] direct block"); toggleLoop(hhData.selected, hhPlayers, hhURLs);}, function(){ console.log("[outer] interior block")}, function(){ console.log("[outer] exterior block")})
+var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97, 97 + patternWidth, '#F5F1F0', true, false, function(){ toggleLoop(bdsdData.selected, bdsdPlayers, bdsdURLs);}, function(){ toggleInterior();})
+var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97 + patternWidth, 97 + patternWidth * 2, '#D9D9D9', false, true, function(){ toggleLoop(hhData.selected, hhPlayers, hhURLs);}, function(){})
 
 function toggleInterior() {
-  console.log('toggleInterior');
   if (someHHLoop() && someBDSDLoop()) {
     // STOP
     toggleLoop(bdsdData.selected, bdsdPlayers, bdsdURLs);
@@ -300,10 +299,8 @@ function toggleInterior() {
   }
 }
 
-
 layer.add(outerPatternControl);
 layer.add(innerPatternControl);
-
 
 var innerPattern = new Konva.Group()
 innerPatternControl.add(innerPattern)
@@ -410,7 +407,7 @@ function drawCircles(originX, originY, data, players, loopUrls, fillColor, activ
   return circleGroup
 }
 
-function createPatternControl(originX, originY, innerRadius, outerRadius, fill, enableInteriorClick = false, enableExteriorClick = false, directClick, interiorClick, exteriorClick) {
+function createPatternControl(originX, originY, innerRadius, outerRadius, fill, enableInteriorClick = false, enableExteriorClick = false, directClick, interiorClick) {
   var patternControl = new Konva.Group();
 
   var patternRing = createPatternRing(originX, originY, innerRadius, outerRadius, fill);
@@ -428,16 +425,10 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
       var interior = distance <= Math.pow(innerRadius, 2)
       var exterior = distance >= Math.pow(outerRadius, 2)
       if (interior) {
-        console.log('interior click')
         interiorClick()
-      } else if (exterior) {
-        console.log('exterior click')
-        exteriorClick()
       } else {
-        console.log('click')
         directClick()
       }
-      console.log("pattern", innerRadius, event, point, distance, interior, exterior);
   })
   patternControl.add(patternRing);
 
