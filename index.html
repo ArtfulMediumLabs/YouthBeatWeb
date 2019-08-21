@@ -51,22 +51,20 @@ Tone.Transport.loop = true;
 Tone.Transport.loopStart = "0";
 Tone.Transport.loopEnd = "2m";
 
-var loop = new Tone.Loop(function(time){
-  // get time in 32 notes
-  // var step = Tone.TransportTime().quantize("16n")
+var loop = new Tone.Loop(updatePattern, "32n");
 
+function updatePattern(time) {
   var progressStep = Math.floor(Tone.Transport.progress * 64) % 32
   activeBDSDStep = someBDSDLoop() ? progressStep : 0;
   activeHHStep = someHHLoop() ? progressStep : 0;
   
   if (bdsdData.selected >= 0) {
-    var step = 
-    drawPattern(innerPattern, bdDisplayPattern[bdsdData.selected], innerMidRadius, progressStep)
+    drawPattern(innerPattern, bdDisplayPattern[bdsdData.selected], innerMidRadius, activeBDSDStep)
   }
   if (hhData.selected >= 0) {
-    drawPattern(outerPattern, hhDisplayPattern[hhData.selected], outerMidRadius, progressStep)
+    drawPattern(outerPattern, hhDisplayPattern[hhData.selected], outerMidRadius, activeHHStep)
   }
-}, "32n");
+}
 
 loop.start();
 
@@ -575,7 +573,8 @@ function toggleLoop(index, players, loopUrls) {
     }
   }
 
-  autoStopTransport()
+  autoStopTransport();
+  updatePattern();
 }
 
 function firstPlayer(players, loopUrls) {
