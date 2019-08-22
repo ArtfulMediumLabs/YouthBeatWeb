@@ -46,6 +46,17 @@ const chunks = [];
 //   // download(blob, url);
 // };
 
+var offset = 0
+function currentBeat() {
+  if (offset == 0) { return 0; }
+  var duration = Tone.now() - offset;
+  var bpm = Tone.Transport.bpm.value
+  var secondsPerBeat = 1.0 / bpm * 60.0
+  var beats = Math.floor(duration / secondsPerBeat)
+  // console.log(duration, bpm, secondsPerBeat, beats);
+  return beats;
+}
+
 Tone.Transport.bpm.value = 90;
 Tone.Transport.loop = true;
 Tone.Transport.loopStart = "0";
@@ -64,6 +75,8 @@ function updatePattern(time) {
   if (hhData.selected >= 0) {
     drawPattern(outerPattern, hhDisplayPattern[hhData.selected], outerMidRadius, activeHHStep)
   }
+
+  updatePosition(positionGroup, currentBeat())
 }
 
 loop.start();
@@ -323,6 +336,71 @@ var fillCirclesB = drawFillCircles(stageThird * 2.5 - fillWidth / 2, stage.heigh
 var fillCirclesC = drawFillCircles(stageThird * 2.5 - fillWidth / 2, stage.height() - fillDiameter, 8, 4, fillPlayers)
 var fillCirclesD = drawFillCircles(stageThird * 4 - fillWidth / 2, stage.height() - centeredFillHeight, 12, 4, fillPlayers)
 
+var positionGroup = createPositionGroup(stage.width() - 40,98, 0);
+layer.add(positionGroup);
+
+function createPositionGroup(x, y, beat) {
+  var positionGroup = new Konva.Group();
+  
+  var size = 128 / 2
+  var width = 16 / 2
+
+  var text = new Konva.Text({
+        x: x - size/2,
+        y: y - size/2,
+        text: beat.toString(),
+        fontSize: 24,
+        fill: '#DB3352',
+        width: size,
+        height: size,
+        align: 'center',
+        verticalAlign: 'middle'
+      });
+  positionGroup.add(text);
+
+  var progress = (beat + 1) / 4
+  var angle = progress * 360 - 90
+  var radius = size / 2 
+  var arc = new Konva.Arc({
+        x: x,
+        y: y,
+        innerRadius: radius - width / 2,
+        outerRadius: radius + width / 2,
+        angle: angle,
+        fill: '#AAAAAA',
+        stroke: '#AAAAAA',
+        strokeWidth: 1,
+        rotation: -90,
+        listening: false,
+        visible: false
+      });
+  positionGroup.add(arc)
+
+  return positionGroup;
+}
+
+function updatePosition(group, beat) {
+  
+  var bar = Math.floor(beat / 4)
+  
+  var progress = (beat % 4 + 1) / 4
+  var angle = progress * 360
+
+  var arc = group.getChildren(function(node){
+   return node.getClassName() === 'Arc';
+  });
+
+  arc[0].visible(offset > 0);
+  arc[0].angle(angle);
+
+  var text = group.getChildren(function(node){
+   return node.getClassName() === 'Text';
+  }); 
+
+  text[0].text(bar.toString())
+
+}
+
 function drawFillCircles(originX, originY, start, count, players) {
   var spacing = 8
   var diameter = 44
@@ -563,7 +641,8 @@ function toggleLoop(index, players, loopUrls) {
       if (player.mute) {
         player.mute = false
         if (Tone.Transport.state != "started") {
-          Tone.Transport.start()
+          offset = Tone.now()
+          Tone.Transport.start(offset)
         }
       } else {
         player.mute = true
@@ -693,7 +772,8 @@ function stopRecord() {
 
 function autoStopTransport() {
   if (!someLoop()) {
-    Tone.Transport.stop()
+    Tone.Transport.stop();
+    offset = 0;
   }
 }
 
