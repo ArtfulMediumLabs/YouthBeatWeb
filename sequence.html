@@ -66,15 +66,17 @@ var loop = new Tone.Loop(updatePattern, "32n");
 
 function updatePattern(time) {
   var progressStep = Math.floor(Tone.Transport.progress * 64) % 32
-  activeBDSDStep = someBDSDLoop() ? progressStep : 0;
-  activeHHStep = someHHLoop() ? progressStep : 0;
+  // activeBDSDStep = someBDSDLoop() ? progressStep : 0;
+  // activeHHStep = someHHLoop() ? progressStep : 0;
   
   if (bdsdData.selected >= 0) {
-    drawPattern(innerPattern, bdDisplayPattern[bdsdData.selected], innerMidRadius, activeBDSDStep)
+    // drawPattern(innerPattern, bdDisplayPattern[bdsdData.selected], innerMidRadius, activeBDSDStep)
   }
   if (hhData.selected >= 0) {
-    drawPattern(outerPattern, hhDisplayPattern[hhData.selected], outerMidRadius, activeHHStep)
+    // drawPattern(outerPattern, hhDisplayPattern[hhData.selected], outerMidRadius, activeHHStep)
   }
+
+  drawPattern(outerPattern, customPattern.join(''), outerMidRadius, progressStep)
 
   updatePosition(positionGroup, currentBeat())
 }
@@ -210,7 +212,7 @@ var hhURLs = hhPatterns.map(fileName => "Sounds/Rhythm/Kit_1/Hihat_90bpm/" + fil
 var fillURLs = fills.map(fileName => "Sounds/BeatsPalette90/" + encodeURIComponent(fileName))
 
 var bdsdPlayers = createPlayers(bdsdURLs)
-var hhPlayers = createPlayers(hhURLs)
+// var hhPlayers = createPlayers(hhURLs)
 var fillPlayers = createOneShots(fillURLs)
 
 var bdsdData = {
@@ -235,6 +237,28 @@ function createPlayers(URLs) {
 function createOneShots(URLs) {
   return new Tone.Players(URLs).toMaster().connect(dest)
 }
+
+var customPattern = "--------------------------------".split('');
+var keys = createSequence();
+
+function createSequence() {
+  var keys = new Tone.Players({
+			"B" : "Sounds/Rhythm/Kit_1/Samples/bass.wav",
+			"S" : "Sounds/Rhythm/Kit_1/Samples/snare.wav"
+    }).toMaster().connect(dest);
+    return keys; 
+}
+
+var allSteps = new Array(32);
+for (var i = 0; i < allSteps.length; i++) {
+  allSteps[i] = i;
+}
+var loop = new Tone.Sequence(function(time, step){
+  var note = customPattern[step];
+  if (note == '-') { return; }
+  keys.get(note).start(time);
+}, allSteps, "32n").start(0);
+
 
 var buffersLoaded = false
 var imagesLoaded = false
@@ -270,10 +294,10 @@ function updateLoading() {
   var isLoaded = buffersLoaded && imagesLoaded
   loadingText.visible(!isLoaded)
   if (isLoaded) {
-    selectButton(bdsdCircles, bdsdData, '#F9BAF9', '#C687C6')
-    drawPattern(innerPattern, bdDisplayPattern[bdsdData.selected], innerMidRadius, 0)
-    selectButton(hhCircles, hhData, '#9ECCEF', '#6B99BC')
-    drawPattern(outerPattern, hhDisplayPattern[hhData.selected], outerMidRadius, 0)
+    // selectButton(bdsdCircles, bdsdData, '#F9BAF9', '#C687C6')
+    // drawPattern(innerPattern, bdDisplayPattern[bdsdData.selected], innerMidRadius, 0)
+    // selectButton(hhCircles, hhData, '#9ECCEF', '#6B99BC')
+    // drawPattern(outerPattern, hhDisplayPattern[hhData.selected], outerMidRadius, 0)
   }
   layer.batchDraw();
 }
@@ -296,8 +320,16 @@ var patternOriginY = 165 + patternWidth
 var innerMidRadius = 97 + patternWidth / 2
 var outerMidRadius = 97 + patternWidth * 1.5
 
-var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97, 97 + patternWidth, '#F5F1F0', true, false, function(){ toggleLoop(bdsdData.selected, bdsdPlayers, bdsdURLs);}, function(){ toggleInterior();})
-var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97 + patternWidth, 97 + patternWidth * 2, '#D9D9D9', false, true, function(){ toggleLoop(hhData.selected, hhPlayers, hhURLs);}, function(){})
+var noteColors = {
+    "B" : "#C687C6",
+    "S" : "#6B63AA",
+    "R" : "#D88766",
+    "X" : "#6B99BC"
+  }
+
+// var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97, 97 + patternWidth, '#F5F1F0', true, false, function(){ toggleLoop(bdsdData.selected, bdsdPlayers, bdsdURLs);}, function(){ toggleInterior();})
+var outerPattern = new Konva.Group()
+var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97 + patternWidth, 97 + patternWidth * 2, '#D9D9D9', outerPattern, true, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
 
 function toggleInterior() {
   if (someHHLoop() && someBDSDLoop()) {
@@ -318,19 +350,19 @@ function toggleInterior() {
 }
 
 layer.add(outerPatternControl);
-layer.add(innerPatternControl);
+// layer.add(innerPatternControl);
 
-var innerPattern = new Konva.Group()
-innerPatternControl.add(innerPattern)
-var outerPattern = new Konva.Group()
-outerPatternControl.add(outerPattern)
+// var innerPattern = new Konva.Group()
+// innerPatternControl.add(innerPattern)
 
-drawEmptyPattern(innerPattern, innerMidRadius)
+// outerPatternControl.add(outerPattern)
+
+// drawEmptyPattern(innerPattern, innerMidRadius)
 drawEmptyPattern(outerPattern, outerMidRadius)
 drawNumbers(outerMidRadius + patternWidth);
 
-var bdsdCircles = drawCircles(155, 0, bdsdData, bdsdPlayers, bdsdURLs, '#F9BAF9', '#C687C6', innerPattern, bdDisplayPattern, innerMidRadius);
-var hhCircles = drawCircles(hhOriginX, 0, hhData, hhPlayers, hhURLs, '#9ECCEF', '#6B99BC', outerPattern, hhDisplayPattern, outerMidRadius);
+// var bdsdCircles = drawCircles(155, 0, bdsdData, bdsdPlayers, bdsdURLs, '#F9BAF9', '#C687C6', innerPattern, bdDisplayPattern, innerMidRadius);
+// var hhCircles = drawCircles(hhOriginX, 0, hhData, hhPlayers, hhURLs, '#9ECCEF', '#6B99BC', outerPattern, hhDisplayPattern, outerMidRadius);
 
 var fillCirclesA = drawFillCircles(stageThird - fillWidth / 2, stage.height() - centeredFillHeight, 0, 4, fillPlayers)
 var fillCirclesB = drawFillCircles(stageThird * 2.5 - fillWidth / 2, stage.height() - doubleFillHeight, 4, 4, fillPlayers)
@@ -490,7 +522,7 @@ function drawCircles(originX, originY, data, players, loopUrls, fillColor, activ
   return circleGroup
 }
 
-function createPatternControl(originX, originY, innerRadius, outerRadius, fill, enableInteriorClick = false, enableExteriorClick = false, directClick, interiorClick) {
+function createPatternControl(originX, originY, innerRadius, outerRadius, fill, patternGroup, enableInteriorClick = false, enableExteriorClick = false, directClick, interiorClick) {
   var patternControl = new Konva.Group();
 
   var patternRing = createPatternRing(originX, originY, innerRadius, outerRadius, fill);
@@ -520,7 +552,48 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
     patternControl.add(pulse);
   })
 
+  patternControl.add(patternGroup)
+
+  for (var i = 0; i < 32; i++) {
+    var step = createStepSegments(originX, originY, innerRadius, outerRadius, i, customPattern);
+    patternControl.add(step);
+  }
+
   return patternControl
+}
+
+function createStepSegments(originX, originY, innerRadius, outerRadius, step, pattern) {
+  var segmentDegree = 360/32
+  var rotation = -90 + step * segmentDegree - segmentDegree/2
+  var arc = new Konva.Arc({
+        x: originX,
+        y: originY,
+        innerRadius: innerRadius,
+        outerRadius: outerRadius,
+        angle: segmentDegree,
+        stroke: noteColors['B'],
+        strokeWidth: 0,
+        rotation: rotation,
+        // visible: false,
+      });
+  arc.on('mouseover', function() {
+    arc.strokeWidth(1);
+    layer.batchDraw();
+  });
+  arc.on('mouseout', function() {
+    arc.strokeWidth(0);
+    layer.batchDraw();
+  });
+  arc.on('click', function(){
+    toggleStep(step, pattern);
+  })
+  return arc
+}
+
+function toggleStep(index, pattern) {
+  pattern[index] = pattern[index] == '-' ? 'B' : '-';
+  drawPattern(outerPattern, customPattern.join(''), outerMidRadius)
+  console.log(index, pattern)
 }
 
 function createPatternRing(originX, originY, innerRadius, outerRadius, fill) {
@@ -657,6 +730,18 @@ function toggleLoop(index, players, loopUrls) {
   updatePattern();
 }
 
+function toggleSequence() {
+  Tone.context.resume()
+  if (Tone.Transport.state != "started") {
+    offset = Tone.now()
+    Tone.Transport.start(offset)
+  } else {
+    offset = 0;
+    Tone.Transport.stop();
+  }
+  updatePattern()
+}
+
 function firstPlayer(players, loopUrls) {
     for(var playerName in loopUrls) {
       var player = players.get(playerName)
@@ -676,12 +761,6 @@ function drawEmptyPattern(targetGroup, radius) {
 
 function drawPattern(targetGroup, pattern, radius, step = 0) {
   targetGroup.removeChildren()
-  var noteColors = {
-    "B" : "#C687C6",
-    "S" : "#6B63AA",
-    "R" : "#D88766",
-    "X" : "#6B99BC"
-  }
 
   for (var i = 0; i < pattern.length; i++) {
 
@@ -827,8 +906,8 @@ function download(blob, url) {
   // window.URL.revokeObjectURL(url);
 }
 
-layer.add(bdsdCircles);
-layer.add(hhCircles);
+// layer.add(bdsdCircles);
+// layer.add(hhCircles);
 stage.add(layer);
 // layer.draw();
   </script>
