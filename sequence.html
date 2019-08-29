@@ -21,11 +21,31 @@
   audio {
     width: 300px;
   }
+  #buttons {
+    position: absolute;
+    left: 10px;
+    top: 0px;
+  }
+  button {
+    margin-top: 10px;
+    display: block;
+  }   
 </style>
 </head>
 
 <body>
   <div id="container" class="center"></div>
+  <div id="buttons">
+    <button id="bassDrum">
+      Bass Drum
+    </button>
+    <button id="snareDrum">
+      Snare Drum
+    </button>
+    <button id="hihat">
+      Hi-hat
+    </button>
+  </div>
   <!-- <div id ="toolbar" class=center" style="width:20%">
     <button id="recordButton" type="button" onclick="toggleRecord()">RECORD</button>
     <audio controls></audio>
@@ -64,6 +84,11 @@ Tone.Transport.loopEnd = "2m";
 
 var loop = new Tone.Loop(updatePattern, "32n");
 
+var activeInstrument = 'B';
+var outerCustomPattern = "--------------------------------".split('');
+var innerCustomPattern = "--------------------------------".split('');
+var keys = createSequence();
+
 function updatePattern(time) {
   var progressStep = Math.floor(Tone.Transport.progress * 64) % 32
   // activeBDSDStep = someBDSDLoop() ? progressStep : 0;
@@ -76,7 +101,8 @@ function updatePattern(time) {
     // drawPattern(outerPattern, hhDisplayPattern[hhData.selected], outerMidRadius, activeHHStep)
   }
 
-  drawPattern(outerPattern, customPattern.join(''), outerMidRadius, progressStep)
+  drawPattern(innerPattern, innerCustomPattern.join(''), innerMidRadius, progressStep)
+  drawPattern(outerPattern, outerCustomPattern.join(''), outerMidRadius, progressStep)
 
   updatePosition(positionGroup, currentBeat())
 }
@@ -238,13 +264,11 @@ function createOneShots(URLs) {
   return new Tone.Players(URLs).toMaster().connect(dest)
 }
 
-var customPattern = "--------------------------------".split('');
-var keys = createSequence();
-
 function createSequence() {
   var keys = new Tone.Players({
 			"B" : "Sounds/Rhythm/Kit_1/Samples/bass.wav",
-			"S" : "Sounds/Rhythm/Kit_1/Samples/snare.wav"
+			"S" : "Sounds/Rhythm/Kit_1/Samples/snare.wav",
+      "H" : "Sounds/Rhythm/Kit_1/Samples/hihat.wav",
     }).toMaster().connect(dest);
     return keys; 
 }
@@ -254,10 +278,15 @@ for (var i = 0; i < allSteps.length; i++) {
   allSteps[i] = i;
 }
 var loop = new Tone.Sequence(function(time, step){
+  playActiveNote(innerCustomPattern, step, time);
+  playActiveNote(outerCustomPattern, step, time);
+}, allSteps, "32n").start(0);
+
+function playActiveNote(customPattern, step, time) {
   var note = customPattern[step];
   if (note == '-') { return; }
   keys.get(note).start(time);
-}, allSteps, "32n").start(0);
+}
 
 
 var buffersLoaded = false
@@ -324,12 +353,14 @@ var noteColors = {
     "B" : "#C687C6",
     "S" : "#6B63AA",
     "R" : "#D88766",
-    "X" : "#6B99BC"
+    "X" : "#6B99BC",
+    "H" : "#6B99BC"
   }
-
-// var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97, 97 + patternWidth, '#F5F1F0', true, false, function(){ toggleLoop(bdsdData.selected, bdsdPlayers, bdsdURLs);}, function(){ toggleInterior();})
+  
+var innerPattern = new Konva.Group()
+var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97, 97 + patternWidth, '#F5F1F0', innerPattern, innerCustomPattern, ['H'], true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
 var outerPattern = new Konva.Group()
-var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97 + patternWidth, 97 + patternWidth * 2, '#D9D9D9', outerPattern, true, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97 + patternWidth, 97 + patternWidth * 2, '#D9D9D9', outerPattern, outerCustomPattern, ['B','S'], false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
 
 function toggleInterior() {
   if (someHHLoop() && someBDSDLoop()) {
@@ -350,14 +381,9 @@ function toggleInterior() {
 }
 
 layer.add(outerPatternControl);
-// layer.add(innerPatternControl);
+layer.add(innerPatternControl);
 
-// var innerPattern = new Konva.Group()
-// innerPatternControl.add(innerPattern)
-
-// outerPatternControl.add(outerPattern)
-
-// drawEmptyPattern(innerPattern, innerMidRadius)
+drawEmptyPattern(innerPattern, innerMidRadius)
 drawEmptyPattern(outerPattern, outerMidRadius)
 drawNumbers(outerMidRadius + patternWidth);
 
@@ -522,7 +548,7 @@ function drawCircles(originX, originY, data, players, loopUrls, fillColor, activ
   return circleGroup
 }
 
-function createPatternControl(originX, originY, innerRadius, outerRadius, fill, patternGroup, enableInteriorClick = false, enableExteriorClick = false, directClick, interiorClick) {
+function createPatternControl(originX, originY, innerRadius, outerRadius, fill, patternGroup, customPattern, filter, enableInteriorClick = false, enableExteriorClick = false, directClick, interiorClick) {
   var patternControl = new Konva.Group();
 
   var patternRing = createPatternRing(originX, originY, innerRadius, outerRadius, fill);
@@ -555,14 +581,14 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
   patternControl.add(patternGroup)
 
   for (var i = 0; i < 32; i++) {
-    var step = createStepSegments(originX, originY, innerRadius, outerRadius, i, customPattern);
+    var step = createStepSegments(originX, originY, innerRadius, outerRadius, patternGroup, i, customPattern, filter);
     patternControl.add(step);
   }
 
   return patternControl
 }
 
-function createStepSegments(originX, originY, innerRadius, outerRadius, step, pattern) {
+function createStepSegments(originX, originY, innerRadius, outerRadius, patternGroup, step, pattern, filter) {
   var segmentDegree = 360/32
   var rotation = -90 + step * segmentDegree - segmentDegree/2
   var arc = new Konva.Arc({
@@ -571,29 +597,33 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, step, pa
         innerRadius: innerRadius,
         outerRadius: outerRadius,
         angle: segmentDegree,
-        stroke: noteColors['B'],
+        stroke: noteColors[activeInstrument],
         strokeWidth: 0,
         rotation: rotation,
         // visible: false,
       });
   arc.on('mouseover', function() {
+    if (filter.indexOf(activeInstrument) == -1) { return; }
     arc.strokeWidth(1);
+    arc.stroke(noteColors[activeInstrument]);
     layer.batchDraw();
   });
   arc.on('mouseout', function() {
+    if (filter.indexOf(activeInstrument) == -1) { return; }
     arc.strokeWidth(0);
     layer.batchDraw();
   });
   arc.on('click', function(){
+    if (filter.indexOf(activeInstrument) == -1) { return; }
     toggleStep(step, pattern);
+    drawPattern(patternGroup, pattern.join(''), innerRadius + patternWidth / 2)
   })
   return arc
 }
 
 function toggleStep(index, pattern) {
-  pattern[index] = pattern[index] == '-' ? 'B' : '-';
-  drawPattern(outerPattern, customPattern.join(''), outerMidRadius)
-  console.log(index, pattern)
+  pattern[index] = pattern[index] == '-' ? activeInstrument : '-';
+  // console.log(index, pattern)
 }
 
 function createPatternRing(originX, originY, innerRadius, outerRadius, fill) {
@@ -910,6 +940,30 @@ function download(blob, url) {
 // layer.add(hhCircles);
 stage.add(layer);
 // layer.draw();
+
+document.getElementById('snareDrum').addEventListener(
+  'click',
+  function() {
+    activeInstrument = 'S';
+  },
+  false
+);
+
+document.getElementById('bassDrum').addEventListener(
+  'click',
+  function() {
+    activeInstrument = 'B';
+  },
+  false
+);
+
+document.getElementById('hihat').addEventListener(
+  'click',
+  function() {
+    activeInstrument = 'H';
+  },
+  false
+);
   </script>
 </body>
 </html>
