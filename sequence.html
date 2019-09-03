@@ -309,16 +309,12 @@ function updateLoading() {
   layer.batchDraw();
 }
 
-var spacing = 6
-var radius = 22
-var segmentWidth = spacing * 2 + radius * 2 * 3
-var hhOriginX = stage.width() - 155 - segmentWidth
-
-var patternWidth = 34
+var patternWidth = 34 + 12
+var innerRadius = 97 + 12
 var patternOriginX = stage.width() / 2
-var patternOriginY = 165 + patternWidth
-var innerMidRadius = 97 + patternWidth / 2
-var outerMidRadius = 97 + patternWidth * 1.5
+var patternOriginY = innerRadius + patternWidth * 3
+var innerMidRadius = innerRadius + patternWidth / 2
+var outerMidRadius = innerRadius + patternWidth * 1.5
 
 var noteColors = {
     "B" : "#C687C6",
@@ -329,9 +325,9 @@ var noteColors = {
   }
   
 var innerPattern = new Konva.Group()
-var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97, 97 + patternWidth, '#F5F1F0', innerPattern, innerCustomPattern, ['H'], true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, '#F5F1F0', innerPattern, innerCustomPattern, ['H'], true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
 var outerPattern = new Konva.Group()
-var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, 97 + patternWidth, 97 + patternWidth * 2, '#D9D9D9', outerPattern, outerCustomPattern, ['B','S'], false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, '#D9D9D9', outerPattern, outerCustomPattern, ['B','S'], false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
 
 function toggleInterior() {
   if (someHHLoop() && someBDSDLoop()) {
