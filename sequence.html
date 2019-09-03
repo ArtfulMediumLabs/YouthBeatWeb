@@ -103,8 +103,10 @@ function updatePattern(time) {
 
   drawPattern(innerPattern, innerCustomPattern.join(''), innerMidRadius, progressStep)
   drawPattern(outerPattern, outerCustomPattern.join(''), outerMidRadius, progressStep)
+  updateNumbers(progressStep);
 
   updatePosition(positionGroup, currentBeat())
+  layer.batchDraw();
 }
 
 loop.start();
@@ -352,7 +354,8 @@ layer.add(innerPatternControl);
 
 drawEmptyPattern(innerPattern, innerMidRadius)
 drawEmptyPattern(outerPattern, outerMidRadius)
-drawNumbers(outerMidRadius + patternWidth);
+var numbers = createNumbers(outerMidRadius + patternWidth);
+layer.add(numbers);
 
 // var bdsdCircles = drawCircles(155, 0, bdsdData, bdsdPlayers, bdsdURLs, '#F9BAF9', '#C687C6', innerPattern, bdDisplayPattern, innerMidRadius);
 // var hhCircles = drawCircles(hhOriginX, 0, hhData, hhPlayers, hhURLs, '#9ECCEF', '#6B99BC', outerPattern, hhDisplayPattern, outerMidRadius);
@@ -583,16 +586,17 @@ function createPulse(originX, originY, innerRadius, outerRadius, step) {
     return arc
 }
 
-function drawNumbers(radius) {
+function createNumbers(radius) {
+  var numbers = new Konva.Group();
   var number0 = drawNumber(radius - patternWidth/4, 0, 0)
-  layer.add(number0);
+  numbers.add(number0);
   var number16 = drawNumber(radius + patternWidth/4, 16, 16)
-  layer.add(number16);
+  numbers.add(number16);
   for (var i = 1; i < 16; i++) {
     var number = drawNumber(radius, i, i)
-    layer.add(number)
+    numbers.add(number)
   }
-  layer.batchDraw();
+  return numbers;
 }
 
 function drawNumber(radius, number, step) {
@@ -612,9 +616,25 @@ function drawNumber(radius, number, step) {
     align: "center",
     verticalAlign: "middle",
     offsetX: 10,
-    offsetY: 10
+    offsetY: 10,
+    visible: number % 4 == 0
   });
   return label
+}
+
+function updateNumbers(step) {
+  var normalizedStep = Math.floor(step/2);
+  var numberLabels = numbers.getChildren(function(node){
+   return node.getClassName() === 'Text';
+  });
+  numberLabels.forEach( function(label) {
+    var number = Number(label.text());
+    if (number % 4 == 0) { 
+      label.visible(true);
+    } else { 
+      label.visible(number <= normalizedStep);
+    }
+  })
 }
 
 function loopFunction(i, buttonGroup, data, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius) {
