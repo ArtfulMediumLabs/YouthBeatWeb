@@ -766,13 +766,14 @@ function drawPattern(targetGroup, pattern, radius, step = 0) {
 function createActiveSegment(originX, originY, innerRadius, outerRadius, step) {
   var segmentDegree = 360/16
   var rotation = -90 + step * segmentDegree - segmentDegree/2
+  var fillColor = step % 2 == 0 ? '#FFF2C6' : '#E3FF8F';
   var arc = new Konva.Arc({
         x: originX,
         y: originY,
         innerRadius: innerRadius,
         outerRadius: outerRadius,
         angle: segmentDegree,
-        fill: '#FFF2C6',
+        fill: fillColor,
         rotation: rotation
       });
   if (step == 0) {
