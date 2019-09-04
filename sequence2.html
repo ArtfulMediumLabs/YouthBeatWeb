@@ -262,17 +262,20 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
       context.arc(0, 0, outerArcRadius, 0, Math.PI * 2, true);
       context.fillStrokeShape(this);
     })
-    patternRing.on('click', function(event) {
-      var point = this.getStage().getPointerPosition();
-      var distance = Math.pow((point.x - this.x()),2) + Math.pow((point.y - this.y()),2)
-      var interior = distance <= Math.pow(innerRadius, 2)
-      var exterior = distance >= Math.pow(outerRadius, 2)
-      if (interior) {
-        interiorClick()
-      } else {
-        directClick()
-      }
-  })
+  function patternRingEvent(event) {
+    var point = this.getStage().getPointerPosition();
+    var distance = Math.pow((point.x - this.x()),2) + Math.pow((point.y - this.y()),2)
+    var interior = distance <= Math.pow(innerRadius, 2)
+    var exterior = distance >= Math.pow(outerRadius, 2)
+    if (interior) {
+      interiorClick()
+    } else {
+      directClick()
+    }
+  }
+  patternRing.on('click', patternRingEvent);
+  patternRing.on('tap', patternRingEvent);
+      
   patternControl.add(patternRing);
 
   [0,4,8,12].forEach(function(step) { 
@@ -315,11 +318,13 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
     arc.strokeWidth(0);
     layer.batchDraw();
   });
-  arc.on('click', function(){
+  function arcEvent(){
     if (filter.indexOf(activeInstrument) == -1) { return; }
     toggleStep(step, pattern);
     drawPattern(patternGroup, pattern.join(''), innerRadius + patternWidth / 2)
-  })
+  }
+  arc.on('click', arcEvent);
+  arc.on('tap', arcEvent);
   return arc
 }
 
