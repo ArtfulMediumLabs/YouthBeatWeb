@@ -104,6 +104,7 @@ function updatePattern(time) {
   drawPattern(innerPattern, innerCustomPattern.join(''), innerMidRadius, progressStep)
   drawPattern(outerPattern, outerCustomPattern.join(''), outerMidRadius, progressStep)
   updateNumbers(progressStep);
+  updateHand(progressStep);
 
   updatePosition(positionGroup, currentBeat())
   layer.batchDraw();
@@ -356,6 +357,9 @@ drawEmptyPattern(innerPattern, innerMidRadius)
 drawEmptyPattern(outerPattern, outerMidRadius)
 var numbers = createNumbers(outerMidRadius + patternWidth);
 layer.add(numbers);
+
+var hand = createHand(patternOriginX, patternOriginY, innerRadius + patternWidth * 2)
+layer.add(hand);
 
 // var bdsdCircles = drawCircles(155, 0, bdsdData, bdsdPlayers, bdsdURLs, '#F9BAF9', '#C687C6', innerPattern, bdDisplayPattern, innerMidRadius);
 // var hhCircles = drawCircles(hhOriginX, 0, hhData, hhPlayers, hhURLs, '#9ECCEF', '#6B99BC', outerPattern, hhDisplayPattern, outerMidRadius);
@@ -635,6 +639,32 @@ function updateNumbers(step) {
       label.visible(number <= normalizedStep);
     }
   })
+}
+
+function createHand(originX, originY, radius) {
+  var width = 18;
+  var hand = new Konva.Rect({
+        x: originX,
+        y: originY,
+        width: radius,
+        height: width,
+        fill: '#FFF2C6',
+        // strokeWidth: 8,
+        opacity: 0.5,
+        // lineCap: 'round',
+        // lineJoin: 'round',
+        rotation: -90,
+        listening: false,
+        offsetX:0,
+        offsetY:width/2,
+      });
+  return hand
+}
+
+function updateHand(step) {
+  var segmentDegree = 360/32
+  var rotation = -90 + step * segmentDegree;
+  hand.rotation(rotation);
 }
 
 function loopFunction(i, buttonGroup, data, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius) {
