@@ -48,25 +48,7 @@
       Hi-hat
     </button>
   </div>
-  <!-- <div id ="toolbar" class=center" style="width:20%">
-    <button id="recordButton" type="button" onclick="toggleRecord()">RECORD</button>
-    <audio controls></audio>
-  </div> -->
   <script type="text/javascript">
-
-const audio = document.querySelector('audio');
-const actx  = Tone.context;
-const dest  = actx.createMediaStreamDestination();
-// const recorder = new MediaRecorder(dest.stream);
-const chunks = [];
-
-// recorder.ondataavailable = evt => chunks.push(evt.data);
-// recorder.onstop = evt => {
-//   let blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
-//   let url = URL.createObjectURL(blob);
-//   audio.src = url;
-//   // download(blob, url);
-// };
 
 var offset = 0
 function currentBeat() {
@@ -234,7 +216,6 @@ var hhData = {
 };
 
 function createPlayers(URLs) { 
-  var players = new Tone.Players(URLs).toMaster().connect(dest)
   for(var playerName in URLs) {
     var player = players.get(playerName)
     player.loop = true
@@ -245,7 +226,7 @@ function createPlayers(URLs) {
 }
 
 function createOneShots(URLs) {
-  return new Tone.Players(URLs).toMaster().connect(dest)
+  return new Tone.Players(URLs).toMaster()
 }
 
 function createSequence() {
@@ -253,7 +234,7 @@ function createSequence() {
 			"B" : "Sounds/Rhythm/Kit_1/Samples/bass.wav",
 			"S" : "Sounds/Rhythm/Kit_1/Samples/snare.wav",
       "H" : "Sounds/Rhythm/Kit_1/Samples/hihat.wav",
-    }).toMaster().connect(dest);
+    }).toMaster();
     return keys; 
 }
 
@@ -707,7 +688,6 @@ function playing(players, loopUrls) {
 
 function toggleLoop(index, players, loopUrls) {
   Tone.context.resume()
-  // autoStartRecord()
 
   for(var playerName in loopUrls) {
     var player = players.get(playerName)
@@ -841,16 +821,6 @@ function createNote(step, color, originX, originY, radius) {
   return note
 }
 
-function autoStartRecord() {
-  if (recorder.state != 'recording') {
-    recorder.start()
-  }
-}
-
-function stopRecord() {
-  recorder.stop()
-}
-
 function autoStopTransport() {
   if (!someLoop()) {
     Tone.Transport.stop();
@@ -881,17 +851,6 @@ function someHHLoop() {
     }
   }
   return false;
-}
-
-function toggleRecord() {
-  var recordButton = document.getElementById("recordButton");
-  if (recordButton.innerText == "RECORD") {
-    autoStartRecord()
-    recordButton.innerText = "STOP"
-  } else {
-    stopRecord()
-    recordButton.innerText = "RECORD"
-  }
 }
 
 function download(blob, url) {
