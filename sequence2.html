@@ -642,28 +642,24 @@ function updateNumbers(step) {
 }
 
 function createHand(originX, originY, radius) {
-  var width = 18;
-  var hand = new Konva.Rect({
+  var segmentDegree = 360/32;
+  var hand = new Konva.Arc({
         x: originX,
         y: originY,
-        width: radius,
-        height: width,
-        fill: '#FFF2C6',
-        // strokeWidth: 8,
+        innerRadius: 0,
+        outerRadius: radius,
+        angle: segmentDegree,
+        fill: '#FFF2C6', 
+        rotation: -90 - segmentDegree * 0.5,
         opacity: 0.5,
-        // lineCap: 'round',
-        // lineJoin: 'round',
-        rotation: -90,
-        listening: false,
-        offsetX:0,
-        offsetY:width/2,
+        listening: false
       });
   return hand
 }
 
 function updateHand(step) {
   var segmentDegree = 360/32
-  var rotation = -90 + step * segmentDegree;
+  var rotation = -90 + step * segmentDegree - segmentDegree * 0.5;
   hand.rotation(rotation);
 }
 
@@ -766,11 +762,11 @@ function drawPattern(targetGroup, pattern, radius, step = 0) {
 
   for (var i = 0; i < pattern.length; i++) {
 
-    if (i == step  && i % 2 == 0) {
-      var normalizedStep = i / 2
-      var activeSegment = createActiveSegment(patternOriginX, patternOriginY, radius - patternWidth / 2, radius + patternWidth / 2, normalizedStep);
-      targetGroup.add(activeSegment);
-    }
+    // if (i == step  && i % 2 == 0) {
+    //   var normalizedStep = i / 2
+    //   var activeSegment = createActiveSegment(patternOriginX, patternOriginY, radius - patternWidth / 2, radius + patternWidth / 2, normalizedStep);
+    //   targetGroup.add(activeSegment);
+    // }
 
     var note = pattern.charAt(i);
     if (note == '-' && i % 2 == 0) {
