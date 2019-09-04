@@ -36,6 +36,8 @@
 <body>
   <div id="container" class="center"></div>
   <div id="buttons">
+    <label for="tempo" id="tempoLabel">Tempo: </label><br>
+    <input type="range" name="tempo" id="tempo" min="20" max="120" value="90" class="slider">
     <button id="bassDrum">
       Bass Drum
     </button>
@@ -220,7 +222,7 @@ var hhDisplayPattern = [
 var bdsdURLs = bdsdPatterns.map(fileName => "Sounds/Rhythm/Kit_1/BDSD_90bpm/" + fileName)
 var hhURLs = hhPatterns.map(fileName => "Sounds/Rhythm/Kit_1/Hihat_90bpm/" + fileName)
 
-var bdsdPlayers = createPlayers(bdsdURLs)
+// var bdsdPlayers = createPlayers(bdsdURLs)
 // var hhPlayers = createPlayers(hhURLs)
 
 var bdsdData = {
@@ -933,6 +935,15 @@ document.getElementById('hihat').addEventListener(
   },
   false
 );
+
+var slider = document.getElementById("tempo");
+var output = document.getElementById("tempoLabel");
+output.innerHTML = "Tempo: " + slider.value;
+      
+slider.oninput = function() {
+  output.innerHTML = "Tempo: " + this.value;
+  Tone.Transport.bpm.value = this.value;
+}
   </script>
 </body>
 </html>
