@@ -109,6 +109,9 @@ var loop = new Tone.Sequence(function(time, step){
 function playActiveNote(customPattern, step, time) {
   var note = customPattern[step];
   if (note == '-') { return; }
+  if (note == 'B') {
+    keys.get(note).volume.value = step % 8 == 0 ? 4 : 0;
+  }
   keys.get(note).start(time);
 }
 
