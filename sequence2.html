@@ -47,6 +47,9 @@
     <button id="hihat">
       Hi-hat
     </button>
+    <button id="openHihat">
+      Open Hi-hat
+    </button>
   </div>
   <script type="text/javascript">
 
@@ -93,6 +96,7 @@ function createSequence() {
 			"B" : "Sounds/Rhythm/Kit_1/Samples/bass.wav",
 			"S" : "Sounds/Rhythm/Kit_1/Samples/snare.wav",
       "H" : "Sounds/Rhythm/Kit_1/Samples/hihat.wav",
+      "O" : "Sounds/Rhythm/Kit_1/Samples/hihat_open.wav"
     }).toMaster();
     return keys; 
 }
@@ -169,11 +173,12 @@ var noteColors = {
     "S" : "#6B63AA",
     "R" : "#D88766",
     "X" : "#6B99BC",
-    "H" : "#6B99BC"
+    "H" : "#6B99BC",
+    "O" : "#355670"
   }
   
 var innerPattern = new Konva.Group()
-var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, '#F5F1F0', innerPattern, innerCustomPattern, ['H'], true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, '#F5F1F0', innerPattern, innerCustomPattern, ['H','O'], true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
 var outerPattern = new Konva.Group()
 var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, '#D9D9D9', outerPattern, outerCustomPattern, ['B','S'], false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
 
@@ -673,6 +678,14 @@ document.getElementById('hihat').addEventListener(
   'click',
   function() {
     activeInstrument = 'H';
+  },
+  false
+);
+
+document.getElementById('openHihat').addEventListener(
+  'click',
+  function() {
+    activeInstrument = 'O';
   },
   false
 );
