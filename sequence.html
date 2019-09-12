@@ -30,9 +30,16 @@
     margin-top: 10px;
     display: block;
   }
+  button.note {
+    width: 40px;
+    height: 40px;
+    border: none;
+    font-weight: bold;
+    color: white;
+  }
   #notes {
     position: absolute;
-    left: 200px;
+    right: 50px;
     top: 0px;
   }   
 </style>
@@ -111,8 +118,9 @@ function createSequence() {
     return keys; 
 }
 
-var scale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'];
-var gradient = ['#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#FFC75F','#F9F871'];
+var scale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'].reverse();
+// https://mycolor.space/?hex=%23845EC2&sub=1
+var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#FFC75F'].reverse();
 
 function createSampler() {
   var notes = ['A3', 'B3', 'C#4', 'D3', 'D4', 'E3', 'E4', 'F#3', 'F#4', 'G3'];
@@ -791,9 +799,11 @@ slider.oninput = function() {
 }
 
 var notes = document.getElementById("notes");
-scale.forEach(function(note){
+scale.forEach(function(note, index){
   var button = document.createElement("BUTTON");
   button.innerHTML = note;
+  button.className = "note"
+  button.style.backgroundColor = gradient[index];
   button.onmousedown = function() {
     // console.log(note);
     // sampler.triggerAttack(note);
