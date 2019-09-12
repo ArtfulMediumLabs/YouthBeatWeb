@@ -29,6 +29,11 @@
   button {
     margin-top: 10px;
     display: block;
+  }
+  #notes {
+    position: absolute;
+    left: 200px;
+    top: 0px;
   }   
 </style>
 </head>
@@ -50,6 +55,8 @@
     <button id="openHihat">
       Open Hi-hat
     </button>
+  </div>
+  <div id="notes">
   </div>
   <script type="text/javascript">
 
@@ -76,11 +83,15 @@ var outerCustomPattern = "--------------------------------".split('');
 var innerCustomPattern = "--------------------------------".split('');
 var keys = createSequence();
 
+var samplerCustomPattern = "--------------------------------".split('');
+var sampler = createSampler();
+
 function updatePattern(time) {
   var progressStep = Math.floor(Tone.Transport.progress * 64) % 32
 
-  drawPattern(innerPattern, innerCustomPattern.join(''), innerMidRadius, progressStep)
-  drawPattern(outerPattern, outerCustomPattern.join(''), outerMidRadius, progressStep)
+  drawPattern(innerPattern, innerCustomPattern, innerMidRadius, progressStep)
+  drawPattern(outerPattern, outerCustomPattern, outerMidRadius, progressStep)
+  drawPattern(samplerPattern, samplerCustomPattern, samplerMidRadius, progressStep)
   updateNumbers(progressStep);
   updateHand(progressStep);
 
@@ -89,7 +100,6 @@ function updatePattern(time) {
 }
 
 loop.start();
-
 
 function createSequence() {
   var keys = new Tone.Players({
@@ -101,6 +111,23 @@ function createSequence() {
     return keys; 
 }
 
+var scale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'];
+var gradient = ['#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#FFC75F','#F9F871'];
+
+function createSampler() {
+  var notes = ['A3', 'B3', 'C#4', 'D3', 'D4', 'E3', 'E4', 'F#3', 'F#4', 'G3'];
+  var baseDir = "Sounds/ElectroSynths/";
+  var baseVoice = "NKnee ";
+  var extension = ".wav";
+  var config = {}
+  notes.forEach(function(note){
+    config[note] = baseDir + baseVoice + encodeURIComponent(note) + extension;
+  })
+  console.log(config);
+  var sampler = new Tone.Sampler(config).toMaster();
+  return sampler;
+}
+
 var allSteps = new Array(32);
 for (var i = 0; i < allSteps.length; i++) {
   allSteps[i] = i;
@@ -108,18 +135,23 @@ for (var i = 0; i < allSteps.length; i++) {
 var loop = new Tone.Sequence(function(time, step){
   playActiveNote(innerCustomPattern, step, time);
   playActiveNote(outerCustomPattern, step, time);
+  playActiveNote(samplerCustomPattern, step, time);
 }, allSteps, "32n").start(0);
 
 function playActiveNote(customPattern, step, time) {
   var note = customPattern[step];
   if (note == '-') { return; }
   if (note == 'B') {
-    keys.get(note).volume.value = step % 8 == 0 ? 4 : 0;
+    keys.get(note).volume.value = step == 0 ? 4 : 0;
   }
   if (note == 'H') {
     keys.get('O').stop();
   }
-  keys.get(note).start(time);
+  if (note.length == 1) {
+    keys.get(note).start(time);
+  } else {
+    sampler.triggerAttack(note);
+  }
 }
 
 
@@ -167,9 +199,11 @@ function updateLoading() {
 var patternWidth = 34 + 12
 var innerRadius = 97 + 12
 var patternOriginX = stage.width() / 2
-var patternOriginY = innerRadius + patternWidth * 3
+var patternOriginY = innerRadius + patternWidth * 4
 var innerMidRadius = innerRadius + patternWidth / 2
 var outerMidRadius = innerRadius + patternWidth * 1.5
+var samplerMidRadius = innerRadius + patternWidth * 2.5
+
 
 var noteColors = {
     "B" : "#C687C6",
@@ -177,23 +211,32 @@ var noteColors = {
     "R" : "#D88766",
     "X" : "#6B99BC",
     "H" : "#6B99BC",
-    "O" : "#355670"
+    "O" : "#355670",
+
   }
+
+for (var i = 0; i < scale.length; i++) {
+  noteColors[scale[i]] = gradient[i];
+}
   
 var innerPattern = new Konva.Group()
 var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, '#F5F1F0', innerPattern, innerCustomPattern, ['H','O'], true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
 var outerPattern = new Konva.Group()
-var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, '#D9D9D9', outerPattern, outerCustomPattern, ['B','S'], false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, '#D9D9D9', outerPattern, outerCustomPattern, ['B','S'], false, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var samplerPattern = new Konva.Group()
+var samplerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 3, '#B5B5B5', samplerPattern, samplerCustomPattern, scale, false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
 
+layer.add(samplerPatternControl);
 layer.add(outerPatternControl);
 layer.add(innerPatternControl);
 
 drawEmptyPattern(innerPattern, innerMidRadius)
 drawEmptyPattern(outerPattern, outerMidRadius)
-var numbers = createNumbers(outerMidRadius + patternWidth);
+drawEmptyPattern(samplerPattern, samplerMidRadius)
+var numbers = createNumbers(samplerMidRadius + patternWidth);
 layer.add(numbers);
 
-var hand = createHand(patternOriginX, patternOriginY, innerRadius + patternWidth * 2)
+var hand = createHand(patternOriginX, patternOriginY, innerRadius + patternWidth * 3)
 layer.add(hand);
 
 var positionGroup = createPositionGroup(stage.width() - 40,98, 0);
@@ -332,7 +375,7 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
   function arcEvent(){
     if (filter.indexOf(activeInstrument) == -1) { return; }
     toggleStep(step, pattern);
-    drawPattern(patternGroup, pattern.join(''), innerRadius + patternWidth / 2)
+    drawPattern(patternGroup, pattern, innerRadius + patternWidth / 2)
   }
   arc.on('click', arcEvent);
   arc.on('tap', arcEvent);
@@ -556,7 +599,7 @@ function drawPattern(targetGroup, pattern, radius, step = 0) {
     //   targetGroup.add(activeSegment);
     // }
 
-    var note = pattern.charAt(i);
+    var note = pattern[i];
     if (note == '-' && i % 2 == 0) {
       var normalizedStep = i / 2
       var tick = createTick(patternOriginX, patternOriginY, radius, normalizedStep)
@@ -701,6 +744,19 @@ slider.oninput = function() {
   output.innerHTML = "Tempo: " + this.value;
   Tone.Transport.bpm.value = this.value;
 }
+
+var notes = document.getElementById("notes");
+scale.forEach(function(note){
+  var button = document.createElement("BUTTON");
+  button.innerHTML = note;
+  button.onmousedown = function() {
+    // console.log(note);
+    // sampler.triggerAttack(note);
+    activeInstrument = note;
+  }
+  notes.appendChild(button);
+})
+
   </script>
 </body>
 </html>
