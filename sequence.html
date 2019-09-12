@@ -606,7 +606,11 @@ function drawPattern(targetGroup, pattern, radius, step = 0) {
       targetGroup.add(tick)
     } else if (noteColors.hasOwnProperty(note)) {
       var noteColor = noteColors[note];
-      var noteNode = createNote(i, noteColor, patternOriginX, patternOriginY, radius)
+      if (note.length > 1) {
+        var noteNode = createHarmonicNote(i, noteColor, note, patternOriginX, patternOriginY, radius)
+      } else {
+        var noteNode = createNote(i, noteColor, patternOriginX, patternOriginY, radius)
+      }
       targetGroup.add(noteNode)
     }
   }
@@ -668,6 +672,47 @@ function createNote(step, color, originX, originY, radius) {
       });
       note.offsetX(-radius)
   return note
+}
+
+function createHarmonicNote(step, color, label, originX, originY, radius) {
+  var group = new Konva.Group()
+
+  var segment = Math.PI * 2 / 32 
+  var dAlpha = - Math.PI / 2 + step * segment;
+  var dx = Math.cos(dAlpha) * radius;
+  var dy = Math.sin(dAlpha) * radius;
+
+  var size = 32;
+
+  var square = new Konva.Rect({
+    x: patternOriginX + dx,
+    y: patternOriginY + dy,
+    width: size,
+    height: size,
+    fill: color,
+    offsetX: size / 2,
+    offsetY: size / 2
+  });
+    
+  var noteLabel = new Konva.Text({
+    x: patternOriginX + dx,
+    y: patternOriginY + dy,
+    text: label,
+    fontSize: 14,
+    fontStyle: 'bold',
+    fill: 'white',
+    width: size,
+    height: size,
+    align: "center",
+    verticalAlign: "middle",
+    offsetX: size / 2,
+    offsetY: size / 2
+  });
+
+  group.add(square);
+  group.add(noteLabel);
+  
+  return group
 }
 
 function autoStopTransport() {
