@@ -53,7 +53,10 @@
     position: absolute;
     right: 50px;
     top: 0px;
-  }   
+  }
+  #muteGroup {
+    margin-top: 20px;
+  }
 </style>
 </head>
 
@@ -74,7 +77,22 @@
     <button id="openHihat" class="rhythm" data-instrument="O">
       Open Hi-hat
     </button>
+    <div id="muteGroup">
+      <div>
+        <input type="checkbox" id="bassSnareCheck" name="bassSnareCheck" checked>
+        <label for="bassSnareCheck">Bass / Snare</label>
+      </div>
+      <div>
+        <input type="checkbox" id="hiHatCheck" name="hiHatCheck" checked>
+        <label for="hiHatCheck">Hi-hat</label>
+      </div>
+      <div>
+        <input type="checkbox" id="melodyCheck" name="melodyCheck" checked>
+        <label for="melodyCheck">Melody</label>
+      </div>
+    </div>
   </div>
+
   <div id="notes">
   </div>
   <script type="text/javascript">
@@ -152,10 +170,21 @@ var allSteps = new Array(32);
 for (var i = 0; i < allSteps.length; i++) {
   allSteps[i] = i;
 }
+
+var bassSnare = document.getElementById('bassSnareCheck');
+var hiHat = document.getElementById('hiHatCheck');
+var melody = document.getElementById('melodyCheck');
+
 var loop = new Tone.Sequence(function(time, step){
-  playActiveNote(innerCustomPattern, step, time);
-  playActiveNote(outerCustomPattern, step, time);
-  playActiveNote(samplerCustomPattern, step, time);
+  if (hiHat.checked) {
+    playActiveNote(innerCustomPattern, step, time);
+  }
+  if (bassSnare.checked) {
+    playActiveNote(outerCustomPattern, step, time);
+  }
+  if (melody.checked) {
+    playActiveNote(samplerCustomPattern, step, time);
+  }
 }, allSteps, "32n").start(0);
 
 function playActiveNote(customPattern, step, time) {
