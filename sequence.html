@@ -26,16 +26,28 @@
     left: 10px;
     top: 0px;
   }
-  button {
+  button.rhythm {
     margin-top: 10px;
     display: block;
+    height: 30px;
+    width: 100px;
+    border: none;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
   }
   button.note {
+    margin-top: 10px;
+    display: block;
     width: 40px;
     height: 40px;
     border: none;
     font-weight: bold;
     color: white;
+  }
+  #tempoLabel {
+    display: block;
+    margin-top: 10px
   }
   #notes {
     position: absolute;
@@ -50,16 +62,16 @@
   <div id="buttons">
     <label for="tempo" id="tempoLabel">Tempo: </label><br>
     <input type="range" name="tempo" id="tempo" min="20" max="180" value="90" class="slider">
-    <button id="bassDrum">
+    <button id="bassDrum" class="rhythm" data-instrument="B">
       Bass Drum
     </button>
-    <button id="snareDrum">
+    <button id="snareDrum" class="rhythm" data-instrument="S">
       Snare Drum
     </button>
-    <button id="hihat">
+    <button id="hihat" class="rhythm" data-instrument="H">
       Hi-hat
     </button>
-    <button id="openHihat">
+    <button id="openHihat" class="rhythm" data-instrument="O">
       Open Hi-hat
     </button>
   </div>
@@ -85,7 +97,7 @@ Tone.Transport.loopEnd = "2m";
 
 var loop = new Tone.Loop(updatePattern, "32n");
 
-var activeInstrument = 'B';
+var activeInstrument = 'b';
 var outerCustomPattern = "--------------------------------".split('');
 var innerCustomPattern = "--------------------------------".split('');
 var keys = createSequence();
@@ -149,14 +161,12 @@ var loop = new Tone.Sequence(function(time, step){
 function playActiveNote(customPattern, step, time) {
   var note = customPattern[step];
   if (note == '-') { return; }
-  if (note == 'B') {
-    keys.get(note).volume.value = step == 0 ? 4 : 0;
-  }
-  if (note == 'H') {
+  if (note.toUpperCase() == 'H') {
     keys.get('O').stop();
   }
   if (note.length == 1) {
-    keys.get(note).start(time);
+    keys.get(note.toUpperCase()).volume.value = note.toUpperCase() == note  ? 0 : -2;
+    keys.get(note.toUpperCase()).start(time);
   } else {
     sampler.triggerAttack(note);
   }
@@ -213,13 +223,21 @@ var outerMidRadius = innerRadius + patternWidth * 1.5
 var samplerMidRadius = innerRadius + patternWidth * 2.5
 
 
+// https://jsfiddle.net/PimpTrizkit/a7ac0qvp/
 var noteColors = {
+    "_" : "#D9D9D9",
     "B" : "#C687C6",
+    "b" : "#d3a6d3",
     "S" : "#6B63AA",
+    "s" : "#9590be",
     "R" : "#D88766",
+    "r" : "#e0a692",
     "X" : "#6B99BC",
+    "x" : "#95b2cb",
     "H" : "#6B99BC",
+    "h" : "#95b2cb",
     "O" : "#355670",
+    "o" : "#7b8a98",
 
   }
 
@@ -370,18 +388,18 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
         // visible: false,
       });
   arc.on('mouseover', function() {
-    if (filter.indexOf(activeInstrument) == -1) { return; }
+    if (filter.indexOf(activeInstrument.toUpperCase()) == -1 ) { return; }
     arc.strokeWidth(1);
     arc.stroke(noteColors[activeInstrument]);
     layer.batchDraw();
   });
   arc.on('mouseout', function() {
-    if (filter.indexOf(activeInstrument) == -1) { return; }
+    if (filter.indexOf(activeInstrument.toUpperCase()) == -1) { return; }
     arc.strokeWidth(0);
     layer.batchDraw();
   });
   function arcEvent(){
-    if (filter.indexOf(activeInstrument) == -1) { return; }
+    if (filter.indexOf(activeInstrument.toUpperCase()) == -1) { return; }
     toggleStep(step, pattern);
     drawPattern(patternGroup, pattern, innerRadius + patternWidth / 2)
   }
@@ -757,38 +775,6 @@ function someHHLoop() {
 
 stage.add(layer);
 
-document.getElementById('snareDrum').addEventListener(
-  'click',
-  function() {
-    activeInstrument = 'S';
-  },
-  false
-);
-
-document.getElementById('bassDrum').addEventListener(
-  'click',
-  function() {
-    activeInstrument = 'B';
-  },
-  false
-);
-
-document.getElementById('hihat').addEventListener(
-  'click',
-  function() {
-    activeInstrument = 'H';
-  },
-  false
-);
-
-document.getElementById('openHihat').addEventListener(
-  'click',
-  function() {
-    activeInstrument = 'O';
-  },
-  false
-);
-
 var slider = document.getElementById("tempo");
 var output = document.getElementById("tempoLabel");
 output.innerHTML = "Tempo: " + slider.value;
@@ -808,9 +794,36 @@ scale.forEach(function(note, index){
     // console.log(note);
     // sampler.triggerAttack(note);
     activeInstrument = note;
+    showSelectedButton();
   }
   notes.appendChild(button);
 })
+
+var rhythmButtons = document.getElementsByClassName("rhythm");
+Array.prototype.forEach.call(rhythmButtons, function(button){
+  var instrument = button.dataset.instrument;
+  button.addEventListener('click', 
+    function() { 
+      if (activeInstrument.toUpperCase() == instrument.toUpperCase()) {
+        activeInstrument = activeInstrument == instrument.toUpperCase() ? instrument.toLowerCase() : instrument.toUpperCase();
+      } else {
+        activeInstrument = instrument.toLowerCase(); 
+      }
+      showSelectedButton();
+    }, 
+    false
+  );
+})
+
+function showSelectedButton() {
+  var rhythmButtons = document.getElementsByClassName("rhythm");
+  Array.prototype.forEach.call(rhythmButtons, function(button){
+    var instrument = button.dataset.instrument;
+    button.style.backgroundColor = activeInstrument.toUpperCase() == instrument.toUpperCase() ? noteColors[activeInstrument] : noteColors["_"];
+  })
+}
+
+showSelectedButton();
 
   </script>
 </body>
