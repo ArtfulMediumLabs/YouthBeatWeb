@@ -54,7 +54,7 @@
     right: 50px;
     top: 0px;
   }
-  #muteGroup {
+  #muteGroup, #rotateGroup {
     margin-top: 20px;
   }
 </style>
@@ -91,6 +91,17 @@
         <label for="melodyCheck">Melody</label>
       </div>
     </div>
+    <div id="rotateGroup">
+        <button id="bass90">
+            Bass / Snare +90
+        </button>
+        <button id="hihat90">
+            Hi-hat +90
+        </button>
+        <button id="melody90">
+            Melody +90
+        </button>
+      </div>
   </div>
 
   <div id="notes">
@@ -854,6 +865,39 @@ function showSelectedButton() {
 
 showSelectedButton();
 
-  </script>
+var bass90Button = document.getElementById("bass90");
+bass90Button.addEventListener('click', 
+  function() {
+    arrayRotate(outerCustomPattern, 8);
+    updatePattern();
+  }, 
+  false
+);
+
+var hihat90Button = document.getElementById("hihat90");
+hihat90Button.addEventListener('click', 
+  function() {
+    arrayRotate(innerCustomPattern, 8);
+    updatePattern();
+  }, 
+  false
+);
+
+var melody90Button = document.getElementById("melody90");
+melody90Button.addEventListener('click', 
+  function() {
+    arrayRotate(samplerCustomPattern, 8);
+    updatePattern();
+  }, 
+  false
+);
+
+
+function arrayRotate(arr, count) {
+  arr.unshift.apply(arr, arr.splice(arr.length-count, count));
+  return arr;
+}
+
+</script>
 </body>
 </html>
