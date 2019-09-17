@@ -914,13 +914,13 @@ var presetList = document.getElementById("presetList")
 savePresetButton.addEventListener('click', 
   function() {
     var entry = document.createElement('li');
-    var presets = [];
     var link = document.createElement('a');
     link.href = ''
     link.innerHTML = "Preset " + presetCounter;
     link.dataset.presetID = presetCounter
     entry.appendChild(link);
-    entry.setAttribute('id','preset' + presetCounter);
+    var id = 'preset' + presetCounter;
+    entry.setAttribute('id',id);
     var preset = {
       innerCustomPattern: innerCustomPattern.value.slice(),
       outerCustomPattern: outerCustomPattern.value.slice(),
@@ -936,13 +936,21 @@ savePresetButton.addEventListener('click',
         updatePattern();
         event.preventDefault();
       }, false)
-    // var removeButton = document.createElement('button');
-    // removeButton.appendChild(document.createTextNode("remove"));
-    // removeButton.setAttribute('onClick','removeName("'+'item'+lastid+'")');
-    // entry.appendChild(removeButton);
-    presetCounter += 1;
+    var deleteButton = document.createElement("BUTTON");
+    deleteButton.innerHTML = "X";
+    deleteButton.addEventListener('click',
+      (function(index) {
+        return function() {
+          this.parentNode.parentNode.removeChild(this.parentNode);
+          delete presets[index];
+        }
+      })(presetCounter),
+      false
+    );
+    entry.appendChild(deleteButton);
     presetList.appendChild(entry);
-    // updatePattern();
+    presetCounter += 1;
+    updatePattern();
   }, 
   false
 );
