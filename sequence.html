@@ -213,7 +213,8 @@ function playActiveNote(customPattern, step, time) {
     keys.get('O').stop();
   }
   if (note.length == 1) {
-    keys.get(note.toUpperCase()).volume.value = note.toUpperCase() == note  ? 0 : -4;
+    var max = note == 'H' ? 8 : 0;
+    keys.get(note.toUpperCase()).volume.value = note.toUpperCase() == note  ? max : -4;
     keys.get(note.toUpperCase()).start(time);
   } else {
     sampler.triggerAttack(note);
