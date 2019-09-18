@@ -134,7 +134,7 @@ Tone.Transport.loopEnd = "2m";
 
 var loop = new Tone.Loop(updatePattern, "32n");
 
-var activeInstrument = 'b';
+var activeInstrument = 'B';
 var outerCustomPattern = {value: "--------------------------------".split('')};
 var innerCustomPattern = {value: "--------------------------------".split('')};
 var keys = createSequence();
@@ -213,7 +213,7 @@ function playActiveNote(customPattern, step, time) {
     keys.get('O').stop();
   }
   if (note.length == 1) {
-    keys.get(note.toUpperCase()).volume.value = note.toUpperCase() == note  ? 0 : -2;
+    keys.get(note.toUpperCase()).volume.value = note.toUpperCase() == note  ? 0 : -4;
     keys.get(note.toUpperCase()).start(time);
   } else {
     sampler.triggerAttack(note);
@@ -457,8 +457,20 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
 }
 
 function toggleStep(index, pattern) {
-  pattern[index] = pattern[index] == '-' ? activeInstrument : '-';
-  // console.log(index, pattern)
+  var currentStep = pattern[index];
+  switch (currentStep) {
+    case activeInstrument.toLowerCase():
+      pattern[index] = activeInstrument.toUpperCase();
+      break;
+    case activeInstrument.toUpperCase():
+      pattern[index] = '-';
+      break;
+    case '-':
+    default:
+      pattern[index] = activeInstrument.toLowerCase();
+      break;
+  }
+  updatePattern();
 }
 
 function createPatternRing(originX, originY, innerRadius, outerRadius, fill) {
@@ -852,11 +864,7 @@ Array.prototype.forEach.call(rhythmButtons, function(button){
   var instrument = button.dataset.instrument;
   button.addEventListener('click', 
     function() { 
-      if (activeInstrument.toUpperCase() == instrument.toUpperCase()) {
-        activeInstrument = activeInstrument == instrument.toUpperCase() ? instrument.toLowerCase() : instrument.toUpperCase();
-      } else {
-        activeInstrument = instrument.toLowerCase(); 
-      }
+      activeInstrument = instrument;
       showSelectedButton();
     }, 
     false
