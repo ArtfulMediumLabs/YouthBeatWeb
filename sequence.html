@@ -80,6 +80,9 @@
     <button id="openHihat" class="rhythm" data-instrument="O">
       Open Hi-hat
     </button>
+    <button id="rideCymbal" class="rhythm" data-instrument="C">
+      Ride Cymbal
+    </button>
     <div id="muteGroup">
       <div>
         <input type="checkbox" id="bassSnareCheck" name="bassSnareCheck" checked>
@@ -166,7 +169,8 @@ function createSequence() {
 			"S" : "Sounds/Rhythm/Kit_1/Samples/snare.wav",
       "H" : "Sounds/Rhythm/Kit_1/Samples/hihat.wav",
       "O" : "Sounds/Rhythm/Kit_1/Samples/hihat_open.wav",
-      "R" : "Sounds/Rhythm/Kit_1/Samples/rimshot.wav"
+      "R" : "Sounds/Rhythm/Kit_1/Samples/rimshot.wav",
+      "C" : "Sounds/Rhythm/Kit_1/Samples/ride.wav"
     }).toMaster();
     return keys; 
 }
@@ -291,7 +295,8 @@ var noteColors = {
     "h" : "#95b2cb",
     "O" : "#355670",
     "o" : "#7b8a98",
-
+    "C" : "#41C398",
+    "c" : "#80d0b1"
   }
 
 for (var i = 0; i < scale.length; i++) {
@@ -300,7 +305,7 @@ for (var i = 0; i < scale.length; i++) {
 }
   
 var innerPattern = new Konva.Group()
-var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, '#F5F1F0', innerPattern, innerCustomPattern, ['H','O'], true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, '#F5F1F0', innerPattern, innerCustomPattern, ['H','O', 'C'], true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
 var outerPattern = new Konva.Group()
 var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, '#D9D9D9', outerPattern, outerCustomPattern, ['B','S','R'], false, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
 var samplerPattern = new Konva.Group()
