@@ -71,6 +71,9 @@
     <button id="snareDrum" class="rhythm" data-instrument="S">
       Snare Drum
     </button>
+    <button id="rimshot" class="rhythm" data-instrument="R">
+      Rim Shot
+    </button>
     <button id="hihat" class="rhythm" data-instrument="H">
       Hi-hat
     </button>
@@ -162,7 +165,8 @@ function createSequence() {
 			"B" : "Sounds/Rhythm/Kit_1/Samples/bass.wav",
 			"S" : "Sounds/Rhythm/Kit_1/Samples/snare.wav",
       "H" : "Sounds/Rhythm/Kit_1/Samples/hihat.wav",
-      "O" : "Sounds/Rhythm/Kit_1/Samples/hihat_open.wav"
+      "O" : "Sounds/Rhythm/Kit_1/Samples/hihat_open.wav",
+      "R" : "Sounds/Rhythm/Kit_1/Samples/rimshot.wav"
     }).toMaster();
     return keys; 
 }
@@ -292,12 +296,13 @@ var noteColors = {
 
 for (var i = 0; i < scale.length; i++) {
   noteColors[scale[i]] = gradient[i];
+  noteColors[scale[i].toLowerCase()] = gradient[i];
 }
   
 var innerPattern = new Konva.Group()
 var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, '#F5F1F0', innerPattern, innerCustomPattern, ['H','O'], true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
 var outerPattern = new Konva.Group()
-var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, '#D9D9D9', outerPattern, outerCustomPattern, ['B','S'], false, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, '#D9D9D9', outerPattern, outerCustomPattern, ['B','S','R'], false, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
 var samplerPattern = new Konva.Group()
 var samplerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 3, '#B5B5B5', samplerPattern, samplerCustomPattern, scale, false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
 
