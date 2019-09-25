@@ -12,6 +12,7 @@
 
   <script src="https://unpkg.com/konva@3.3.3/konva.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.0.1/Tone.min.js"></script>
+  <script src="pSBC.js"></script>
 
   <style>
   .center {
@@ -141,11 +142,11 @@ Tone.Transport.loopEnd = "2m";
 var loop = new Tone.Loop(updatePattern, "32n");
 
 var activeInstrument = 'B';
-var outerCustomPattern = {value: "--------------------------------".split('')};
-var innerCustomPattern = {value: "--------------------------------".split('')};
+var outerCustomPattern = {value: "--------------------------------".split(''), amplitude: []};
+var innerCustomPattern = {value: "--------------------------------".split(''), amplitude: []};
 var keys = createSequence();
 
-var samplerCustomPattern = {value: "--------------------------------".split('')};
+var samplerCustomPattern = {value: "--------------------------------".split(''), amplitude: []};
 var sampler = createSampler();
 
 function updatePattern(time) {
@@ -204,29 +205,28 @@ var melody = document.getElementById('melodyCheck');
 
 var loop = new Tone.Sequence(function(time, step){
   if (hiHat.checked) {
-    playActiveNote(innerCustomPattern.value, step, time);
+    playActiveNote(innerCustomPattern, step, time);
   }
   if (bassSnare.checked) {
-    playActiveNote(outerCustomPattern.value, step, time);
+    playActiveNote(outerCustomPattern, step, time);
   }
   if (melody.checked) {
-    playActiveNote(samplerCustomPattern.value, step, time);
+    playActiveNote(samplerCustomPattern, step, time);
   }
 }, allSteps, "32n").start(0);
 
 function playActiveNote(customPattern, step, time) {
-  var note = customPattern[step];
+  var note = customPattern.value[step];
   if (note == '-') { return; }
   if (note.toUpperCase() == 'H') {
     keys.get('O').stop();
   }
   if (isRhythm(note)) {
-    var max = note == 'H' ? 8 : 0;
-    console.log(amplitudeFor(customPattern, step));
-    keys.get(note.toUpperCase()).volume.value = amplitudeFor(customPattern, step);
-    keys.get(note.toUpperCase()).start(time);
+    keys.get(note).volume.value = amplitudeFor(customPattern, step);
+    keys.get(note).start(time);
   } else {
-    sampler.triggerAttack(note);
+    var velocity = velocityFor(customPattern, step);
+    sampler.triggerAttack(note, time, velocity);
   }
 }
 
@@ -235,13 +235,48 @@ function isRhythm(note) {
 }
 
 function amplitudeFor(pattern, step) {
-  var note = pattern[step];
+  var note = pattern.value[step];
+  var amplitude = pattern.amplitude[step] || 0;
 
   var max = note == 'H' ? 8 : 0;
-  // var mid = note == 'H' ? 2 : -2;
+  var mid = note == 'H' ? 2 : -2;
   var min = -4
 
-  return note.toUpperCase() == note  ? max : min;
+  switch (amplitude) {
+    case 0:
+    default:
+      return -99;
+      break;
+    case 1:
+      return -4;
+      break;
+    case 2:
+      return 'H' ? 2 : -2;
+      break;
+    case 3:
+      return 'H' ? 8 : 0;
+      break;
+  }
+}
+
+function velocityFor(pattern, step) {
+  var amplitude = pattern.amplitude[step] || 0;
+
+  switch (amplitude) {
+    case 0:
+    default:
+      return 0;
+      break;
+    case 1:
+      return 0.25;
+      break;
+    case 2:
+      return 0.5;
+      break;
+    case 3:
+      return 1.0;
+      break;
+  }
 }
 
 
@@ -301,24 +336,21 @@ var samplerMidRadius = innerRadius + patternWidth * 2.5
 var noteColors = {
     "_" : "#D9D9D9",
     "B" : "#C687C6",
-    "b" : "#d3a6d3",
     "S" : "#6B63AA",
-    "s" : "#9590be",
     "R" : "#D88766",
-    "r" : "#e0a692",
     "X" : "#6B99BC",
-    "x" : "#95b2cb",
     "H" : "#6B99BC",
-    "h" : "#95b2cb",
     "O" : "#355670",
-    "o" : "#7b8a98",
     "C" : "#41C398",
-    "c" : "#80d0b1"
   }
 
 for (var i = 0; i < scale.length; i++) {
   noteColors[scale[i]] = gradient[i];
-  noteColors[scale[i].toLowerCase()] = gradient[i];
+}
+
+noteColors.getColor = function(note, amplitude=3) {
+  var p = (3 - amplitude) * 0.1;
+  return pSBC(p, this[note]);
 }
   
 var innerPattern = new Konva.Group()
@@ -476,7 +508,7 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
   });
   function arcEvent(){
     if (filter.indexOf(activeInstrument.toUpperCase()) == -1) { return; }
-    toggleStep(step, pattern.value);
+    toggleStep(step, pattern);
     drawPattern(patternGroup, pattern, innerRadius + patternWidth / 2)
   }
   arc.on('click', arcEvent);
@@ -485,17 +517,20 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
 }
 
 function toggleStep(index, pattern) {
-  var currentStep = pattern[index];
+  var currentStep = pattern.value[index];
+
+  var currentAmplitude = pattern.amplitude[index] || 0;
+  var amplitudeMax = 3;
+
   switch (currentStep) {
-    case activeInstrument.toLowerCase():
-      pattern[index] = activeInstrument.toUpperCase();
-      break;
-    case activeInstrument.toUpperCase():
-      pattern[index] = '-';
+    case activeInstrument:
+      pattern.amplitude[index] = ++currentAmplitude % 4;
+      pattern.value[index] = pattern.amplitude[index] == 0 ? '-' : activeInstrument;
       break;
     case '-':
     default:
-      pattern[index] = activeInstrument.toLowerCase();
+      pattern.value[index] = activeInstrument;
+      pattern.amplitude[index] = 1;
       break;
   }
   updatePattern();
@@ -714,12 +749,13 @@ function drawPattern(targetGroup, pattern, radius, step = 0) {
     // }
 
     var note = pattern.value[i];
+    var amplitude = pattern.amplitude[i] || 0;
     if (note == '-' && i % 2 == 0) {
       var normalizedStep = i / 2
       var tick = createTick(patternOriginX, patternOriginY, radius, normalizedStep)
       targetGroup.add(tick)
     } else if (noteColors.hasOwnProperty(note)) {
-      var noteColor = noteColors[note];
+      var noteColor = noteColors.getColor(note, amplitude);
       if (note.length > 1) {
         var noteNode = createHarmonicNote(i, noteColor, note, patternOriginX, patternOriginY, radius)
       } else {
