@@ -13,6 +13,7 @@
   <script src="https://unpkg.com/konva@3.3.3/konva.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.0.1/Tone.min.js"></script>
   <script src="pSBC.js"></script>
+  <script src="fill.js"></script>
 
   <style>
   .center {
@@ -142,12 +143,19 @@ Tone.Transport.loopEnd = "2m";
 var loop = new Tone.Loop(updatePattern, "32n");
 
 var activeInstrument = 'B';
-var outerCustomPattern = {value: "--------------------------------".split(''), amplitude: []};
-var innerCustomPattern = {value: "--------------------------------".split(''), amplitude: []};
+var outerCustomPattern = emptyPattern();
+var innerCustomPattern = emptyPattern();
 var keys = createSequence();
 
-var samplerCustomPattern = {value: "--------------------------------".split(''), amplitude: []};
+var samplerCustomPattern = emptyPattern();
 var sampler = createSampler();
+
+function emptyPattern() {
+  return {
+    value: Array(32).fill('-'), 
+    amplitude: Array(32).fill(0)
+  }
+}
 
 function updatePattern(time) {
   var progressStep = Math.floor(Tone.Transport.progress * 64) % 32
@@ -948,7 +956,7 @@ showSelectedButton();
 var bass90Button = document.getElementById("bass90");
 bass90Button.addEventListener('click', 
   function() {
-    arrayRotate(outerCustomPattern.value, 8);
+    patternRotate(outerCustomPattern, 8);
     updatePattern();
   }, 
   false
@@ -957,7 +965,7 @@ bass90Button.addEventListener('click',
 var hihat90Button = document.getElementById("hihat90");
 hihat90Button.addEventListener('click', 
   function() {
-    arrayRotate(innerCustomPattern.value, 8);
+    patternRotate(innerCustomPattern, 8);
     updatePattern();
   }, 
   false
@@ -966,12 +974,16 @@ hihat90Button.addEventListener('click',
 var melody90Button = document.getElementById("melody90");
 melody90Button.addEventListener('click', 
   function() {
-    arrayRotate(samplerCustomPattern.value, 8);
+    patternRotate(samplerCustomPattern, 8);
     updatePattern();
   }, 
   false
 );
 
+function patternRotate(pattern, count) {
+  arrayRotate(pattern.value, count);
+  arrayRotate(pattern.amplitude, count);
+}
 
 function arrayRotate(arr, count) {
   arr.unshift.apply(arr, arr.splice(arr.length-count, count));
@@ -993,18 +1005,11 @@ savePresetButton.addEventListener('click',
     entry.appendChild(link);
     var id = 'preset' + presetCounter;
     entry.setAttribute('id',id);
-    var preset = {
-      innerCustomPattern: innerCustomPattern.value.slice(),
-      outerCustomPattern: outerCustomPattern.value.slice(),
-      samplerCustomPattern: samplerCustomPattern.value.slice()
-    }
-    presets[presetCounter] = preset;
+    presets[presetCounter] = capturePreset();
     link.addEventListener('click',
       function(event){
         var presetToLoad = presets[this.dataset.presetID];
-        innerCustomPattern.value = presetToLoad.innerCustomPattern.slice();
-        outerCustomPattern.value = presetToLoad.outerCustomPattern.slice();
-        samplerCustomPattern.value = presetToLoad.samplerCustomPattern.slice();
+        loadPreset(presetToLoad);
         updatePattern();
         event.preventDefault();
       }, false)
@@ -1026,6 +1031,29 @@ savePresetButton.addEventListener('click',
   }, 
   false
 );
+
+function capturePreset() {
+  var preset = {
+      innerCustomPattern: patternFrom(innerCustomPattern),
+      outerCustomPattern: patternFrom(outerCustomPattern),
+      samplerCustomPattern: patternFrom(samplerCustomPattern)
+  }
+  return preset;
+}
+
+function loadPreset(preset) {
+  innerCustomPattern = patternFrom(preset.innerCustomPattern)
+  outerCustomPattern = patternFrom(preset.outerCustomPattern)
+  samplerCustomPattern = patternFrom(preset.samplerCustomPattern)
+}
+
+function patternFrom(pattern) {
+  var clone = {
+    value: pattern.value.slice(),
+    amplitude: pattern.amplitude.slice()
+  }
+  return clone
+}
 
 </script>
 </body>
