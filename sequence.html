@@ -118,6 +118,13 @@
     
       </ul>
     </div>
+    <div id="sequence">
+      <button id="sequenceControl">
+        Start
+      </button>
+      <div id="sequenceDisplay">
+      </div>
+    </div>
   </div>
 
   <div id="notes">
@@ -149,6 +156,9 @@ var keys = createSequence();
 
 var samplerCustomPattern = emptyPattern();
 var sampler = createSampler();
+
+var sequence = [];
+var currentSequence = -1;
 
 function emptyPattern() {
   return {
@@ -220,6 +230,10 @@ var loop = new Tone.Sequence(function(time, step){
   }
   if (melody.checked) {
     playActiveNote(samplerCustomPattern, step, time);
+  }
+  if (currentSequence >= 0 && step == 31) {
+    currentSequence = ++currentSequence % sequence.length
+    loadPreset(presets[sequence[currentSequence]]);
   }
 }, allSteps, "32n").start(0);
 
@@ -993,7 +1007,7 @@ function arrayRotate(arr, count) {
 var presetCounter = 1;
 var presets = [];
 var savePresetButton = document.getElementById("savePresetButton");
-var presetList = document.getElementById("presetList")
+var presetList = document.getElementById("presetList");
 
 savePresetButton.addEventListener('click', 
   function() {
@@ -1013,21 +1027,58 @@ savePresetButton.addEventListener('click',
         updatePattern();
         event.preventDefault();
       }, false)
-    var deleteButton = document.createElement("BUTTON");
-    deleteButton.innerHTML = "X";
-    deleteButton.addEventListener('click',
-      (function(index) {
-        return function() {
-          this.parentNode.parentNode.removeChild(this.parentNode);
-          delete presets[index];
-        }
-      })(presetCounter),
-      false
-    );
-    entry.appendChild(deleteButton);
+    entry.appendChild(deleteButton(presetCounter));
+    entry.appendChild(sequenceButton(presetCounter));
     presetList.appendChild(entry);
     presetCounter += 1;
     updatePattern();
+  }, 
+  false
+);
+
+function deleteButton(preset) {
+  var deleteButton = document.createElement("BUTTON");
+  deleteButton.innerHTML = "X";
+  deleteButton.addEventListener('click',
+    (function(index) {
+      return function() {
+        this.parentNode.parentNode.removeChild(this.parentNode);
+        delete presets[index];
+      }
+    })(preset),
+    false
+  );
+  return deleteButton;
+}
+
+var sequenceDisplay = document.getElementById('sequenceDisplay');
+function sequenceButton(preset) {
+  var sequenceButton = document.createElement("BUTTON");
+  sequenceButton.innerHTML = ">";
+  sequenceButton.addEventListener('click',
+    (function(index) {
+      return function() {
+        console.log("add to sequence", preset);
+        sequence.push(preset);
+        sequenceDisplay.innerHTML = sequence.join(",");
+      }
+    })(preset),
+    false
+  );
+  return sequenceButton;
+}
+
+var sequenceControl = document.getElementById("sequenceControl");
+sequenceControl.addEventListener('click', 
+  function() {
+    if (currentSequence >= 0) {
+      currentSequence = -1;
+      this.innerHTML = "start";
+    } else {
+      currentSequence = 0;
+      loadPreset(presets[sequence[currentSequence]]);
+      this.innerHTML = "stop";
+    }
   }, 
   false
 );
