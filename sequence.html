@@ -1042,13 +1042,22 @@ function deleteButton(preset) {
   deleteButton.addEventListener('click',
     (function(index) {
       return function() {
-        this.parentNode.parentNode.removeChild(this.parentNode);
-        delete presets[index];
+        deletePreset(index, this.parentNode);
       }
     })(preset),
     false
   );
   return deleteButton;
+}
+
+function deletePreset(index, node) {
+  node.parentNode.removeChild(node);
+  delete presets[index];
+  sequence = sequence.filter(function(i) {
+      return i !== index;
+  })
+  currentSequence = -1;
+  updateSequenceDisplay();
 }
 
 var sequenceDisplay = document.getElementById('sequenceDisplay');
@@ -1058,14 +1067,17 @@ function sequenceButton(preset) {
   sequenceButton.addEventListener('click',
     (function(index) {
       return function() {
-        console.log("add to sequence", preset);
         sequence.push(preset);
-        sequenceDisplay.innerHTML = sequence.join(",");
+        updateSequenceDisplay();
       }
     })(preset),
     false
   );
   return sequenceButton;
+}
+
+function updateSequenceDisplay() {
+  sequenceDisplay.innerHTML = sequence.join(",");
 }
 
 var sequenceControl = document.getElementById("sequenceControl");
