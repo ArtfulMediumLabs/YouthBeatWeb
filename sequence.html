@@ -124,6 +124,9 @@
       </button>
       <div id="sequenceDisplay">
       </div>
+      <button id="sequenceClear">
+        Clear
+      </button>
     </div>
   </div>
 
@@ -1117,6 +1120,19 @@ function patternFrom(pattern) {
   }
   return clone
 }
+
+
+var sequenceClear = document.getElementById("sequenceClear");
+sequenceClear.addEventListener('click', 
+  function() {
+    currentSequence = -1;
+    sequence = [];
+    updateSequenceDisplay();
+  }, 
+  false
+);
+
+sequenceClear
 
 </script>
 </body>
