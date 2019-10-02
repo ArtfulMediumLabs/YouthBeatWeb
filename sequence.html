@@ -47,6 +47,10 @@
     font-weight: bold;
     color: white;
   }
+  .active {
+    font-weight: bold;
+    color: #DB3352;
+  }
   #tempoLabel {
     display: block;
     margin-top: 10px
@@ -58,6 +62,10 @@
   }
   #muteGroup, #rotateGroup, #presets {
     margin-top: 20px;
+  }
+  #sequenceDisplay span {
+    display: inline-block;
+    width: 10px;
   }
 </style>
 </head>
@@ -236,6 +244,7 @@ var loop = new Tone.Sequence(function(time, step){
   }
   if (currentSequence >= 0 && step == 31) {
     currentSequence = ++currentSequence % sequence.length
+    updateSequenceDisplay();
     loadPreset(presets[sequence[currentSequence]]);
   }
 }, allSteps, "32n").start(0);
@@ -1080,7 +1089,13 @@ function sequenceButton(preset) {
 }
 
 function updateSequenceDisplay() {
-  sequenceDisplay.innerHTML = sequence.join(",");
+  var display = sequence.map(function(preset, index){
+    var step = document.createElement("SPAN")
+    step.innerHTML = preset;
+    step.className = index == currentSequence ? 'active' : '';
+    return step.outerHTML;
+  })
+  sequenceDisplay.innerHTML = display.join(",");
 }
 
 var sequenceControl = document.getElementById("sequenceControl");
@@ -1092,6 +1107,7 @@ sequenceControl.addEventListener('click',
     } else {
       currentSequence = 0;
       loadPreset(presets[sequence[currentSequence]]);
+      updateSequenceDisplay();
       this.innerHTML = "stop";
     }
   }, 
