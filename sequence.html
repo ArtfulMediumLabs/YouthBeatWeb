@@ -16,36 +16,60 @@
   <script src="fill.js"></script>
 
   <style>
+  body {
+    background-color: #F5F1F0;
+  }
+  #content {
+    background-color: white;
+    width: 1028px;
+    margin: auto;
+    position: relative;
+    }
   .center {
     margin: auto;
     width: 1028px;
   }
   audio {
-    width: 300px;
+    width: 100px;
   }
-  #buttons {
+  #controlA {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+  }
+  #controlB {
+    position: absolute;
+    width: 175px;
+    right: 10px;
+    bottom: 10px;
+    overflow: hidden;
+  }
+  #rhythmButtons {
     position: absolute;
     left: 10px;
     top: 0px;
   }
-  button.rhythm {
+  button {
     margin-top: 10px;
-    display: block;
     height: 30px;
     width: 100px;
-    border: none;
-    font-weight: bold;
-    color: white;
-    text-transform: uppercase;
-  }
-  button.note {
-    margin-top: 10px;
     display: block;
-    width: 40px;
-    height: 40px;
     border: none;
     font-weight: bold;
+    text-transform: uppercase;
     color: white;
+  }
+  #rotateGroup button {
+    width: 136px;
+  }
+  button.rhythm, button.note {
+    width: 100px;
+  }
+  li button {
+    width: 20px;
+    height: 20px;
+    margin: 2px;
+    display: inline-block;
   }
   .active {
     font-weight: bold;
@@ -53,93 +77,119 @@
   }
   #tempoLabel {
     display: block;
-    margin-top: 10px
+    margin-top: 20px
   }
   #notes {
     position: absolute;
-    right: 50px;
+    right: 10px;
     top: 0px;
   }
-  #muteGroup, #rotateGroup, #presets {
+  #muteGroup, #rotateGroup {
     margin-top: 20px;
+  }
+  #presets {
+    margin-top: 20px;
+    height: 180px;
+    overflow: hidden;
+    float: right;
+  }
+  #sequence {
+    height: 100px;
+    float: right;
+  }
+  #sequenceDisplay {
+    height: 20px;
+    width: 100px;
+    overflow: hidden;
   }
   #sequenceDisplay span {
     display: inline-block;
     width: 10px;
   }
+  ul {
+    padding: 0;
+    list-style: outside none none;
+  }
 </style>
 </head>
 
 <body>
-  <div id="container" class="center"></div>
-  <div id="buttons">
-    <label for="tempo" id="tempoLabel">Tempo: </label><br>
-    <input type="range" name="tempo" id="tempo" min="20" max="180" value="90" class="slider">
-    <button id="bassDrum" class="rhythm" data-instrument="B">
-      Bass Drum
-    </button>
-    <button id="snareDrum" class="rhythm" data-instrument="S">
-      Snare Drum
-    </button>
-    <button id="rimshot" class="rhythm" data-instrument="R">
-      Rim Shot
-    </button>
-    <button id="hihat" class="rhythm" data-instrument="H">
-      Hi-hat
-    </button>
-    <button id="openHihat" class="rhythm" data-instrument="O">
-      Open Hi-hat
-    </button>
-    <button id="rideCymbal" class="rhythm" data-instrument="C">
-      Ride Cymbal
-    </button>
-    <div id="muteGroup">
-      <div>
-        <input type="checkbox" id="bassSnareCheck" name="bassSnareCheck" checked>
-        <label for="bassSnareCheck">Bass / Snare</label>
-      </div>
-      <div>
-        <input type="checkbox" id="hiHatCheck" name="hiHatCheck" checked>
-        <label for="hiHatCheck">Hi-hat</label>
-      </div>
-      <div>
-        <input type="checkbox" id="melodyCheck" name="melodyCheck" checked>
-        <label for="melodyCheck">Melody</label>
-      </div>
-    </div>
-    <div id="rotateGroup">
-      <button id="bass90">
-        Bass / Snare +90
-      </button>
-      <button id="hihat90">
-        Hi-hat +90
-      </button>
-      <button id="melody90">
-        Melody +90
-      </button>
-    </div>
-    <div id="presets">
-      <button id="savePresetButton">
-        Save Preset
-      </button>
-      <ul id="presetList">
-    
-      </ul>
-    </div>
-    <div id="sequence">
-      <button id="sequenceControl">
-        Start
-      </button>
-      <div id="sequenceDisplay">
-      </div>
-      <button id="sequenceClear">
-        Clear
-      </button>
-    </div>
-  </div>
+  <div id="content">
+    <div id="container" class="center"></div>
+    <div id="controlA">
 
-  <div id="notes">
-  </div>
+      <div id="muteGroup">
+        <div>
+          <input type="checkbox" id="bassSnareCheck" name="bassSnareCheck" checked>
+          <label for="bassSnareCheck">Bass / Snare</label>
+        </div>
+        <div>
+          <input type="checkbox" id="hiHatCheck" name="hiHatCheck" checked>
+          <label for="hiHatCheck">Hi-hat</label>
+        </div>
+        <div>
+          <input type="checkbox" id="melodyCheck" name="melodyCheck" checked>
+          <label for="melodyCheck">Melody</label>
+        </div>
+      </div>
+      <div id="rotateGroup">
+        <button id="bass90">
+          Bass / Snare +90
+        </button>
+        <button id="hihat90">
+          Hi-hat +90
+        </button>
+        <button id="melody90">
+          Melody +90
+        </button>
+      </div>
+      <label for="tempo" id="tempoLabel">Tempo: </label><br>
+      <input type="range" name="tempo" id="tempo" min="20" max="180" value="90" class="slider">
+    </div>
+    <div id="controlB">
+      <div id="presets">
+        <button id="savePresetButton">
+          Save Preset
+        </button>
+        <ul id="presetList">
+      
+        </ul>
+      </div>
+      <div id="sequence">
+        <button id="sequenceControl">
+          Start
+        </button>
+        <div id="sequenceDisplay">
+        </div>
+        <button id="sequenceClear">
+          Clear
+        </button>
+      </div>
+    </div>
+    <div id="rhythmButtons">
+      <button id="bassDrum" class="rhythm" data-instrument="B">
+        Bass Drum
+      </button>
+      <button id="snareDrum" class="rhythm" data-instrument="S">
+        Snare Drum
+      </button>
+      <button id="rimshot" class="rhythm" data-instrument="R">
+        Rim Shot
+      </button>
+      <button id="hihat" class="rhythm" data-instrument="H">
+        Hi-hat
+      </button>
+      <button id="openHihat" class="rhythm" data-instrument="O">
+        Open Hi-hat
+      </button>
+      <button id="rideCymbal" class="rhythm" data-instrument="C">
+        Ride Cymbal
+      </button>
+    </div>
+
+    <div id="notes">
+    </div>
+</div>
   <script type="text/javascript">
 
 var offset = 0
@@ -407,7 +457,7 @@ layer.add(numbers);
 var hand = createHand(patternOriginX, patternOriginY, innerRadius + patternWidth * 3)
 layer.add(hand);
 
-var positionGroup = createPositionGroup(stage.width() - 40,98, 0);
+var positionGroup = createPositionGroup(stage.width() - 200,98, 0);
 layer.add(positionGroup);
 
 function createPositionGroup(x, y, beat) {
