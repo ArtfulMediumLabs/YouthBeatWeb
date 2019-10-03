@@ -424,6 +424,7 @@ var outerMidRadius = innerRadius + patternWidth * 1.5
 var samplerMidRadius = innerRadius + patternWidth * 2.5
 
 
+
 // https://jsfiddle.net/PimpTrizkit/a7ac0qvp/
 var noteColors = {
     "_" : "#D9D9D9",
@@ -444,6 +445,25 @@ noteColors.getColor = function(note, amplitude=3) {
   var p = (3 - amplitude) * 0.1;
   return pSBC(p, this[note]);
 }
+
+function createSlices() {
+  var sliceGroup = new Konva.Group()
+  for (var i = 0; i < 16; i++) {
+    var point = pointFor(i, outerMidRadius, patternOriginX, patternOriginY, 16);
+    var line = new Konva.Line({
+      points: [patternOriginX, patternOriginY, point.x, point.y],
+      stroke: '#D9D9D9',
+      strokeWidth: 1,
+      // opacity: 0.5
+    });
+    console.log(patternOriginX, patternOriginY, point.X, point.Y);
+    sliceGroup.add(line);
+  }
+  return sliceGroup;
+}
+
+var slices = createSlices();
+layer.add(slices);
   
 var innerPattern = new Konva.Group()
 var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, '#F5F1F0', innerPattern, innerCustomPattern, ['H','O', 'C'], true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
@@ -1254,8 +1274,8 @@ function drawPolygon(pattern, radius) {
   layer.batchDraw();
 }
 
-function pointFor(step, radius, originX, originY) {
-  var segment = Math.PI * 2 / 32;
+function pointFor(step, radius, originX, originY, base=32) {
+  var segment = Math.PI * 2 / base;
   var dAlpha = - Math.PI / 2 + step * segment;
   var dx = Math.cos(dAlpha) * radius;
   var dy = Math.sin(dAlpha) * radius;
