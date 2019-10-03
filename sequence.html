@@ -117,7 +117,10 @@
   <div id="content">
     <div id="container" class="center"></div>
     <div id="controlA">
-
+      <div>
+          <input type="checkbox" id="rhythmPolygon" name="rhythmPolygon" checked>
+          <label for="rhythmPolygon">Rhythm Polygon</label>
+      </div>
       <div id="muteGroup">
         <div>
           <input type="checkbox" id="bassSnareCheck" name="bassSnareCheck" checked>
@@ -237,7 +240,11 @@ function updatePattern(time) {
   updateNumbers(progressStep);
   updateHand(progressStep);
 
-  updatePosition(positionGroup, currentBeat())
+  if (rhythmPolygon.checked) {
+    drawPolygon(outerCustomPattern, outerMidRadius);
+  }
+
+  updatePosition(positionGroup, currentBeat());
   layer.batchDraw();
 }
 
@@ -1198,7 +1205,66 @@ sequenceClear.addEventListener('click',
   false
 );
 
-sequenceClear
+
+
+var rhythmPolygon = document.getElementById('rhythmPolygon');
+
+
+rhythmPolygon.addEventListener('change', 
+  function() {
+    if (rhythmPolygon.checked) {
+      drawPolygon(outerCustomPattern, outerMidRadius);
+    } else {
+      polygon.destroy();
+      polygon = new Konva.Shape();
+      layer.batchDraw();
+    }
+  }, 
+  false
+);
+
+var polygon = new Konva.Shape();
+function drawPolygon(pattern, radius) {
+  polygon.destroy();
+
+  var points = [];
+  for (var i = 0; i < pattern.value.length; i++) {
+    var note = pattern.value[i];
+    if (note != '-') {
+      var point = pointFor(i, radius, patternOriginX, patternOriginY);
+      points.push(point.x, point.y);
+    }
+  }
+
+  if (points.length == 0) {
+    polygon = new Konva.Shape();
+    return;
+  }
+
+  polygon = new Konva.Line({
+        points: points,
+        stroke: 'black',
+        strokeWidth: 1,
+        closed: true
+      });
+
+  layer.add(polygon);
+
+  layer.batchDraw();
+}
+
+function pointFor(step, radius, originX, originY) {
+  var segment = Math.PI * 2 / 32;
+  var dAlpha = - Math.PI / 2 + step * segment;
+  var dx = Math.cos(dAlpha) * radius;
+  var dy = Math.sin(dAlpha) * radius;
+
+  return {
+    x: originX + dx,
+    y: originY + dy
+  }  
+}
+
 
 </script>
 </body>
