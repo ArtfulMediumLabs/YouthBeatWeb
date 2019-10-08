@@ -119,7 +119,7 @@
     <div id="container" class="center"></div>
     <div id="controlA">
       <div>
-          <input type="checkbox" id="rhythmPolygon" name="rhythmPolygon" checked>
+          <input type="checkbox" id="rhythmPolygon" name="rhythmPolygon">
           <label for="rhythmPolygon">Rhythm Polygon</label>
       </div>
       <div id="muteGroup">
@@ -1233,16 +1233,45 @@ var rhythmPolygon = document.getElementById('rhythmPolygon');
 
 rhythmPolygon.addEventListener('change', 
   function() {
-    if (rhythmPolygon.checked) {
+    togglePolygon(rhythmPolygon.checked);
+  }, 
+  false
+);
+
+function togglePolygon(show) {
+  if (show) {
+      drawGuideSquare();
       drawPolygons()
     } else {
+      guideSquare.destroy();
       destroyPolygons();
       polygons = Array(3).fill(new Konva.Shape())
       layer.batchDraw();
     }
-  }, 
-  false
-);
+}
+
+var guideSquare = new Konva.Shape();
+
+function drawGuideSquare() {
+  var radius = innerRadius;
+  var points = [];
+  [0,8,16,24].forEach( function(i){
+    var point = pointFor(i, radius, patternOriginX, patternOriginY);
+    points.push(point.x, point.y);
+  })
+
+  guideSquare = new Konva.Line({
+        points: points,
+        fill: '#D9D9D9',
+        strokeWidth: 0,
+        closed: true,
+        listening: false,
+        opacity: 0.5
+      });
+  layer.add(guideSquare);
+  layer.batchDraw();
+}
+
 
 var polygons = Array(3).fill(new Konva.Shape())
 
