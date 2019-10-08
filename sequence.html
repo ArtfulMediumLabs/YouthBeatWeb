@@ -242,7 +242,7 @@ function updatePattern(time) {
   updateHand(progressStep);
 
   if (rhythmPolygon.checked) {
-    drawPolygon(outerCustomPattern, outerMidRadius);
+    drawPolygons();
   }
 
   updatePosition(positionGroup, currentBeat());
@@ -1234,20 +1234,39 @@ var rhythmPolygon = document.getElementById('rhythmPolygon');
 rhythmPolygon.addEventListener('change', 
   function() {
     if (rhythmPolygon.checked) {
-      drawPolygon(outerCustomPattern, outerMidRadius);
+      drawPolygons()
     } else {
-      polygon.destroy();
-      polygon = new Konva.Shape();
+      destroyPolygons();
+      polygons = Array(3).fill(new Konva.Shape())
       layer.batchDraw();
     }
   }, 
   false
 );
 
-var polygon = new Konva.Shape();
-function drawPolygon(pattern, radius) {
-  polygon.destroy();
+var polygons = Array(3).fill(new Konva.Shape())
 
+function drawPolygons() {
+  destroyPolygons()
+
+  polygons[0] = drawPolygon(innerCustomPattern, innerMidRadius);
+  polygons[1] = drawPolygon(outerCustomPattern, outerMidRadius);  
+  polygons[2] = drawPolygon(samplerCustomPattern, samplerMidRadius);
+  for (var i = 0; i < polygons.length; i++) {
+    layer.add(polygons[i]);
+  }
+  
+  layer.batchDraw();
+}
+
+function destroyPolygons() {
+  for (var i = 0; i < polygons.length; i++) {
+    polygons[i].destroy()
+  }
+}
+
+
+function drawPolygon(pattern, radius) {
   var points = [];
   for (var i = 0; i < pattern.value.length; i++) {
     var note = pattern.value[i];
@@ -1258,20 +1277,17 @@ function drawPolygon(pattern, radius) {
   }
 
   if (points.length == 0) {
-    polygon = new Konva.Shape();
-    return;
+    return new Konva.Shape();
   }
 
   polygon = new Konva.Line({
         points: points,
         stroke: 'black',
         strokeWidth: 1,
-        closed: true
+        closed: true,
+        listening: false
       });
-
-  layer.add(polygon);
-
-  layer.batchDraw();
+  return polygon;
 }
 
 function pointFor(step, radius, originX, originY, base=32) {
