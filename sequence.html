@@ -924,20 +924,40 @@ function createTick(originX, originY, radius, step) {
 
 function createNote(step, color, originX, originY, radius) {
   var segmentDegree = 360/32
-  var rotation = -90 + step * segmentDegree
-  var note = new Konva.Circle({
-        x: originX,
-        y: originY,
-        radius: 8,
-        fill: color,
-        rotation: rotation
-      });
-      note.offsetX(-radius)
+  var rotation = -90 + step * segmentDegree - segmentDegree/2
+  var note = new Konva.Arc({
+    x: originX,
+    y: originY,
+    innerRadius: radius - patternWidth/2,
+    outerRadius: radius + patternWidth/2,
+    angle: segmentDegree,
+    fill: color,
+    stroke: color,
+    strokeWidth: 1,
+    rotation: rotation,
+    listening: false
+  });
+  
   return note
 }
 
 function createHarmonicNote(step, color, label, originX, originY, radius) {
   var group = new Konva.Group()
+
+  var segmentDegree = 360/32
+  var rotation = -90 + step * segmentDegree - segmentDegree/2
+  var note = new Konva.Arc({
+    x: originX,
+    y: originY,
+    innerRadius: radius - patternWidth/2,
+    outerRadius: radius + patternWidth/2,
+    angle: segmentDegree,
+    fill: color,
+    stroke: color,
+    strokeWidth: 1,
+    rotation: rotation,
+    listening: false
+  });
 
   var segment = Math.PI * 2 / 32 
   var dAlpha = - Math.PI / 2 + step * segment;
@@ -946,15 +966,15 @@ function createHarmonicNote(step, color, label, originX, originY, radius) {
 
   var size = 32;
 
-  var square = new Konva.Rect({
-    x: patternOriginX + dx,
-    y: patternOriginY + dy,
-    width: size,
-    height: size,
-    fill: color,
-    offsetX: size / 2,
-    offsetY: size / 2
-  });
+  // var square = new Konva.Rect({
+  //   x: patternOriginX + dx,
+  //   y: patternOriginY + dy,
+  //   width: size,
+  //   height: size,
+  //   fill: color,
+  //   offsetX: size / 2,
+  //   offsetY: size / 2
+  // });
     
   var noteLabel = new Konva.Text({
     x: patternOriginX + dx,
@@ -971,7 +991,7 @@ function createHarmonicNote(step, color, label, originX, originY, radius) {
     offsetY: size / 2
   });
 
-  group.add(square);
+  group.add(note);
   group.add(noteLabel);
   
   return group
