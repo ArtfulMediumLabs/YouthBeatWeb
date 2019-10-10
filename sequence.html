@@ -44,6 +44,11 @@
     bottom: 10px;
     overflow: hidden;
   }
+  #mirrorControl {
+    position: absolute;
+    left: 150px;
+    top: 10px;
+  }
   #rhythmButtons {
     position: absolute;
     left: 10px;
@@ -149,6 +154,16 @@
       </div>
       <label for="tempo" id="tempoLabel">Tempo: </label><br>
       <input type="range" name="tempo" id="tempo" min="20" max="180" value="90" class="slider">
+    </div>
+    <div id="mirrorControl">
+      <div>
+        <input type="checkbox" id="mirrorVertical" name="mirrorVertical">
+        <label for="mirrorVertical">Mirror Vertical</label>
+      </div>
+      <div>
+          <input type="checkbox" id="mirrorHorizontal" name="mirrorHorizontal">
+          <label for="mirrorHorizontal">Mirror Horizontal</label>
+        </div>
     </div>
     <div id="controlB">
       <div id="presets">
@@ -370,9 +385,6 @@ function velocityFor(pattern, step) {
       break;
   }
 }
-
-
-
 
 var buffersLoaded = false
 
@@ -631,24 +643,63 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
   return arc
 }
 
+var mirrorHorizontal = document.getElementById('mirrorHorizontal');
+var mirrorVertical = document.getElementById('mirrorVertical');
+
 function toggleStep(index, pattern) {
   var currentStep = pattern.value[index];
 
   var currentAmplitude = pattern.amplitude[index] || 0;
   var amplitudeMax = 3;
 
+  var amplitude, value;
   switch (currentStep) {
     case activeInstrument:
-      pattern.amplitude[index] = ++currentAmplitude % 4;
-      pattern.value[index] = pattern.amplitude[index] == 0 ? '-' : activeInstrument;
+      amplitude = ++currentAmplitude % 4;
+      value = amplitude == 0 ? '-' : activeInstrument;
       break;
     case '-':
     default:
-      pattern.value[index] = activeInstrument;
-      pattern.amplitude[index] = 1;
+      amplitude = 1;
+      value = activeInstrument;
       break;
   }
+
+  console.log(amplitude);
+  pattern.amplitude[index] = amplitude;
+  pattern.value[index] = value;
+
+
+  if (mirrorVertical.checked) {
+    var verticalIndex = reflectPatternVertical(index, value, amplitude, pattern);
+    if (mirrorHorizontal.checked) {
+      reflectPatternHorizontal(verticalIndex, value, amplitude, pattern);
+    }
+  }
+
+  if (mirrorHorizontal.checked) {
+    horizontalIndex = reflectPatternHorizontal(index, value, amplitude, pattern);
+  }
+
   updatePattern();
+}
+
+function reflectPatternVertical(index, value, amplitude, pattern) {
+  var verticalIndex = (32 + 8 - index) % 32 + 8;
+  pattern.amplitude[verticalIndex] = amplitude;
+  pattern.value[verticalIndex] = value;
+  return verticalIndex;
+}
+
+function reflectPatternHorizontal(index, value, amplitude, pattern) {
+  var horizontalIndex = (32 - index) % 32;
+  pattern.amplitude[horizontalIndex] = amplitude;
+  pattern.value[horizontalIndex] = value;
+  return horizontalIndex;
+}
+
+function wrapMod(x, n) {
+  return (x % n + n) % n
 }
 
 function createPatternRing(originX, originY, innerRadius, outerRadius, fill) {
