@@ -684,18 +684,18 @@ function toggleStep(index, pattern) {
   updatePattern();
 }
 
-function reflectPatternVertical(index, value, amplitude, pattern) {
-  var verticalIndex = (32 + 8 - index) % 32 + 8;
-  pattern.amplitude[verticalIndex] = amplitude;
-  pattern.value[verticalIndex] = value;
-  return verticalIndex;
+function reflectPatternHorizontal(index, value, amplitude, pattern) {
+  var newIndex = (32 + 8 - index) % 32 + 8;
+  pattern.amplitude[newIndex] = amplitude;
+  pattern.value[newIndex] = value;
+  return newIndex;
 }
 
-function reflectPatternHorizontal(index, value, amplitude, pattern) {
-  var horizontalIndex = (32 - index) % 32;
-  pattern.amplitude[horizontalIndex] = amplitude;
-  pattern.value[horizontalIndex] = value;
-  return horizontalIndex;
+function reflectPatternVertical(index, value, amplitude, pattern) {
+  var newIndex = (32 - index) % 32;
+  pattern.amplitude[newIndex] = amplitude;
+  pattern.value[newIndex] = value;
+  return newIndex;
 }
 
 function wrapMod(x, n) {
