@@ -999,13 +999,18 @@ function createNote(step, color, originX, originY, radius) {
 function createHarmonicNote(step, color, label, originX, originY, radius) {
   var group = new Konva.Group()
 
+  var scaleDegree = scale.indexOf(label);
+  var percent = (scaleDegree + 1) / scale.length;
+  var innerRadius = radius - patternWidth/2;
+  var outerRadius = innerRadius + patternWidth * percent;
+
   var segmentDegree = 360/32;
   var rotation = -90 + step * segmentDegree - segmentDegree/2;
   var note = new Konva.Arc({
     x: originX,
     y: originY,
-    innerRadius: radius - patternWidth/2,
-    outerRadius: radius + patternWidth/2,
+    innerRadius: innerRadius,
+    outerRadius: outerRadius,
     angle: segmentDegree,
     fill: color,
     stroke: 'rgba(255,255,255,0.5)',
