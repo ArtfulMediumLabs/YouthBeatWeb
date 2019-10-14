@@ -465,7 +465,7 @@ function createSlices() {
     var point = pointBeginning(i, outerRadius, patternOriginX, patternOriginY, 16);
     var line = new Konva.Line({
       points: [patternOriginX, patternOriginY, point.x, point.y],
-      stroke: '#D9D9D9',
+      stroke: '#e9e9e9',
       strokeWidth: 2,
       opacity: 0.5,
       listening: false
@@ -488,9 +488,9 @@ layer.add(samplerPatternControl);
 layer.add(outerPatternControl);
 layer.add(innerPatternControl);
 
-drawEmptyPattern(innerPattern, innerMidRadius)
-drawEmptyPattern(outerPattern, outerMidRadius)
-drawEmptyPattern(samplerPattern, samplerMidRadius)
+// drawEmptyPattern(innerPattern, innerMidRadius)
+// drawEmptyPattern(outerPattern, outerMidRadius)
+// drawEmptyPattern(samplerPattern, samplerMidRadius)
 var numbers = createNumbers(samplerMidRadius + patternWidth);
 layer.add(numbers);
 
@@ -593,10 +593,10 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
       
   patternControl.add(patternRing);
 
-  [0,4,8,12].forEach(function(step) { 
-    var pulse = createPulse(originX, originY, innerRadius, outerRadius, step); 
-    patternControl.add(pulse);
-  })
+  // [0,4,8,12].forEach(function(step) { 
+  //   var pulse = createPulse(originX, originY, innerRadius, outerRadius, step); 
+  //   patternControl.add(pulse);
+  // })
 
   patternControl.add(patternGroup)
 
@@ -610,7 +610,7 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
 
 function createStepSegments(originX, originY, innerRadius, outerRadius, patternGroup, step, pattern, filter) {
   var segmentDegree = 360/32
-  var rotation = -90 + step * segmentDegree - segmentDegree/2
+  var rotation = -90 + step * segmentDegree;
   var arc = new Konva.Arc({
         x: originX,
         y: originY,
@@ -716,7 +716,7 @@ function createPatternRing(originX, originY, innerRadius, outerRadius, fill) {
 
 function createPulse(originX, originY, innerRadius, outerRadius, step) {
   var segmentDegree = 360/16
-  var rotation = -90 + step * segmentDegree - segmentDegree/2
+  var rotation = -90 + step * segmentDegree;
   var arc = new Konva.Arc({
         x: originX,
         y: originY,
@@ -797,7 +797,7 @@ function createHand(originX, originY, radius) {
         outerRadius: radius,
         angle: segmentDegree,
         fill: '#FFF2C6', 
-        rotation: -90 - segmentDegree * 0.5,
+        rotation: -90,
         opacity: 0.5,
         listening: false
       });
@@ -807,7 +807,7 @@ function createHand(originX, originY, radius) {
 function updateHand(step) {
   var normalizedStep = Math.floor(step/2);
   var segmentDegree = 360/16
-  var rotation = -90 + normalizedStep * segmentDegree - segmentDegree * 0.5;
+  var rotation = -90 + normalizedStep * segmentDegree;
   hand.rotation(rotation);
 }
 
@@ -918,9 +918,9 @@ function drawPattern(targetGroup, pattern, radius, step = 0) {
     var note = pattern.value[i];
     var amplitude = pattern.amplitude[i] || 0;
     if (note == '-' && i % 2 == 0) {
-      var normalizedStep = i / 2
-      var tick = createTick(patternOriginX, patternOriginY, radius, normalizedStep)
-      targetGroup.add(tick)
+      // var normalizedStep = i / 2
+      // var tick = createTick(patternOriginX, patternOriginY, radius, normalizedStep)
+      // targetGroup.add(tick)
     } else if (noteColors.hasOwnProperty(note)) {
       var noteColor = noteColors.getColor(note, amplitude);
       if (note.length > 1) {
@@ -979,7 +979,7 @@ function createTick(originX, originY, radius, step) {
 
 function createNote(step, color, originX, originY, radius) {
   var segmentDegree = 360/32;
-  var rotation = -90 + step * segmentDegree - segmentDegree/2;
+  var rotation = -90 + step * segmentDegree;
   var note = new Konva.Arc({
     x: originX,
     y: originY,
@@ -1005,7 +1005,7 @@ function createHarmonicNote(step, color, label, originX, originY, radius) {
   var outerRadius = innerRadius + patternWidth * percent;
 
   var segmentDegree = 360/32;
-  var rotation = -90 + step * segmentDegree - segmentDegree/2;
+  var rotation = -90 + step * segmentDegree;
   var note = new Konva.Arc({
     x: originX,
     y: originY,
@@ -1020,7 +1020,7 @@ function createHarmonicNote(step, color, label, originX, originY, radius) {
   });
 
   var segment = Math.PI * 2 / 32 
-  var dAlpha = - Math.PI / 2 + step * segment;
+  var dAlpha = - Math.PI / 2 + step * segment + segment/2;
   var dx = Math.cos(dAlpha) * radius;
   var dy = Math.sin(dAlpha) * radius;
 
@@ -1413,7 +1413,7 @@ function pointFor(step, radius, originX, originY, base=32) {
 
 function pointBeginning(step, radius, originX, originY, base=32) {
   var segment = Math.PI * 2 / base;
-  var dAlpha = - Math.PI / 2 + step * segment - segment / 2;
+  var dAlpha = - Math.PI / 2 + step * segment;
   var dx = Math.cos(dAlpha) * radius;
   var dy = Math.sin(dAlpha) * radius;
 
