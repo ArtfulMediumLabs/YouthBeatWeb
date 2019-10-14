@@ -685,14 +685,14 @@ function toggleStep(index, pattern) {
 }
 
 function reflectPatternHorizontal(index, value, amplitude, pattern) {
-  var newIndex = (32 + 8 - index) % 32 + 8;
+  var newIndex = (30 + 8 - index) % 32 + 8;
   pattern.amplitude[newIndex] = amplitude;
   pattern.value[newIndex] = value;
   return newIndex;
 }
 
 function reflectPatternVertical(index, value, amplitude, pattern) {
-  var newIndex = (32 - index) % 32;
+  var newIndex = (30 - index) % 32;
   pattern.amplitude[newIndex] = amplitude;
   pattern.value[newIndex] = value;
   return newIndex;
