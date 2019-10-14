@@ -1044,7 +1044,7 @@ function createHarmonicNote(step, color, label, originX, originY, radius) {
   var group = new Konva.Group()
 
   var scaleDegree = scale.indexOf(label);
-  var percent = (scaleDegree + 1) / scale.length;
+  var percent = (scale.length - scaleDegree) / scale.length;
   var innerRadius = radius - patternWidth/2;
   var outerRadius = innerRadius + patternWidth * percent;
 
