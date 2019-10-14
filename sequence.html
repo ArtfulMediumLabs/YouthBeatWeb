@@ -500,6 +500,39 @@ layer.add(slices);
 var hand = createHand(patternOriginX, patternOriginY, innerRadius + patternWidth * 3)
 layer.add(hand);
 
+var mirrorVerticalLine = createVerticalLine();
+layer.add(mirrorVerticalLine);
+var mirrorHorizontalLine = createHorizontalLine();
+layer.add(mirrorHorizontalLine);
+
+function createVerticalLine() {
+    var startPoint = pointBeginning(0, outerRadius, patternOriginX, patternOriginY, 16);
+    var endPoint = pointBeginning(8, outerRadius, patternOriginX, patternOriginY, 16);
+    var line = new Konva.Line({
+      points: [startPoint.x, startPoint.y, endPoint.x, endPoint.y],
+      stroke: '#add8e6',
+      strokeWidth: 4,
+      opacity: 0.75,
+      listening: false,
+      visible: false
+    });
+    return line;
+}
+
+function createHorizontalLine() {
+    var startPoint = pointBeginning(4, outerRadius, patternOriginX, patternOriginY, 16);
+    var endPoint = pointBeginning(12, outerRadius, patternOriginX, patternOriginY, 16);
+    var line = new Konva.Line({
+      points: [startPoint.x, startPoint.y, endPoint.x, endPoint.y],
+      stroke: '#add8e6',
+      strokeWidth: 4,
+      opacity: 0.75,
+      listening: false,
+      visible: false
+    });
+    return line;
+}
+
 var positionGroup = createPositionGroup(stage.width() - 200,98, 0);
 layer.add(positionGroup);
 
@@ -644,7 +677,17 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
 }
 
 var mirrorHorizontal = document.getElementById('mirrorHorizontal');
+mirrorHorizontal.addEventListener('click',
+  function(event){
+    mirrorHorizontalLine.visible(this.checked);
+    layer.batchDraw();
+  }, false)
 var mirrorVertical = document.getElementById('mirrorVertical');
+mirrorVertical.addEventListener('click',
+  function(event){
+    mirrorVerticalLine.visible(this.checked);
+    layer.batchDraw();
+  }, false)
 
 function toggleStep(index, pattern) {
   var currentStep = pattern.value[index];
