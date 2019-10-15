@@ -473,10 +473,20 @@ function createSlices() {
   var sliceGroup = new Konva.Group()
   for (var i = 0; i < 16; i++) {
     var point = pointBeginning(i, outerRadius, patternOriginX, patternOriginY, 16);
+    var strokeWidth = 2
+    var strokeColor = '#e9e9e9'
+    if (i % 8 == 0) {
+      strokeWidth = 6
+      strokeColor = '#cccccc'
+    }
+    if ((i-4) % 8 == 0) {
+      strokeWidth = 4
+      strokeColor = '#cccccc'
+    }
     var line = new Konva.Line({
       points: [patternOriginX, patternOriginY, point.x, point.y],
-      stroke: '#e9e9e9',
-      strokeWidth: 2,
+      stroke: strokeColor,
+      strokeWidth: strokeWidth,
       opacity: 0.5,
       listening: false
     });
