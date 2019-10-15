@@ -161,9 +161,12 @@
         <label for="mirrorVertical">Mirror Vertical</label>
       </div>
       <div>
-          <input type="checkbox" id="mirrorHorizontal" name="mirrorHorizontal">
-          <label for="mirrorHorizontal">Mirror Horizontal</label>
-        </div>
+        <input type="checkbox" id="mirrorHorizontal" name="mirrorHorizontal">
+        <label for="mirrorHorizontal">Mirror Horizontal</label>
+      </div>
+      <div>
+        <button id="reset">RESET</button>
+      </div>
     </div>
     <div id="controlB">
       <div id="presets">
@@ -246,6 +249,13 @@ function emptyPattern() {
     amplitude: Array(32).fill(0)
   }
 }
+
+function emptyPreset() {
+  return {innerCustomPattern: emptyPattern(),
+          outerCustomPattern: emptyPattern(),
+          samplerCustomPattern: emptyPattern()}
+}
+
 
 function updatePattern(time) {
   var progressStep = Math.floor(Tone.Transport.progress * 64) % 32
@@ -687,6 +697,13 @@ mirrorVertical.addEventListener('click',
   function(event){
     mirrorVerticalLine.visible(this.checked);
     layer.batchDraw();
+  }, false)
+
+var resetButton = document.getElementById('reset');
+resetButton.addEventListener('click',
+  function(event){
+    loadPreset(emptyPreset());
+    updatePattern();
   }, false)
 
 function toggleStep(index, pattern) {
@@ -1324,7 +1341,7 @@ function capturePreset() {
       samplerCustomPattern: patternFrom(samplerCustomPattern)
   }
   return preset;
-}
+}     
 
 function loadPreset(preset) {
   loadPattern(preset.innerCustomPattern, innerCustomPattern);
