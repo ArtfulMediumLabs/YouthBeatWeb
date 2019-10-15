@@ -1050,7 +1050,7 @@ function createTick(originX, originY, radius, step) {
 function createNote(step, color, originX, originY, radius) {
   var segmentDegree = 360/32;
   var rotation = -90 + step * segmentDegree;
-  var angle = 360/16;
+  var angle = step % 2 == 0 ? 360/16 : 360/32;
   var note = new Konva.Arc({
     x: originX,
     y: originY,
@@ -1077,7 +1077,7 @@ function createHarmonicNote(step, color, label, originX, originY, radius) {
 
   var segmentDegree = 360/32;
   var rotation = -90 + step * segmentDegree;
-  var angle = 360/16;
+  var angle = step % 2 == 0 ? 360/16 : 360/32;
   var note = new Konva.Arc({
     x: originX,
     y: originY,
@@ -1092,7 +1092,8 @@ function createHarmonicNote(step, color, label, originX, originY, radius) {
   });
 
   var segment = Math.PI * 2 / 32 
-  var dAlpha = - Math.PI / 2 + step * segment + segment;
+  var offset = step % 2 == 0 ? segment : segment / 2;
+  var dAlpha = - Math.PI / 2 + step * segment + offset;
   var dx = Math.cos(dAlpha) * radius;
   var dy = Math.sin(dAlpha) * radius;
 
