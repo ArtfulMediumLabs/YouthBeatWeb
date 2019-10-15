@@ -1327,9 +1327,9 @@ function capturePreset() {
 }
 
 function loadPreset(preset) {
-  innerCustomPattern = patternFrom(preset.innerCustomPattern)
-  outerCustomPattern = patternFrom(preset.outerCustomPattern)
-  samplerCustomPattern = patternFrom(preset.samplerCustomPattern)
+  loadPattern(preset.innerCustomPattern, innerCustomPattern);
+  loadPattern(preset.outerCustomPattern, outerCustomPattern);
+  loadPattern(preset.samplerCustomPattern, samplerCustomPattern);
 }
 
 function patternFrom(pattern) {
@@ -1338,6 +1338,11 @@ function patternFrom(pattern) {
     amplitude: pattern.amplitude.slice()
   }
   return clone
+}
+
+function loadPattern(pattern, target) {
+  target.value = pattern.value.slice();
+  target.amplitude = pattern.amplitude.slice();
 }
 
 
