@@ -696,7 +696,17 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
   });
   function arcEvent(){
     if (filter.indexOf(activeInstrument.toUpperCase()) == -1) { return; }
-    toggleStep(step, pattern);
+    if (activeInstrument.length > 1) {
+      var pointer = stage.getPointerPosition();
+      var drag = distance(originX, originY, pointer.x, pointer.y);
+      var travel = drag - innerRadius;
+      var stepSize = patternWidth / scale.length;
+      var index = Math.round(travel / stepSize);
+      toggleStep(step, pattern, scale[index]);
+    } else {
+      toggleStep(step, pattern);
+    }
+    
     drawPattern(patternGroup, pattern, innerRadius + patternWidth / 2)
   }
   arc.on('click tap', arcEvent);
@@ -750,7 +760,7 @@ resetButton.addEventListener('click',
     updatePattern();
   }, false)
 
-function toggleStep(index, pattern) {
+function toggleStep(index, pattern, instrument=activeInstrument) {
   var currentStep = pattern.value[index];
 
   var currentAmplitude = pattern.amplitude[index] || 0;
@@ -758,14 +768,14 @@ function toggleStep(index, pattern) {
 
   var amplitude, value;
   switch (currentStep) {
-    case activeInstrument:
+    case instrument:
       amplitude = ++currentAmplitude % 4;
-      value = amplitude == 0 ? '-' : activeInstrument;
+      value = amplitude == 0 ? '-' : instrument;
       break;
     case '-':
     default:
       amplitude = 1;
-      value = activeInstrument;
+      value = instrument;
       break;
   }
 
