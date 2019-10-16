@@ -799,14 +799,16 @@ function toggleStep(index, pattern, instrument=activeInstrument) {
 }
 
 function reflectPatternHorizontal(index, value, amplitude, pattern) {
-  var newIndex = (30 + 16 - index) % 32;
+  var offset = index % 2 == 0 ? 30 : 31;
+  var newIndex = (offset + 16 - index) % 32;
   pattern.amplitude[newIndex] = amplitude;
   pattern.value[newIndex] = value;
   return newIndex;
 }
 
 function reflectPatternVertical(index, value, amplitude, pattern) {
-  var newIndex = (30 - index) % 32;
+  var offset = index % 2 == 0 ? 30 : 31;
+  var newIndex = (offset - index) % 32;
   pattern.amplitude[newIndex] = amplitude;
   pattern.value[newIndex] = value;
   return newIndex;
