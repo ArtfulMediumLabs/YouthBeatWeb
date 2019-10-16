@@ -288,9 +288,9 @@ function createSequence() {
     return keys; 
 }
 
-var scale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'].reverse();
+var scale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'];
 // https://mycolor.space/?hex=%23845EC2&sub=1
-var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#FFC75F'].reverse();
+var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#FFC75F'];
 
 function createSampler() {
   var notes = ['A3', 'B3', 'C#4', 'D3', 'D4', 'E3', 'E4', 'F#3', 'F#4', 'G3'];
@@ -661,6 +661,9 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
   return patternControl
 }
 
+var dragStart = {x: 0, y:0}
+var dragDegree = 0;
+
 function createStepSegments(originX, originY, innerRadius, outerRadius, patternGroup, step, pattern, filter) {
   var segmentDegree = 360/32
   var rotation = -90 + step * segmentDegree;
@@ -674,6 +677,11 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
         strokeWidth: 0,
         rotation: rotation,
         // visible: false,
+        draggable: true,
+        dragBoundFunc: function() {
+          var pos = this.getAbsolutePosition();
+          return {x: pos.x, y: pos.y};
+        }
       });
   arc.on('mouseover', function() {
     if (filter.indexOf(activeInstrument.toUpperCase()) == -1 ) { return; }
@@ -691,9 +699,35 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
     toggleStep(step, pattern);
     drawPattern(patternGroup, pattern, innerRadius + patternWidth / 2)
   }
-  arc.on('click', arcEvent);
-  arc.on('tap', arcEvent);
+  arc.on('click tap', arcEvent);
+  arc.on('dragstart', function(){
+    var note = pattern.value[step]
+    if (note.length <= 1) { return }
+    dragStart = stage.getPointerPosition();
+    dragDegree = scale.indexOf(note);
+  });
+  arc.on ('dragmove', function(){
+    var note = pattern.value[step]
+    if (note.length <= 1) { return }
+    var pointer = stage.getPointerPosition();
+    var origin = distance(originX, originY, dragStart.x, dragStart.y);
+    var drag = distance(originX, originY, pointer.x, pointer.y);
+    var travel = drag - origin;
+
+    var factor = patternWidth * 2 / scale.length
+    var min = factor * -dragDegree;
+    var max = factor * (scale.length - 1 - dragDegree);
+    var normalized = Math.max(Math.min(max, travel),min);
+    var newIndex = dragDegree + Math.round(normalized / factor);
+
+    pattern.value[step] = scale[newIndex];
+    updatePattern();
+  });
   return arc
+}
+
+function distance(x1, y1, x2, y2) {
+  return  Math.sqrt(Math.pow((x2 - x1),2) + Math.pow((y2 - y1),2));
 }
 
 var mirrorHorizontal = document.getElementById('mirrorHorizontal');
@@ -755,7 +789,7 @@ function toggleStep(index, pattern) {
 }
 
 function reflectPatternHorizontal(index, value, amplitude, pattern) {
-  var newIndex = (30 + 8 - index) % 32 + 8;
+  var newIndex = (30 + 16 - index) % 32;
   pattern.amplitude[newIndex] = amplitude;
   pattern.value[newIndex] = value;
   return newIndex;
@@ -1071,7 +1105,7 @@ function createHarmonicNote(step, color, label, originX, originY, radius) {
   var group = new Konva.Group()
 
   var scaleDegree = scale.indexOf(label);
-  var percent = (scale.length - scaleDegree) / scale.length;
+  var percent = (scaleDegree + 1) / scale.length;
   var innerRadius = radius - patternWidth/2;
   var outerRadius = innerRadius + patternWidth * percent;
 
@@ -1174,11 +1208,11 @@ slider.oninput = function() {
 }
 
 var notes = document.getElementById("notes");
-scale.forEach(function(note, index){
+scale.slice().reverse().forEach(function(note, index){
   var button = document.createElement("BUTTON");
   button.innerHTML = note;
   button.className = "note"
-  button.style.backgroundColor = gradient[index];
+  button.style.backgroundColor = noteColors.getColor(note);
   button.onmousedown = function() {
     // console.log(note);
     // sampler.triggerAttack(note);
