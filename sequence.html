@@ -1482,9 +1482,9 @@ var polygons = Array(3).fill(new Konva.Shape())
 function drawPolygons() {
   destroyPolygons()
 
-  polygons[0] = drawPolygon(innerCustomPattern, innerMidRadius);
-  polygons[1] = drawPolygon(outerCustomPattern, outerMidRadius);  
-  polygons[2] = drawPolygon(samplerCustomPattern, samplerMidRadius);
+  polygons[0] = drawPolygon(innerCustomPattern, innerMidRadius - patternWidth / 2);
+  polygons[1] = drawPolygon(outerCustomPattern, outerMidRadius - patternWidth / 2);  
+  polygons[2] = drawPolygon(samplerCustomPattern, samplerMidRadius - patternWidth / 2);
   for (var i = 0; i < polygons.length; i++) {
     layer.add(polygons[i]);
   }
