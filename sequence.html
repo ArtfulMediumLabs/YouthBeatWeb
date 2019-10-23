@@ -655,19 +655,18 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
   //   patternControl.add(pulse);
   // })
 
+  var highlightRing = createPatternRing(originX, originY, innerRadius, outerRadius, '#F0E6C3');
+  highlightRing.visible(false);
+  highlightRing.name('highlightRing');
+  highlightRing.listening(false);
+  patternControl.add(highlightRing);
+
   patternControl.add(patternGroup)
 
   for (var i = 0; i < 32; i++) {
     var step = createStepSegments(originX, originY, innerRadius, outerRadius, patternGroup, i, customPattern, filter);
     patternControl.add(step);
   }
-
-
-  var highlightRing = createPatternRing(originX, originY, innerRadius, outerRadius, '#F0E6C3');
-  highlightRing.visible(false);
-  highlightRing.name('highlightRing');
-  patternControl.add(highlightRing);
-
 
   return patternControl
 }
