@@ -497,12 +497,16 @@ function createSlices() {
 }
 
  
+var controlBackgrounds = ['#F5F1F0', '#D9D9D9', '#B5B5B5'];
+var innerFilter = ['H','O', 'C'];
 var innerPattern = new Konva.Group()
-var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, '#F5F1F0', innerPattern, innerCustomPattern, ['H','O', 'C'], true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, controlBackgrounds[0], innerPattern, innerCustomPattern, innerFilter, true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
 var outerPattern = new Konva.Group()
-var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, '#D9D9D9', outerPattern, outerCustomPattern, ['B','S','R'], false, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var outerFilter = ['B','S','R'];
+var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, controlBackgrounds[1], outerPattern, outerCustomPattern, outerFilter, false, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var samplerFilter = scale;
 var samplerPattern = new Konva.Group()
-var samplerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 3, '#B5B5B5', samplerPattern, samplerCustomPattern, scale, false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var samplerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 3, controlBackgrounds[2], samplerPattern, samplerCustomPattern, samplerFilter, false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
 
 layer.add(samplerPatternControl);
 layer.add(outerPatternControl);
@@ -657,6 +661,13 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
     var step = createStepSegments(originX, originY, innerRadius, outerRadius, patternGroup, i, customPattern, filter);
     patternControl.add(step);
   }
+
+
+  var highlightRing = createPatternRing(originX, originY, innerRadius, outerRadius, '#F0E6C3');
+  highlightRing.visible(false);
+  highlightRing.name('highlightRing');
+  patternControl.add(highlightRing);
+
 
   return patternControl
 }
@@ -1230,6 +1241,7 @@ scale.slice().reverse().forEach(function(note, index){
     // sampler.triggerAttack(note);
     activeInstrument = note;
     showSelectedButton();
+    selectRing();
   }
   notes.appendChild(button);
 })
@@ -1241,6 +1253,7 @@ Array.prototype.forEach.call(rhythmButtons, function(button){
     function() { 
       activeInstrument = instrument;
       showSelectedButton();
+      selectRing();
     }, 
     false
   );
@@ -1255,6 +1268,23 @@ function showSelectedButton() {
 }
 
 showSelectedButton();
+selectRing();
+
+function selectRing() {
+  var controls = [innerPatternControl, outerPatternControl, samplerPatternControl];
+  var filters = [innerFilter, outerFilter, samplerFilter];
+  for (var i=0; i<controls.length; i++) {
+    var control = controls[i];
+    var filter = filters[i];
+    var ring = control.findOne('.highlightRing');
+    if (filter.includes(activeInstrument)) {
+      ring.visible(true);
+    } else {
+      ring.visible(false);
+    }
+  }
+  layer.batchDraw();
+}
 
 var bass90Button = document.getElementById("bass90");
 bass90Button.addEventListener('click', 
