@@ -1288,8 +1288,11 @@ function selectRing() {
 var bass90Button = document.getElementById("bass90");
 bass90Button.addEventListener('click', 
   function() {
-    patternRotate(outerCustomPattern, 8);
-    updatePattern();
+    rotateAnimation(outerCustomPattern, outerMidRadius - patternWidth / 2,
+    function() {
+      patternRotate(outerCustomPattern, 8)
+      updatePattern();
+    });
   }, 
   false
 );
@@ -1297,8 +1300,11 @@ bass90Button.addEventListener('click',
 var hihat90Button = document.getElementById("hihat90");
 hihat90Button.addEventListener('click', 
   function() {
-    patternRotate(innerCustomPattern, 8);
-    updatePattern();
+    rotateAnimation(innerCustomPattern, innerMidRadius - patternWidth / 2,
+    function() {
+      patternRotate(innerCustomPattern, 8);
+      updatePattern();
+    });
   }, 
   false
 );
@@ -1306,8 +1312,12 @@ hihat90Button.addEventListener('click',
 var melody90Button = document.getElementById("melody90");
 melody90Button.addEventListener('click', 
   function() {
-    patternRotate(samplerCustomPattern, 8);
-    updatePattern();
+
+    rotateAnimation(samplerCustomPattern, samplerMidRadius - patternWidth / 2,
+    function() {
+      patternRotate(samplerCustomPattern, 8);
+      updatePattern();
+    });
   }, 
   false
 );
@@ -1320,6 +1330,54 @@ function patternRotate(pattern, count) {
 function arrayRotate(arr, count) {
   arr.unshift.apply(arr, arr.splice(arr.length-count, count));
   return arr;
+}
+
+function rotateAnimation(pattern, radius, completion) {
+  var slices = patternSliceGroup(pattern, radius);
+  layer.add(slices);
+  layer.batchDraw();
+
+  var duration = 333;
+  var rotation = 90;
+  var anim = new Konva.Animation(function(frame) {
+    var time = frame.time,
+      timeDiff = frame.timeDiff,
+      frameRate = frame.frameRate;
+    if (time >= duration) {
+      slices.destroy();
+      anim.stop();
+      completion();
+    }
+    var angle = rotation * frame.time / duration;
+    slices.rotation(angle);
+  }, layer);
+  anim.start();
+}
+
+function patternSliceGroup(pattern, radius) {
+  var sliceGroup = new Konva.Group({
+    x: patternOriginX,
+    y: patternOriginY
+  });
+
+  var originX = patternOriginX, originY = patternOriginY;
+  for (var i = 0; i < 32; i++) {
+    if (pattern.value[i] == '-' || pattern.amplitude[i] == 0) {
+      continue;
+    }
+    var point = pointBeginning(i, radius, 0, 0);
+    var strokeWidth = 8;
+    var strokeColor = 'black';
+    var line = new Konva.Line({
+      points: [0, 0, point.x, point.y],
+      stroke: strokeColor,
+      strokeWidth: strokeWidth,
+      opacity: 0.5,
+      listening: false
+    });
+    sliceGroup.add(line);
+  }
+  return sliceGroup;  
 }
 
 var presetCounter = 1;
