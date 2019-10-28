@@ -695,6 +695,7 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
       });
   arc.on('mouseover', function() {
     if (filter.indexOf(activeInstrument.toUpperCase()) == -1 ) { return; }
+    if (disable32(step)) { return; };
     arc.strokeWidth(1);
     arc.stroke(noteColors[activeInstrument]);
     layer.batchDraw();
@@ -706,6 +707,7 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
   });
   function arcEvent(){
     if (filter.indexOf(activeInstrument.toUpperCase()) == -1) { return; }
+    if (disable32(step)) { return; };
     if (activeInstrument.length > 1) {
       var pointer = stage.getPointerPosition();
       var drag = distance(originX, originY, pointer.x, pointer.y);
@@ -748,6 +750,13 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
 
 function distance(x1, y1, x2, y2) {
   return  Math.sqrt(Math.pow((x2 - x1),2) + Math.pow((y2 - y1),2));
+}
+
+function disable32(step) {
+  if (mirrorVertical.checked || mirrorHorizontal.checked) {
+    return step % 2 == 1
+  }
+  return false;
 }
 
 var mirrorHorizontal = document.getElementById('mirrorHorizontal');
