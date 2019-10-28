@@ -1338,18 +1338,24 @@ function rotateAnimation(pattern, radius, completion) {
   layer.batchDraw();
 
   var duration = 333;
+  var sustain = 150;
   var rotation = 90;
   var anim = new Konva.Animation(function(frame) {
     var time = frame.time,
       timeDiff = frame.timeDiff,
       frameRate = frame.frameRate;
-    if (time >= duration) {
+    if (time >= duration + sustain) {
       slices.destroy();
       anim.stop();
       completion();
+    } else if (time > duration) {
+      slices.rotation(rotation);
+    } else {
+      var angle = rotation * frame.time / duration;
+      slices.rotation(angle);
     }
-    var angle = rotation * frame.time / duration;
-    slices.rotation(angle);
+
+    
   }, layer);
   anim.start();
 }
