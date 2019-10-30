@@ -1650,6 +1650,72 @@ function pointBeginning(step, radius, originX, originY, base=32) {
 }
 
 
+var base = 8;
+
+function encodePreset(pattern=outerCustomPattern, key=outerFilter) {
+  return {a:encode(pattern.amplitude), v:encode(pattern.value, key)}
+}
+
+function encode(pattern, filter=[]) {
+  if (filter.length > 0) {
+    var pattern = pattern.map( function(note){ 
+      return filter.indexOf(note) + 1 
+    });
+  }
+  
+
+  var chunks = chunk(pattern, 4);
+  var encoded = chunks.map(function(chunk) { 
+    var a = parseInt(chunk.join(''), base).toString(36)
+    return a.padStart(2, 0);
+  });
+
+  return encoded.join('');
+}
+
+
+function decodePreset(preset, filter) {
+  return {
+    value: decode(preset.v, filter),
+    amplitude: decode(preset.a)
+  }
+}
+
+function decode(string, filter=[]) {
+  var a = chop(string, 2)
+  var chunks = a.map( function (chunk) {
+    var a = parseInt(chunk, 36).toString(base)
+    return a.padStart(4, 0);
+  })
+
+  var ints = chunks.join('').split('')
+
+  if (filter.length > 0) {
+    ints = ints.map(function(index){ 
+      return --index < 0 ? '-' : filter[index]; 
+    })
+  }
+
+  return ints
+}
+
+function chunk(array, size) {
+  const chunked_arr = [];
+  let index = 0;
+  while (index < array.length) {
+    chunked_arr.push(array.slice(index, size + index));
+    index += size;
+  } 
+  return chunked_arr;
+}
+
+function chop(str, size){
+      if (str == null) return [];
+      str = String(str);
+      size = ~~size;
+      return size > 0 ? str.match(new RegExp('.{1,' + size + '}', 'g')) : [str];
+}
+
 </script>
 </body>
 </html>
