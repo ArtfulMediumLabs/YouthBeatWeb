@@ -302,7 +302,6 @@ function createSampler() {
   notes.forEach(function(note){
     config[note] = baseDir + baseVoice + encodeURIComponent(note) + extension;
   })
-  console.log(config);
   var sampler = new Tone.Sampler(config).toMaster();
   return sampler;
 }
@@ -438,14 +437,16 @@ function updateLoading() {
   layer.batchDraw();
 }
 
-var patternWidth = 34 + 12
-var innerRadius = 97 + 12
+var patternWidth = (34 + 12)
+var outerPadding = (34 + 12)
+var samplerWidth = (34 + 12) + 24
+var innerRadius = (97 + 12) - 24
 var patternOriginX = stage.width() / 2
-var patternOriginY = innerRadius + patternWidth * 4
+var patternOriginY = innerRadius + patternWidth * 2 + samplerWidth + outerPadding
 var innerMidRadius = innerRadius + patternWidth / 2
 var outerMidRadius = innerRadius + patternWidth * 1.5
-var samplerMidRadius = innerRadius + patternWidth * 2.5
-var outerRadius = samplerMidRadius + patternWidth / 2
+var samplerMidRadius = innerRadius + patternWidth * 2 + samplerWidth * 0.5
+var outerRadius = samplerMidRadius + samplerWidth * 0.5
 
 
 
@@ -491,7 +492,6 @@ function createSlices() {
       opacity: 0.5,
       listening: false
     });
-    console.log(patternOriginX, patternOriginY, point.X, point.Y);
     sliceGroup.add(line);
   }
   return sliceGroup;
@@ -507,7 +507,7 @@ var outerFilter = ['B','S','R'];
 var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, controlBackgrounds[1], outerPattern, outerCustomPattern, outerFilter, false, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
 var samplerFilter = scale;
 var samplerPattern = new Konva.Group()
-var samplerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 3, controlBackgrounds[2], samplerPattern, samplerCustomPattern, samplerFilter, false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var samplerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 2 + samplerWidth, controlBackgrounds[2], samplerPattern, samplerCustomPattern, samplerFilter, false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
 
 layer.add(samplerPatternControl);
 layer.add(outerPatternControl);
@@ -516,13 +516,13 @@ layer.add(innerPatternControl);
 // drawEmptyPattern(innerPattern, innerMidRadius)
 // drawEmptyPattern(outerPattern, outerMidRadius)
 // drawEmptyPattern(samplerPattern, samplerMidRadius)
-var numbers = createNumbers(samplerMidRadius + patternWidth);
+var numbers = createNumbers(outerRadius + outerPadding * 0.5);
 layer.add(numbers);
 
 var slices = createSlices();
 layer.add(slices);
 
-var hand = createHand(patternOriginX, patternOriginY, innerRadius + patternWidth * 3)
+var hand = createHand(patternOriginX, patternOriginY, outerRadius)
 layer.add(hand);
 
 var mirrorVerticalLine = createVerticalLine();
@@ -713,14 +713,15 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
       var pointer = stage.getPointerPosition();
       var drag = distance(originX, originY, pointer.x, pointer.y);
       var travel = drag - innerRadius;
-      var stepSize = patternWidth / scale.length;
+      var stepSize = samplerWidth / scale.length;
       var index = Math.round(travel / stepSize);
       toggleStep(step, pattern, scale[index]);
     } else {
       toggleStep(step, pattern);
     }
     patternUpdated()
-    drawPattern(patternGroup, pattern, innerRadius + patternWidth / 2)
+    var midRadius = innerRadius + (outerRadius - innerRadius) / 2
+    drawPattern(patternGroup, pattern, midRadius)
   }
   arc.on('click tap', arcEvent);
   arc.on('dragstart', function(){
@@ -1138,8 +1139,8 @@ function createHarmonicNote(step, color, label, originX, originY, radius) {
 
   var scaleDegree = scale.indexOf(label);
   var percent = (scaleDegree + 1) / scale.length;
-  var innerRadius = radius - patternWidth/2;
-  var outerRadius = innerRadius + patternWidth * percent;
+  var innerRadius = radius - samplerWidth/2;
+  var outerRadius = innerRadius + samplerWidth * percent;
 
   var segmentDegree = 360/32;
   var rotation = -90 + step * segmentDegree;
