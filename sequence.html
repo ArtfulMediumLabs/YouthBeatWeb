@@ -12,6 +12,7 @@
 
   <script src="https://unpkg.com/konva@3.3.3/konva.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.0.1/Tone.min.js"></script>
+  <script src="https://unpkg.com/@ungap/url-search-params@0.1.2/min.js"></script>
   <script src="pSBC.js"></script>
   <script src="fill.js"></script>
 
@@ -718,7 +719,7 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
     } else {
       toggleStep(step, pattern);
     }
-    
+    patternUpdated()
     drawPattern(patternGroup, pattern, innerRadius + patternWidth / 2)
   }
   arc.on('click tap', arcEvent);
@@ -1506,6 +1507,7 @@ function loadPreset(preset) {
   loadPattern(preset.innerCustomPattern, innerCustomPattern);
   loadPattern(preset.outerCustomPattern, outerCustomPattern);
   loadPattern(preset.samplerCustomPattern, samplerCustomPattern);
+  patternUpdated();
 }
 
 function patternFrom(pattern) {
@@ -1649,9 +1651,6 @@ function pointBeginning(step, radius, originX, originY, base=32) {
   }  
 }
 
-
-var base = 8;
-
 function encodePreset(pattern=outerCustomPattern, key=outerFilter) {
   return {a:encode(pattern.amplitude), v:encode(pattern.value, key)}
 }
@@ -1662,27 +1661,33 @@ function encode(pattern, filter=[]) {
       return filter.indexOf(note) + 1 
     });
   }
-  
 
+  var length = filter.length < 4 ? 2 : 3;
+  var base = filter.length < 4 ? 4 : 8;
+  
   var chunks = chunk(pattern, 4);
   var encoded = chunks.map(function(chunk) { 
     var a = parseInt(chunk.join(''), base).toString(36)
-    return a.padStart(2, 0);
+    return a.padStart(length, 0);
   });
 
   return encoded.join('');
 }
 
 
-function decodePreset(preset, filter) {
+function decodePreset(v,a,filter) {
+  if (!v || !a) return emptyPattern();
   return {
-    value: decode(preset.v, filter),
-    amplitude: decode(preset.a)
+    value: decode(v, filter),
+    amplitude: decode(a)
   }
 }
 
 function decode(string, filter=[]) {
-  var a = chop(string, 2)
+  var length = filter.length < 4 ? 2 : 3;
+  var base = filter.length < 4 ? 4 : 8;
+  
+  var a = chop(string, length)
   var chunks = a.map( function (chunk) {
     var a = parseInt(chunk, 36).toString(base)
     return a.padStart(4, 0);
@@ -1715,6 +1720,48 @@ function chop(str, size){
       size = ~~size;
       return size > 0 ? str.match(new RegExp('.{1,' + size + '}', 'g')) : [str];
 }
+
+function patternUpdated() {
+  var inner = encodePreset(innerCustomPattern, innerFilter);
+  var outer = encodePreset(outerCustomPattern, outerFilter);
+  var sampler = encodePreset(samplerCustomPattern, scale);
+  var obj = {
+    v1: inner.v,
+    a1: inner.a,
+    v2: outer.v,
+    a2: outer.a,
+    v3: sampler.v,
+    a3: sampler.a
+  }
+  var str = "";
+  for (var key in obj) {
+    if (str != "") {
+        str += "&";
+    }
+      str += key + "=" + encodeURIComponent(obj[key]);
+  }
+  // var query = stateObj.entries.map(function() { return key + '=' + val  }).join('&')
+  history.replaceState({}, "", '?' + str);
+}
+
+function loadPresetFromURL() {
+  var urlParams = new URLSearchParams(window.location.search);
+  var v1 = urlParams.get('v1');
+  var a1 = urlParams.get('a1');
+  var v2 = urlParams.get('v2');
+  var a2 = urlParams.get('a2');
+  var v3 = urlParams.get('v3');
+  var a3 = urlParams.get('a3');
+  var urlPreset = {
+    innerCustomPattern: decodePreset(v1, a1, innerFilter),
+    outerCustomPattern: decodePreset(v2, a2, outerFilter),
+    samplerCustomPattern: decodePreset(v3, a3, scale)
+  }
+  loadPreset(urlPreset);
+  updatePattern();
+}
+
+loadPresetFromURL();
 
 </script>
 </body>
