@@ -44,6 +44,7 @@
     right: 10px;
     bottom: 10px;
     overflow: hidden;
+    clear: both;
   }
   #mirrorControl {
     position: absolute;
@@ -65,6 +66,9 @@
     text-transform: uppercase;
     color: white;
     background-color: #B5B5B5;
+  }
+  button.controlB {
+    float: right;
   }
   #rotateGroup button {
     width: 136px;
@@ -95,8 +99,7 @@
     margin-top: 20px;
   }
   #presets {
-    margin-top: 20px;
-    height: 180px;
+    height: 260px;
     overflow: hidden;
     float: right;
   }
@@ -106,15 +109,20 @@
   }
   #sequenceDisplay {
     height: 20px;
-    width: 100px;
+    width: 180px;
     overflow: hidden;
+    text-align: right;
+    clear: both;
   }
   #sequenceDisplay span {
     display: inline-block;
-    width: 10px;
+    padding-left: 2px;
   }
   ul {
-    padding: 0;
+    clear: both;
+    margin-top: 5px;
+    text-align: right;
+    padding: 5px 0 0 0;
     list-style: outside none none;
   }
 </style>
@@ -171,7 +179,7 @@
     </div>
     <div id="controlB">
       <div id="presets">
-        <button id="savePresetButton">
+        <button id="savePresetButton" class="controlB">
           Save Preset
         </button>
         <ul id="presetList">
@@ -179,12 +187,12 @@
         </ul>
       </div>
       <div id="sequence">
-        <button id="sequenceControl">
+        <button id="sequenceControl" class="controlB">
           Start
         </button>
         <div id="sequenceDisplay">
         </div>
-        <button id="sequenceClear">
+        <button id="sequenceClear" class="controlB">
           Clear
         </button>
       </div>
@@ -1398,6 +1406,9 @@ var presetList = document.getElementById("presetList");
 
 savePresetButton.addEventListener('click', 
   function() {
+    if (presetList.childElementCount == 8) {
+      deletePreset(presetCounter, presetList.lastChild)
+    }
     var entry = document.createElement('li');
     var link = document.createElement('a');
     link.href = ''
@@ -1454,6 +1465,7 @@ function sequenceButton(preset) {
   sequenceButton.addEventListener('click',
     (function(index) {
       return function() {
+        sequence.length = Math.min(sequence.length, 7);
         sequence.push(preset);
         updateSequenceDisplay();
       }
