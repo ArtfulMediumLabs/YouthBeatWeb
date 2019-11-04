@@ -211,6 +211,9 @@
     </div>
 
     <div id="notes">
+        <button id="enterPitch">
+          Enter Pitch
+        </button>
     </div>
 </div>
   <script type="text/javascript">
@@ -1240,21 +1243,12 @@ slider.oninput = function() {
   Tone.Transport.bpm.value = this.value;
 }
 
-var notes = document.getElementById("notes");
-scale.slice().reverse().forEach(function(note, index){
-  var button = document.createElement("BUTTON");
-  button.innerHTML = note;
-  button.className = "note"
-  button.style.backgroundColor = noteColors.getColor(note);
-  button.onmousedown = function() {
-    // console.log(note);
-    // sampler.triggerAttack(note);
-    activeInstrument = note;
-    showSelectedButton();
-    selectRing();
-  }
-  notes.appendChild(button);
-})
+var enterPitch = document.getElementById("enterPitch");
+enterPitch.onmousedown = function() {
+  activeInstrument = scale[0];
+  showSelectedButton();
+  selectRing();
+}
 
 var rhythmButtons = document.getElementsByClassName("rhythm");
 Array.prototype.forEach.call(rhythmButtons, function(button){
