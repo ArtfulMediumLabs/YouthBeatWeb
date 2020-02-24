@@ -272,9 +272,9 @@ function emptyPreset() {
 function updatePattern(time) {
   var progressStep = Math.floor(Tone.Transport.progress * 64) % 32
 
-  drawPattern(innerPattern, innerCustomPattern, innerMidRadius, progressStep)
-  drawPattern(outerPattern, outerCustomPattern, outerMidRadius, progressStep)
-  drawPattern(samplerPattern, samplerCustomPattern, samplerMidRadius, progressStep)
+  drawPattern(innerPattern, innerCustomPattern, innerMidRadius, progressStep, 32)
+  drawPattern(outerPattern, outerCustomPattern, outerMidRadius, progressStep, 16)
+  drawPattern(samplerPattern, samplerCustomPattern, samplerMidRadius, progressStep, 16)
   updateNumbers(progressStep);
   updateHand(progressStep);
 
@@ -439,12 +439,6 @@ layer.add(loadingText)
 function updateLoading() {
   var isLoaded = buffersLoaded
   loadingText.visible(!isLoaded)
-  if (isLoaded) {
-    // selectButton(bdsdCircles, bdsdData, '#F9BAF9', '#C687C6')
-    // drawPattern(innerPattern, bdDisplayPattern[bdsdData.selected], innerMidRadius, 0)
-    // selectButton(hhCircles, hhData, '#9ECCEF', '#6B99BC')
-    // drawPattern(outerPattern, hhDisplayPattern[hhData.selected], outerMidRadius, 0)
-  }
   layer.batchDraw();
 }
 
@@ -512,13 +506,13 @@ function createSlices() {
 var controlBackgrounds = ['#F5F1F0', '#D9D9D9', '#B5B5B5'];
 var innerFilter = ['H','O', 'C'];
 var innerPattern = new Konva.Group()
-var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, controlBackgrounds[0], innerPattern, innerCustomPattern, innerFilter, true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, controlBackgrounds[0], innerPattern, innerCustomPattern, innerFilter, 32, true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
 var outerPattern = new Konva.Group()
 var outerFilter = ['B','S','R'];
-var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, controlBackgrounds[1], outerPattern, outerCustomPattern, outerFilter, false, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, controlBackgrounds[1], outerPattern, outerCustomPattern, outerFilter, 16, false, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
 var samplerFilter = scale;
 var samplerPattern = new Konva.Group()
-var samplerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 2 + samplerWidth, controlBackgrounds[2], samplerPattern, samplerCustomPattern, samplerFilter, false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var samplerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 2 + samplerWidth, controlBackgrounds[2], samplerPattern, samplerCustomPattern, samplerFilter, 16, false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
 
 layer.add(samplerPatternControl);
 layer.add(outerPatternControl);
@@ -634,7 +628,7 @@ function updatePosition(group, beat) {
 
 }
 
-function createPatternControl(originX, originY, innerRadius, outerRadius, fill, patternGroup, customPattern, filter, enableInteriorClick = false, enableExteriorClick = false, directClick, interiorClick) {
+function createPatternControl(originX, originY, innerRadius, outerRadius, fill, patternGroup, customPattern, filter, length, enableInteriorClick = false, enableExteriorClick = false, directClick, interiorClick) {
   var patternControl = new Konva.Group();
 
   var patternRing = createPatternRing(originX, originY, innerRadius, outerRadius, fill);
@@ -675,8 +669,8 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
 
   patternControl.add(patternGroup)
 
-  for (var i = 0; i < 32; i++) {
-    var step = createStepSegments(originX, originY, innerRadius, outerRadius, patternGroup, i, customPattern, filter);
+  for (var i = 0; i < 32; i += 32 / length) {
+    var step = createStepSegments(originX, originY, innerRadius, outerRadius, patternGroup, i, customPattern, filter, length);
     patternControl.add(step);
   }
 
@@ -686,15 +680,16 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
 var dragStart = {x: 0, y:0}
 var dragDegree = 0;
 
-function createStepSegments(originX, originY, innerRadius, outerRadius, patternGroup, step, pattern, filter) {
-  var segmentDegree = 360/32
+function createStepSegments(originX, originY, innerRadius, outerRadius, patternGroup, step, pattern, filter, length) {
+  var segmentDegree = 360/32;
   var rotation = -90 + step * segmentDegree;
+  var segmentLength = 360/length;
   var arc = new Konva.Arc({
         x: originX,
         y: originY,
         innerRadius: innerRadius,
         outerRadius: outerRadius,
-        angle: segmentDegree,
+        angle: segmentLength,
         stroke: noteColors[activeInstrument],
         strokeWidth: 0,
         rotation: rotation,
@@ -726,13 +721,12 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, patternG
       var travel = drag - innerRadius;
       var stepSize = samplerWidth / scale.length;
       var index = Math.round(travel / stepSize);
-      toggleStep(step, pattern, scale[index]);
+      toggleStep(step, pattern, length, scale[index]);
     } else {
-      toggleStep(step, pattern);
+      toggleStep(step, pattern, length);
     }
     patternUpdated()
-    var midRadius = innerRadius + (outerRadius - innerRadius) / 2
-    drawPattern(patternGroup, pattern, midRadius)
+    updatePattern();
   }
   arc.on('click tap', arcEvent);
   arc.on('dragstart', function(){
@@ -766,9 +760,13 @@ function distance(x1, y1, x2, y2) {
 }
 
 function disable32(step) {
-  if (mirrorVertical.checked || mirrorHorizontal.checked) {
-    return step % 2 == 1
+  var enable32 = ['H','O','C'];
+  if (enable32.indexOf(activeInstrument.toUpperCase()) == -1) {
+    return step % 2 == 1;
   }
+  // if (mirrorVertical.checked || mirrorHorizontal.checked) {
+  //   return step % 2 == 1;
+  // }
   return false;
 }
 
@@ -792,7 +790,7 @@ resetButton.addEventListener('click',
     updatePattern();
   }, false)
 
-function toggleStep(index, pattern, instrument=activeInstrument) {
+function toggleStep(index, pattern, length, instrument=activeInstrument) {
   var currentStep = pattern.value[index];
 
   var currentAmplitude = pattern.amplitude[index] || 0;
@@ -817,29 +815,37 @@ function toggleStep(index, pattern, instrument=activeInstrument) {
 
 
   if (mirrorVertical.checked) {
-    var verticalIndex = reflectPatternVertical(index, value, amplitude, pattern);
+    var verticalIndex = reflectPatternVertical(index, value, length, amplitude, pattern);
     if (mirrorHorizontal.checked) {
-      reflectPatternHorizontal(verticalIndex, value, amplitude, pattern);
+      reflectPatternHorizontal(verticalIndex, value, length, amplitude, pattern);
     }
   }
 
   if (mirrorHorizontal.checked) {
-    horizontalIndex = reflectPatternHorizontal(index, value, amplitude, pattern);
+    horizontalIndex = reflectPatternHorizontal(index, value, length, amplitude, pattern);
   }
 
   updatePattern();
 }
 
-function reflectPatternHorizontal(index, value, amplitude, pattern) {
-  var offset = index % 2 == 0 ? 30 : 31;
+function reflectPatternHorizontal(index, value, normalize, amplitude, pattern) {
+  var offset = 31;
+  if (normalize == 16 && index % 2 == 0) {
+    offset = 30
+  }
+
   var newIndex = (offset + 16 - index) % 32;
   pattern.amplitude[newIndex] = amplitude;
   pattern.value[newIndex] = value;
   return newIndex;
 }
 
-function reflectPatternVertical(index, value, amplitude, pattern) {
-  var offset = index % 2 == 0 ? 30 : 31;
+function reflectPatternVertical(index, value, normalize, amplitude, pattern) {
+  var offset = 31;
+  if (normalize == 16 && index % 2 == 0) {
+    offset = 30
+  }
+
   var newIndex = (offset - index) % 32;
   pattern.amplitude[newIndex] = amplitude;
   pattern.value[newIndex] = value;
@@ -959,15 +965,6 @@ function updateHand(step) {
   hand.rotation(rotation);
 }
 
-function loopFunction(i, buttonGroup, data, players, loopUrls, fillColor, activeColor, targetGroup, targetPatterns, targetRadius) {
-  return function() {
-    data.selected = i;
-    selectLoop(i, players, loopUrls);
-    selectButton(buttonGroup, data, fillColor, activeColor);
-    drawPattern(targetGroup, targetPatterns[i], targetRadius);
-  };
-}
-
 function selectButton(buttonGroup, data, fillColor, activeColor) {
   var nodes = buttonGroup.find('Circle')
   nodes.forEach(node => {
@@ -1052,7 +1049,7 @@ function drawEmptyPattern(targetGroup, radius) {
   }
 }
 
-function drawPattern(targetGroup, pattern, radius, step = 0) {
+function drawPattern(targetGroup, pattern, radius, step = 0, length) {
   targetGroup.removeChildren()
 
   for (var i = 0; i < pattern.value.length; i++) {
@@ -1065,6 +1062,7 @@ function drawPattern(targetGroup, pattern, radius, step = 0) {
 
     var note = pattern.value[i];
     var amplitude = pattern.amplitude[i] || 0;
+    var angle = 360 / length;
     if (note == '-' && i % 2 == 0) {
       // var normalizedStep = i / 2
       // var tick = createTick(patternOriginX, patternOriginY, radius, normalizedStep)
@@ -1072,9 +1070,9 @@ function drawPattern(targetGroup, pattern, radius, step = 0) {
     } else if (noteColors.hasOwnProperty(note)) {
       var noteColor = noteColors.getColor(note, amplitude);
       if (note.length > 1) {
-        var noteNode = createHarmonicNote(i, noteColor, note, patternOriginX, patternOriginY, radius)
+        var noteNode = createHarmonicNote(i, noteColor, note, patternOriginX, patternOriginY, radius, angle)
       } else {
-        var noteNode = createNote(i, noteColor, patternOriginX, patternOriginY, radius)
+        var noteNode = createNote(i, noteColor, patternOriginX, patternOriginY, radius, angle)
       }
       targetGroup.add(noteNode)
     }
@@ -1125,10 +1123,9 @@ function createTick(originX, originY, radius, step) {
   return tick
 }
 
-function createNote(step, color, originX, originY, radius) {
+function createNote(step, color, originX, originY, radius, angle) {
   var segmentDegree = 360/32;
   var rotation = -90 + step * segmentDegree;
-  var angle = step % 2 == 0 ? 360/16 : 360/32;
   var note = new Konva.Arc({
     x: originX,
     y: originY,
@@ -1145,7 +1142,7 @@ function createNote(step, color, originX, originY, radius) {
   return note
 }
 
-function createHarmonicNote(step, color, label, originX, originY, radius) {
+function createHarmonicNote(step, color, label, originX, originY, radius, angle) {
   var group = new Konva.Group()
 
   var scaleDegree = scale.indexOf(label);
