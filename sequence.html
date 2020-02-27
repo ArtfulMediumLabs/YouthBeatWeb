@@ -275,7 +275,7 @@ function updatePattern(time) {
   drawPattern(innerPattern, innerCustomPattern, innerMidRadius, progressStep, 32)
   drawPattern(outerPattern, outerCustomPattern, outerMidRadius, progressStep, 16)
   drawPattern(samplerPattern, samplerCustomPattern, samplerMidRadius, progressStep, 16)
-  updateNumbers(progressStep);
+  // updateNumbers(progressStep);
   updateHand(progressStep);
 
   if (rhythmPolygon.checked) {
@@ -914,7 +914,7 @@ function drawNumber(radius, number, step) {
     verticalAlign: "middle",
     offsetX: 10,
     offsetY: 10,
-    visible: number % 4 == 0
+    // visible: number % 4 == 0
   });
   return label
 }
