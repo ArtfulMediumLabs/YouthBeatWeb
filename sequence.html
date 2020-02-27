@@ -661,7 +661,7 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
   //   patternControl.add(pulse);
   // })
 
-  var highlightRing = createPatternRing(originX, originY, innerRadius, outerRadius, '#F0E6C3');
+  var highlightRing = createHighlightRing(originX, originY, innerRadius, outerRadius, '#F0E6C3');
   highlightRing.visible(false);
   highlightRing.name('highlightRing');
   highlightRing.listening(false);
@@ -856,6 +856,29 @@ function createPatternRing(originX, originY, innerRadius, outerRadius, fill) {
         outerRadius: outerRadius,
         fill: fill
       });
+
+  return ring;
+}
+
+function createHighlightRing(originX, originY, innerRadius, outerRadius, fill) {
+  var ring = new Konva.Group();
+  
+  var segmentDegree = 360/4;
+  for (var i = 0; i < 4; i++) {
+    var rotation = -90 + i * segmentDegree;
+    var segmentFill = i % 2 == 0 ? pSBC(0.5, fill) : fill;
+    var arc = new Konva.Arc({
+        x: originX,
+        y: originY,
+        innerRadius: innerRadius,
+        outerRadius: outerRadius,
+        angle: segmentDegree,
+        fill: segmentFill,
+        rotation: rotation,
+        listening: false
+      });
+    ring.add(arc);
+  }
 
   return ring;
 }
