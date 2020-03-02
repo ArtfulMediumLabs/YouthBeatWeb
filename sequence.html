@@ -908,14 +908,14 @@ function createPulse(originX, originY, innerRadius, outerRadius, step) {
 
 function createNumbers(radius) {
   var numbers = new Konva.Group();
-  for (var i = 0; i < 16; i++) {
+  for (var i = 0; i < 4; i++) {
     if (i % 4 == 0) {
       var number0 = drawNumber(radius - patternWidth/4, 0, i)
       numbers.add(number0);
       var number4 = drawNumber(radius + patternWidth/4, 4, i)
       numbers.add(number4);
     } else {
-      var numberLabel = drawNumber(radius, i % 4, i)
+      var numberLabel = drawNumber(radius, i % 4, i * 4)
       numbers.add(numberLabel)
     }
   }
