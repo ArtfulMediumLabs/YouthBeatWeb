@@ -866,7 +866,7 @@ function createHighlightRing(originX, originY, innerRadius, outerRadius, fill) {
   var segmentDegree = 360/4;
   for (var i = 0; i < 4; i++) {
     var rotation = -90 + i * segmentDegree;
-    var segmentFill = i % 2 == 0 ? pSBC(0.5, fill) : fill;
+    var segmentFill = i % 2 == 0 ?  fill : pSBC(0.5, fill);
     var arc = new Konva.Arc({
         x: originX,
         y: originY,
