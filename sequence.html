@@ -683,7 +683,7 @@ var dragDegree = 0;
 function createStepSegments(originX, originY, innerRadius, outerRadius, patternGroup, step, pattern, filter, length) {
   var segmentDegree = 360/32;
   var rotation = -90 + step * segmentDegree;
-  var segmentLength = 360/length;
+  var segmentLength = step % 2 == 0 ? 360/16 : 360/length;
   var arc = new Konva.Arc({
         x: originX,
         y: originY,
