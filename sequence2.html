@@ -423,6 +423,9 @@ function durationFor(pattern, step) {
     case 3:
       return '4n';
       break;
+    case 4:
+      return '2n';
+      break;
     case 0:
     default:
       return 0;
@@ -825,7 +828,7 @@ function toggleStep(index, pattern, length, instrument=activeInstrument) {
     case instrument:
       if (isPitch) {
         var duration = pattern.duration[index];
-        var newDuration = ++duration % 4;
+        var newDuration = ++duration % 5;
         pattern.duration[index] = newDuration
         amplitude = newDuration == 0 ? 0 : 3;
       } else {
