@@ -258,7 +258,8 @@ var currentSequence = -1;
 function emptyPattern() {
   return {
     value: Array(32).fill('-'), 
-    amplitude: Array(32).fill(0)
+    amplitude: Array(32).fill(0),
+    duration: Array(32).fill(1)
   }
 }
 
@@ -354,7 +355,9 @@ function playActiveNote(customPattern, step, time) {
     keys.get(note).start(time);
   } else {
     var velocity = velocityFor(customPattern, step);
-    sampler.triggerAttack(note, time, velocity);
+    var duration = durationFor(customPattern, step);
+    // sampler.triggerAttack(note, time, velocity);
+    sampler.triggerAttackRelease(note, duration, time, velocity);
   }
 }
 
@@ -399,6 +402,26 @@ function velocityFor(pattern, step) {
       break;
     case 3:
       return 1.0;
+      break;
+    case 0:
+    default:
+      return 0;
+      break;
+  }
+}
+
+function durationFor(pattern, step) {
+  var duration = pattern.duration[step] || 0;
+
+  switch (duration) {
+    case 1:
+      return '16n';
+      break;
+    case 2:
+      return '8n';
+      break;
+    case 3:
+      return '4n';
       break;
     case 0:
     default:
@@ -481,20 +504,20 @@ function createSlices() {
   for (var i = 0; i < 16; i++) {
     var point = pointBeginning(i, outerRadius, patternOriginX, patternOriginY, 16);
     var strokeWidth = 4
-    var strokeColor = '#e9e9e9'
+    var strokeColor = 'rgba(255,255,255,0.5)'
     if (i % 8 == 0) {
       strokeWidth = 6
-      strokeColor = '#cccccc'
+      // strokeColor = '#cccccc'
     }
     if ((i-4) % 8 == 0) {
       strokeWidth = 6
-      strokeColor = '#cccccc'
+      // strokeColor = '#cccccc'
     }
     var line = new Konva.Line({
       points: [patternOriginX, patternOriginY, point.x, point.y],
       stroke: strokeColor,
       strokeWidth: strokeWidth,
-      opacity: 0.5,
+      // opacity: 0.8,
       listening: false
     });
     sliceGroup.add(line);
@@ -796,15 +819,28 @@ function toggleStep(index, pattern, length, instrument=activeInstrument) {
   var currentAmplitude = pattern.amplitude[index] || 0;
   var amplitudeMax = 3;
 
+  var isPitch = instrument.length > 1
   var amplitude, value;
   switch (currentStep) {
     case instrument:
-      amplitude = ++currentAmplitude % 4;
+      if (isPitch) {
+        var duration = pattern.duration[index];
+        var newDuration = ++duration % 4;
+        pattern.duration[index] = newDuration
+        amplitude = newDuration == 0 ? 0 : 3;
+      } else {
+        amplitude = ++currentAmplitude % 4;
+      }
+    
       value = amplitude == 0 ? '-' : instrument;
+  
       break;
     case '-':
     default:
-      amplitude = 1;
+      amplitude = isPitch ? 3 : 1;
+      if (isPitch) {
+        pattern.duration[index] = 1;
+      }
       value = instrument;
       break;
   }
@@ -1087,7 +1123,8 @@ function drawPattern(targetGroup, pattern, radius, step = 0) {
     } else if (noteColors.hasOwnProperty(note)) {
       var noteColor = noteColors.getColor(note, amplitude);
       if (note.length > 1) {
-        var noteNode = createHarmonicNote(i, noteColor, note, patternOriginX, patternOriginY, radius)
+        var duration = pattern.duration[i] || 1;
+        var noteNode = createHarmonicNote(i, duration, noteColor, note, patternOriginX, patternOriginY, radius)
       } else {
         var noteNode = createNote(i, noteColor, patternOriginX, patternOriginY, radius)
       }
@@ -1160,7 +1197,7 @@ function createNote(step, color, originX, originY, radius) {
   return note
 }
 
-function createHarmonicNote(step, color, label, originX, originY, radius) {
+function createHarmonicNote(step, duration, color, label, originX, originY, radius) {
   var group = new Konva.Group()
 
   var scaleDegree = scale.indexOf(label);
@@ -1171,6 +1208,7 @@ function createHarmonicNote(step, color, label, originX, originY, radius) {
   var segmentDegree = 360/32;
   var rotation = -90 + step * segmentDegree;
   var angle = step % 2 == 0 ? 360/16 : 360/32;
+  angle *= Math.pow(2, duration-1)
   var note = new Konva.Arc({
     x: originX,
     y: originY,
