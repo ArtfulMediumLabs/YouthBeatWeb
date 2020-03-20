@@ -1588,7 +1588,8 @@ function loadPreset(preset) {
 function patternFrom(pattern) {
   var clone = {
     value: pattern.value.slice(),
-    amplitude: pattern.amplitude.slice()
+    amplitude: pattern.amplitude.slice(),
+    duration: pattern.duration.slice()
   }
   return clone
 }
@@ -1596,6 +1597,7 @@ function patternFrom(pattern) {
 function loadPattern(pattern, target) {
   target.value = pattern.value.slice();
   target.amplitude = pattern.amplitude.slice();
+  target.duration = pattern.duration.slice();
 }
 
 
