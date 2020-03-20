@@ -273,9 +273,9 @@ function emptyPreset() {
 function updatePattern(time) {
   var progressStep = Math.floor(Tone.Transport.progress * 64) % 32
 
-  drawPattern(innerPattern, innerCustomPattern, innerMidRadius, progressStep, 32)
-  drawPattern(outerPattern, outerCustomPattern, outerMidRadius, progressStep, 16)
-  drawPattern(samplerPattern, samplerCustomPattern, samplerMidRadius, progressStep, 16)
+  drawPattern(innerPatternNotes, innerCustomPattern, innerMidRadius, progressStep, 32)
+  drawPattern(outerPatternNotes, outerCustomPattern, outerMidRadius, progressStep, 16)
+  drawPattern(samplerPatternNotes, samplerCustomPattern, samplerMidRadius, progressStep, 16)
   // updateNumbers(progressStep);
   updateHand(progressStep);
 
@@ -533,28 +533,39 @@ function createSlices() {
 
  
 var controlBackgrounds = ['#F5F1F0', '#D9D9D9', '#B5B5B5'];
+
 var innerFilter = ['H','O', 'C'];
-var innerPattern = new Konva.Group()
-var innerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, controlBackgrounds[0], innerPattern, innerCustomPattern, innerFilter, 32, true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
-var outerPattern = new Konva.Group()
+var innerPatternNotes = new Konva.Group()
+var innerPatternControls = new Konva.Group()
+var innerPatternRing = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, controlBackgrounds[0], innerPatternControls, innerCustomPattern, innerFilter, 32, true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+
 var outerFilter = ['B','S','R'];
-var outerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, controlBackgrounds[1], outerPattern, outerCustomPattern, outerFilter, 16, false, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var outerPatternNotes = new Konva.Group()
+var outerPatternControls = new Konva.Group()
+var outerPatternRing = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, controlBackgrounds[1], outerPatternControls, outerCustomPattern, outerFilter, 16, false, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+
 var samplerFilter = scale;
-var samplerPattern = new Konva.Group()
-var samplerPatternControl = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 2 + samplerWidth, controlBackgrounds[2], samplerPattern, samplerCustomPattern, samplerFilter, 16, false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
+var samplerPatternNotes = new Konva.Group()
+var samplerPatternControls = new Konva.Group()
+var samplerPatternRing = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 2 + samplerWidth, controlBackgrounds[2], samplerPatternControls, samplerCustomPattern, samplerFilter, 16, false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
 
-layer.add(samplerPatternControl);
-layer.add(outerPatternControl);
-layer.add(innerPatternControl);
-
-// drawEmptyPattern(innerPattern, innerMidRadius)
-// drawEmptyPattern(outerPattern, outerMidRadius)
-// drawEmptyPattern(samplerPattern, samplerMidRadius)
-var numbers = createNumbers(outerRadius + outerPadding * 0.5);
-layer.add(numbers);
+layer.add(samplerPatternRing);
+layer.add(outerPatternRing);
+layer.add(innerPatternRing);
 
 var slices = createSlices();
 layer.add(slices);
+
+layer.add(innerPatternNotes);
+layer.add(outerPatternNotes);
+layer.add(samplerPatternNotes);
+
+layer.add(innerPatternControls);
+layer.add(outerPatternControls);
+layer.add(samplerPatternControls);
+
+var numbers = createNumbers(outerRadius + outerPadding * 0.5);
+layer.add(numbers);
 
 var hand = createHand(patternOriginX, patternOriginY, outerRadius)
 layer.add(hand);
@@ -696,11 +707,9 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
   highlightRing.listening(false);
   patternControl.add(highlightRing);
 
-  patternControl.add(patternGroup)
-
   for (var i = 0; i < 32; i += 32 / length) {
-    var step = createStepSegments(originX, originY, innerRadius, outerRadius, patternGroup, i, customPattern, filter, length);
-    patternControl.add(step);
+    var step = createStepSegments(originX, originY, innerRadius, outerRadius, i, customPattern, filter, length);
+    patternGroup.add(step);
   }
 
   return patternControl
@@ -709,7 +718,7 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
 var dragStart = {x: 0, y:0}
 var dragDegree = 0;
 
-function createStepSegments(originX, originY, innerRadius, outerRadius, patternGroup, step, pattern, filter, length) {
+function createStepSegments(originX, originY, innerRadius, outerRadius, step, pattern, filter, length) {
   var segmentDegree = 360/32;
   var rotation = -90 + step * segmentDegree;
   var segmentLength = step % 2 == 0 ? 360/16 : 360/length;
@@ -1342,7 +1351,7 @@ showSelectedButton();
 selectRing();
 
 function selectRing() {
-  var controls = [innerPatternControl, outerPatternControl, samplerPatternControl];
+  var controls = [innerPatternRing, outerPatternRing, samplerPatternRing];
   var filters = [innerFilter, outerFilter, samplerFilter];
   for (var i=0; i<controls.length; i++) {
     var control = controls[i];
