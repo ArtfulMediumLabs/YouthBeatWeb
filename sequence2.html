@@ -233,7 +233,6 @@ function currentBeat() {
   var bpm = Tone.Transport.bpm.value
   var secondsPerBeat = 1.0 / bpm * 60.0
   var beats = Math.floor(duration / secondsPerBeat)
-  // console.log(duration, bpm, secondsPerBeat, beats);
   return beats;
 }
 
@@ -861,7 +860,6 @@ function toggleStep(index, pattern, length, instrument=activeInstrument) {
       break;
   }
 
-  console.log(amplitude);
   pattern.amplitude[index] = amplitude;
   pattern.value[index] = value;
 
@@ -1285,7 +1283,6 @@ function autoStopTransport() {
 }
 
 function someLoop() {
-  console.log("bdsd:", someBDSDLoop(), "hh:",someHHLoop());
   return someBDSDLoop() || someHHLoop();
 }
 
@@ -1755,7 +1752,6 @@ function encode(pattern, filter=[], count=0) {
 
 function decodePreset(v,a,d,filter) {
   if (!v || !a) return emptyPattern();
-  console.log(v,a,d);
   return {
     value: decode(v, filter),
     amplitude: decode(a),
@@ -1766,7 +1762,6 @@ function decodePreset(v,a,d,filter) {
 function decode(string, filter=[], count=0) {
 
   var size = codeableSize(filter, count);
-  console.log(string,filter,count,size);
   var a = chop(string, size.length)
   var chunks = a.map( function (chunk) {
     var a = parseInt(chunk, 36).toString(size.base)
