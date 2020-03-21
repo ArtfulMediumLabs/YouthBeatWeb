@@ -301,6 +301,7 @@ function createSequence() {
 }
 
 var scale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'];
+var semitones = [2,3,2,2,3,2,3];
 // https://mycolor.space/?hex=%23845EC2&sub=1
 // var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#FFC75F'];
 var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#0089BA','#2C73D2'];
@@ -757,8 +758,7 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, step, pa
       var pointer = stage.getPointerPosition();
       var drag = distance(originX, originY, pointer.x, pointer.y);
       var travel = drag - innerRadius;
-      var stepSize = samplerWidth / scale.length;
-      var index = Math.round(travel / stepSize);
+      var index = stepFor(travel);
       toggleStep(step, pattern, length, scale[index]);
     } else {
       toggleStep(step, pattern, length);
@@ -787,15 +787,23 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, step, pa
     var normalized = Math.max(Math.min(max, travel),min);
     var newIndex = dragDegree + Math.round(normalized / factor);
 
-    pattern.value[step] = scale[newIndex];
-    patternUpdated();
-    updatePattern();
+    if (pattern.value[step] != scale[newIndex]){
+      pattern.value[step] = scale[newIndex];
+      patternUpdated();
+      updatePattern();
+    }
   });
   return arc
 }
 
 function distance(x1, y1, x2, y2) {
   return  Math.sqrt(Math.pow((x2 - x1),2) + Math.pow((y2 - y1),2));
+}
+
+function stepFor(travel) {
+  var stepSize = samplerWidth / scale.length;
+  var index = Math.round(travel / stepSize);
+  return index
 }
 
 function disable32(step) {
