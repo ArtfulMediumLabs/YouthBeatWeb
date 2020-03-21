@@ -763,7 +763,7 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, step, pa
     } else {
       toggleStep(step, pattern, length);
     }
-    patternUpdated()
+    patternUpdated();
     updatePattern();
   }
   arc.on('click tap', arcEvent);
@@ -788,6 +788,7 @@ function createStepSegments(originX, originY, innerRadius, outerRadius, step, pa
     var newIndex = dragDegree + Math.round(normalized / factor);
 
     pattern.value[step] = scale[newIndex];
+    patternUpdated();
     updatePattern();
   });
   return arc
