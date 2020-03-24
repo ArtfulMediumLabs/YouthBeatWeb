@@ -800,10 +800,36 @@ function distance(x1, y1, x2, y2) {
   return  Math.sqrt(Math.pow((x2 - x1),2) + Math.pow((y2 - y1),2));
 }
 
+// var semitones = [2,3,2,2,3,2,3];
 function stepFor(travel) {
-  var stepSize = samplerWidth / scale.length;
-  var index = Math.round(travel / stepSize);
-  return index
+  var semitonesTotal = semitones.reduce(function(acc, val) { return acc + val; }, 0);
+  var index = 0;
+  for (var i = 0; i < semitones.length; i++) {
+    var semitonesWithin = semitones.slice(0, i + 1).reduce(function(acc, val) { return acc + val; }, 0);
+    var percent = semitonesWithin / semitonesTotal;
+    var size = samplerWidth * percent;
+    index = i;
+    if (travel <= size) {
+      break
+    }
+  }
+  return index;
+}
+
+function sizeFor(index) {
+  var semitonesWithin = semitones.slice(0, index + 1).reduce(function(acc, val) { return acc + val; }, 0)
+  var semitonesTotal = semitones.reduce(function(acc, val) { return acc + val; }, 0);
+  var percent = semitonesWithin / semitonesTotal;
+  var size = samplerWidth * percent;
+  return size;
+}
+
+function incrementalSizeFor(index) {
+  var semitonesWithin = semitones[index]
+  var semitonesTotal = semitones.reduce(function(acc, val) { return acc + val; }, 0);
+  var percent = semitonesWithin / semitonesTotal;
+  var size = samplerWidth * percent;
+  return size;
 }
 
 function disable32(step) {
@@ -1224,9 +1250,10 @@ function createHarmonicNote(step, duration, color, label, originX, originY, radi
   var group = new Konva.Group()
 
   var scaleDegree = scale.indexOf(label);
-  var percent = (scaleDegree + 1) / scale.length;
+  // var percent = (scaleDegree + 1) / scale.length;
   var innerRadius = radius - samplerWidth/2;
-  var outerRadius = innerRadius + samplerWidth * percent;
+  // var outerRadius = innerRadius + samplerWidth * percent;
+  var outerRadius = innerRadius + sizeFor(scaleDegree);
 
   var segmentDegree = 360/32;
   var rotation = -90 + step * segmentDegree;
@@ -1252,16 +1279,6 @@ function createHarmonicNote(step, duration, color, label, originX, originY, radi
   var dy = Math.sin(dAlpha) * radius;
 
   var size = 32;
-
-  // var square = new Konva.Rect({
-  //   x: patternOriginX + dx,
-  //   y: patternOriginY + dy,
-  //   width: size,
-  //   height: size,
-  //   fill: color,
-  //   offsetX: size / 2,
-  //   offsetY: size / 2
-  // });
     
   var noteLabel = new Konva.Text({
     x: patternOriginX + dx,
@@ -1280,6 +1297,25 @@ function createHarmonicNote(step, duration, color, label, originX, originY, radi
 
   group.add(note);
   group.add(noteLabel);
+
+
+  for (var i = 0; i <= scaleDegree; i++) {
+    var innerLineRadius = i == 0 ? innerRadius : innerRadius + sizeFor(i-1);
+    var outerLineRadius = innerLineRadius + incrementalSizeFor(i);
+    console.log(i, scaleDegree, innerLineRadius, outerLineRadius);
+    var line = new Konva.Arc({
+      x: originX,
+      y: originY,
+      innerRadius: innerLineRadius,
+      outerRadius: outerLineRadius,
+      angle: angle,
+      stroke: 'rgba(255,255,255,0.5)',
+      strokeWidth: 2,
+      rotation: rotation,
+      listening: false
+    });    
+    group.add(line)
+  }
   
   return group
 }
