@@ -175,7 +175,7 @@
     </div>
     <div id="volumeControl">
       <label for="volume" id="volumeLabel">Volume: </label><br>
-      <input type="range" name="volume" id="volume" min="0" max="100" value="90" class="slider">
+      <input type="range" name="volume" id="volume" min="0" max="100" value="60" class="slider">
     </div>
     <div id="mirrorControl">
       <div>
@@ -1380,9 +1380,7 @@ volumeLabel.innerHTML = "Volume: " + volumeSlider.value;
       
 volumeSlider.oninput = function() {
   volumeLabel.innerHTML = "Volume: " + this.value;
-  // map this.value (0,100) to (-30,6db)
-  var scale = Math.exp(this.value/20 * Math.log(10))
-  Tone.Master.volume.value = scaleMap(this.value, 0, 100, -60, 6);
+  Tone.Master.volume.value = scaleMap(this.value, 0, 100, -32, 6);
 }
 
 function scaleMap(num, in_min, in_max, out_min, out_max) {
