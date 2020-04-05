@@ -51,6 +51,15 @@
     left: 150px;
     top: 10px;
   }
+  #volumeControl {
+    position: absolute;
+    left: 150px;
+    bottom: 10px;
+  }
+  #volumeLabel {
+    display: block;
+    margin-top: 20px
+  }
   #rhythmButtons {
     position: absolute;
     left: 10px;
@@ -163,6 +172,10 @@
       </div>
       <label for="tempo" id="tempoLabel">Tempo: </label><br>
       <input type="range" name="tempo" id="tempo" min="20" max="180" value="90" class="slider">
+    </div>
+    <div id="volumeControl">
+      <label for="volume" id="volumeLabel">Volume: </label><br>
+      <input type="range" name="volume" id="volume" min="0" max="100" value="90" class="slider">
     </div>
     <div id="mirrorControl">
       <div>
@@ -1302,7 +1315,6 @@ function createHarmonicNote(step, duration, color, label, originX, originY, radi
   for (var i = 0; i <= scaleDegree; i++) {
     var innerLineRadius = i == 0 ? innerRadius : innerRadius + sizeFor(i-1);
     var outerLineRadius = innerLineRadius + incrementalSizeFor(i);
-    console.log(i, scaleDegree, innerLineRadius, outerLineRadius);
     var line = new Konva.Arc({
       x: originX,
       y: originY,
@@ -1360,6 +1372,21 @@ output.innerHTML = "Tempo: " + slider.value;
 slider.oninput = function() {
   output.innerHTML = "Tempo: " + this.value;
   Tone.Transport.bpm.value = this.value;
+}
+
+var volumeSlider = document.getElementById("volume");
+var volumeLabel = document.getElementById("volumeLabel");
+volumeLabel.innerHTML = "Volume: " + volumeSlider.value;
+      
+volumeSlider.oninput = function() {
+  volumeLabel.innerHTML = "Volume: " + this.value;
+  // map this.value (0,100) to (-30,6db)
+  var scale = Math.exp(this.value/20 * Math.log(10))
+  Tone.Master.volume.value = scaleMap(this.value, 0, 100, -60, 6);
+}
+
+function scaleMap(num, in_min, in_max, out_min, out_max) {
+  return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 var enterPitch = document.getElementById("enterPitch");
