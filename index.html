@@ -1474,6 +1474,8 @@ melody90Button.addEventListener('click',
 function patternRotate(pattern, count) {
   arrayRotate(pattern.value, count);
   arrayRotate(pattern.amplitude, count);
+  arrayRotate(pattern.duration, count);
+  patternUpdated();
 }
 
 function arrayRotate(arr, count) {
