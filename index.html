@@ -1917,9 +1917,8 @@ function loadPresetFromURL() {
   var urlParams = new URLSearchParams(window.location.search);
 
   var volume = urlParams.get('v');
-  volume = isNaN(volume) ? 60 : volume;
+  volume = isNaN(parseInt(volume)) ? 60 : volume;
   volumeSlider.value = volume;
-  console.log(volume);
   updateVolume(volume);
 
   var v1 = urlParams.get('v1');
