@@ -1379,16 +1379,8 @@ var volumeLabel = document.getElementById("volumeLabel");
 volumeLabel.innerHTML = "Volume: " + volumeSlider.value;
       
 volumeSlider.oninput = function() {
-  updateVolume(this.value);
-}
-
-volumeSlider.onchange = function() {
-  patternUpdated();
-}
-
-function updateVolume(value) {
-  volumeLabel.innerHTML = "Volume: " + value;
-  Tone.Master.volume.value = scaleMap(value, 0, 100, -32, 6);
+  volumeLabel.innerHTML = "Volume: " + this.value;
+  Tone.Master.volume.value = scaleMap(this.value, 0, 100, -32, 6);
 }
 
 function scaleMap(num, in_min, in_max, out_min, out_max) {
@@ -1899,8 +1891,7 @@ function patternUpdated() {
     a2: outer.a,
     v3: sampler.v,
     a3: sampler.a,
-    d3: sampler.d,
-    v: volumeSlider.value
+    d3: sampler.d
   }
   var str = "";
   for (var key in obj) {
@@ -1915,12 +1906,6 @@ function patternUpdated() {
 
 function loadPresetFromURL() {
   var urlParams = new URLSearchParams(window.location.search);
-
-  var volume = urlParams.get('v');
-  volume = isNaN(parseInt(volume)) ? 60 : volume;
-  volumeSlider.value = volume;
-  updateVolume(volume);
-
   var v1 = urlParams.get('v1');
   var a1 = urlParams.get('a1');
   var v2 = urlParams.get('v2');
