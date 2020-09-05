@@ -235,6 +235,19 @@
         <button id="enterPitch">
           Enter Pitch
         </button>
+        <input type="radio" id="none" name="chord" value="" checked>
+        <label for="none">None</label><br/>
+        <input type="radio" id="Asus" name="chord" value="A1">
+        <label for="Asus">Asus</label><br/>
+        <input type="radio" id="Bm" name="chord" value="B1">
+        <label for="Bm">Bm</label><br/>
+        <input type="radio" id="D" name="chord" value="D2">
+        <label for="D">D</label><br/>
+        <input type="radio" id="Em" name="chord" value="E2">
+        <label for="Em">Em</label><br/>
+        <input type="radio" id="G" name="chord" value="G2">
+        <label for="G">G</label><br/>
+          
     </div>
 </div>
   <script type="text/javascript">
@@ -263,6 +276,8 @@ var keys = createSequence();
 
 var samplerCustomPattern = emptyPattern();
 var sampler = createSampler();
+
+var chords = createChords();
 
 var sequence = [];
 var currentSequence = -1;
@@ -332,6 +347,20 @@ function createSampler() {
   return sampler;
 }
 
+function createChords() {
+  var notes = ['A1','B1', 'D2', 'E2', 'G2']
+  var files = ['Mystical Asus-A1', 'Mystical Bm-B1', 'Mystical D-D2', 'Mystical Em-E2', 'Mystical G_D-G2'];
+  var baseDir = "Sounds/ElectroSynths/";
+  var extension = ".wav";
+  var config = {}
+  notes.forEach(function(note, index){
+    config[note] = baseDir + encodeURIComponent(files[index]) + extension;
+  })
+  var sampler = new Tone.Sampler(config).toMaster();
+  sampler.volume.value = -12;
+  return sampler;
+}
+
 var allSteps = new Array(32);
 for (var i = 0; i < allSteps.length; i++) {
   allSteps[i] = i;
@@ -342,6 +371,10 @@ var hiHat = document.getElementById('hiHatCheck');
 var melody = document.getElementById('melodyCheck');
 
 var loop = new Tone.Sequence(function(time, step){
+  var chordNote = document.querySelector('input[name="chord"]:checked').value
+  if (step == 0 & chordNote.length > 0) {
+    chords.triggerAttackRelease(chordNote, '1m', time, 0.25);
+  }
   if (hiHat.checked) {
     playActiveNote(innerCustomPattern, step, time);
   }
