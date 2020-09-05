@@ -1297,7 +1297,7 @@ function createHarmonicNote(step, duration, color, label, originX, originY, radi
     x: patternOriginX + dx,
     y: patternOriginY + dy,
     text: label,
-    fontSize: 14,
+    fontSize: 20,
     fontStyle: 'bold',
     fill: 'white',
     width: size,
@@ -1305,7 +1305,11 @@ function createHarmonicNote(step, duration, color, label, originX, originY, radi
     align: "center",
     verticalAlign: "middle",
     offsetX: size / 2,
-    offsetY: size / 2
+    offsetY: size / 2,
+    shadowColor: 'black',
+    shadowBlur: 8,
+    shadowOffset: { x: 2, y: 2 },
+    shadowOpacity: 0.8,
   });
 
   group.add(note);
