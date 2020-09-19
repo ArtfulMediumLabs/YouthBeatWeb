@@ -11,7 +11,7 @@
   <!-- <link rel="stylesheet" href="css/styles.css?v=1.0"> -->
 
   <script src="https://unpkg.com/konva@3.3.3/konva.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.0.1/Tone.min.js"></script>
+  <script src="https://unpkg.com/tone@^14/build/Tone.js"></script>
   <script src="https://unpkg.com/@ungap/url-search-params@0.1.2/min.js"></script>
   <script src="pSBC.js"></script>
   <script src="fill.js"></script>
@@ -324,7 +324,7 @@ function createSequence() {
       "O" : "Sounds/Rhythm/Kit_1/Samples/hihat_open.wav",
       "R" : "Sounds/Rhythm/Kit_1/Samples/rimshot.wav",
       "C" : "Sounds/Rhythm/Kit_1/Samples/ride.wav"
-    }).toMaster();
+    }).toDestination();
     return keys; 
 }
 
@@ -343,7 +343,7 @@ function createSampler() {
   notes.forEach(function(note){
     config[note] = baseDir + baseVoice + encodeURIComponent(note) + extension;
   })
-  var sampler = new Tone.Sampler(config).toMaster();
+  var sampler = new Tone.Sampler(config).toDestination();
   return sampler;
 }
 
@@ -356,7 +356,7 @@ function createChords() {
   notes.forEach(function(note, index){
     config[note] = baseDir + encodeURIComponent(files[index]) + extension;
   })
-  var sampler = new Tone.Sampler(config).toMaster();
+  var sampler = new Tone.Sampler(config).toDestination();
   sampler.volume.value = -12;
   return sampler;
 }
@@ -395,11 +395,11 @@ function playActiveNote(customPattern, step, time) {
   var note = customPattern.value[step];
   if (note == '-') { return; }
   if (note.toUpperCase() == 'H') {
-    keys.get('O').stop();
+    keys.player('O').stop();
   }
   if (isRhythm(note)) {
-    keys.get(note).volume.value = amplitudeFor(customPattern, step);
-    keys.get(note).start(time);
+    keys.player(note).volume.value = amplitudeFor(customPattern, step);
+    keys.player(note).start(time);
   } else {
     var velocity = velocityFor(customPattern, step);
     var duration = durationFor(customPattern, step);
@@ -485,10 +485,10 @@ function durationFor(pattern, step) {
 
 var buffersLoaded = false
 
-Tone.Buffer.on('load', function(){
-  buffersLoaded = true
-  updateLoading()
-})
+// Tone.Buffer.on('load', function(){
+//   buffersLoaded = true
+//   updateLoading()
+// })
 
   // first we need to create a stage
 var stage = new Konva.Stage({
@@ -510,7 +510,7 @@ var loadingText = new Konva.Text({
         verticalAlign: 'middle',
         align: 'center'
       });
-layer.add(loadingText)
+// layer.add(loadingText)
 
 function updateLoading() {
   var isLoaded = buffersLoaded
@@ -728,6 +728,7 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
       context.fillStrokeShape(this);
     })
   function patternRingEvent(event) {
+    Tone.start()
     var point = this.getStage().getPointerPosition();
     var distance = Math.pow((point.x - this.x()),2) + Math.pow((point.y - this.y()),2)
     var interior = distance <= Math.pow(innerRadius, 2)
