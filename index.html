@@ -729,8 +729,8 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
       context.arc(0, 0, outerArcRadius, 0, Math.PI * 2, true);
       context.fillStrokeShape(this);
     })
-  function patternRingEvent(event) {
-    Tone.start()
+  async function patternRingEvent(event) {
+    await Tone.start();
     var point = this.getStage().getPointerPosition();
     var distance = Math.pow((point.x - this.x()),2) + Math.pow((point.y - this.y()),2)
     var interior = distance <= Math.pow(innerRadius, 2)
