@@ -485,10 +485,10 @@ function durationFor(pattern, step) {
 
 var buffersLoaded = false
 
-// Tone.Buffer.on('load', function(){
-//   buffersLoaded = true
-//   updateLoading()
-// })
+Tone.loaded().then(function(){
+  buffersLoaded = true
+  updateLoading()
+});
 
   // first we need to create a stage
 var stage = new Konva.Stage({
@@ -498,25 +498,6 @@ var stage = new Konva.Stage({
 });
 
 var layer = new Konva.Layer();
-
-var loadingText = new Konva.Text({
-        x: stage.width() / 2 - 150,
-        y: stage.height() / 2 - 100,
-        text: 'Loading...',
-        fontSize: 30,
-        fill: 'black',
-        width: 300,
-        height: 100,
-        verticalAlign: 'middle',
-        align: 'center'
-      });
-// layer.add(loadingText)
-
-function updateLoading() {
-  var isLoaded = buffersLoaded
-  loadingText.visible(!isLoaded)
-  layer.batchDraw();
-}
 
 var patternWidth = (34 + 12)
 var outerPadding = (34 + 12)
@@ -714,6 +695,27 @@ function updatePosition(group, beat) {
   text[0].text(bar.toString())
 
 }
+
+var loadingText = new Konva.Text({
+        x: stage.width() / 2 - 150,
+        y: stage.height() / 2 - 100,
+        text: 'Loading...',
+        fontSize: 30,
+        fill: 'black',
+        width: 300,
+        height: 100,
+        verticalAlign: 'middle',
+        align: 'center'
+      });
+layer.add(loadingText)
+
+function updateLoading() {
+  var isLoaded = buffersLoaded
+  loadingText.visible(!isLoaded)
+  layer.batchDraw();
+}
+
+
 
 function createPatternControl(originX, originY, innerRadius, outerRadius, fill, patternGroup, customPattern, filter, length, enableInteriorClick = false, enableExteriorClick = false, directClick, interiorClick) {
   var patternControl = new Konva.Group();
