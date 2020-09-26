@@ -920,6 +920,7 @@ function toggleStep(index, pattern, length, instrument=activeInstrument) {
 
   var isPitch = instrument.length > 1
   var amplitude, value;
+  var duration = 1;
   switch (currentStep) {
     case instrument:
       if (isPitch) {
@@ -949,32 +950,34 @@ function toggleStep(index, pattern, length, instrument=activeInstrument) {
 
 
   if (mirrorVertical.checked) {
-    var verticalIndex = reflectPatternVertical(index, value, amplitude, pattern);
+    var verticalIndex = reflectPatternVertical(index, value, amplitude, pattern, duration);
     if (mirrorHorizontal.checked) {
-      reflectPatternHorizontal(verticalIndex, value, amplitude, pattern);
+      reflectPatternHorizontal(verticalIndex, value, amplitude, pattern, duration);
     }
   }
 
   if (mirrorHorizontal.checked) {
-    horizontalIndex = reflectPatternHorizontal(index, value, amplitude, pattern);
+    horizontalIndex = reflectPatternHorizontal(index, value, amplitude, pattern, duration);
   }
 
   updatePattern();
 }
 
-function reflectPatternHorizontal(index, value, amplitude, pattern) {
+function reflectPatternHorizontal(index, value, amplitude, pattern, duration) {
   var offset = index % 2 == 0 ? 30 : 31;
   var newIndex = (offset + 16 - index) % 32;
   pattern.amplitude[newIndex] = amplitude;
   pattern.value[newIndex] = value;
+  pattern.duration[newIndex] = duration;
   return newIndex;
 }
 
-function reflectPatternVertical(index, value, amplitude, pattern) {
+function reflectPatternVertical(index, value, amplitude, pattern, duration) {
   var offset = index % 2 == 0 ? 30 : 31;
   var newIndex = (offset - index) % 32;
   pattern.amplitude[newIndex] = amplitude;
   pattern.value[newIndex] = value;
+  pattern.duration[newIndex] = duration;
   return newIndex;
 }
 
