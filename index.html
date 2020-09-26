@@ -1202,7 +1202,7 @@ function drawEmptyPattern(targetGroup, radius) {
 }
 
 function drawPattern(targetGroup, pattern, radius, step = 0) {
-  targetGroup.removeChildren()
+  targetGroup.destroyChildren()
 
   for (var i = 0; i < pattern.value.length; i++) {
 
