@@ -1,0 +1,2026 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>YouthBeat</title>
+  <meta name="description" content="YouthBeat">
+  <meta name="author" content="The Royal Conservatory">
+
+  <!-- <link rel="stylesheet" href="css/styles.css?v=1.0"> -->
+
+  <script src="https://unpkg.com/konva@^7/konva.min.js"></script>
+  <script src="https://unpkg.com/tone@^14/build/Tone.js"></script>
+  <script src="https://unpkg.com/@ungap/url-search-params@0.1.2/min.js"></script>
+  <script src="pSBC.js"></script>
+  <script src="fill.js"></script>
+
+  <style>
+  body {
+    background-color: #F5F1F0;
+  }
+  #content {
+    background-color: white;
+    width: 1028px;
+    margin: auto;
+    position: relative;
+    }
+  .center {
+    margin: auto;
+    width: 1028px;
+  }
+  audio {
+    width: 100px;
+  }
+  #controlA {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+  }
+  #controlB {
+    position: absolute;
+    width: 175px;
+    right: 10px;
+    bottom: 10px;
+    overflow: hidden;
+    clear: both;
+  }
+  #mirrorControl {
+    position: absolute;
+    left: 150px;
+    top: 10px;
+  }
+  #volumeControl {
+    position: absolute;
+    left: 150px;
+    bottom: 10px;
+  }
+  #volumeLabel {
+    display: block;
+    margin-top: 20px
+  }
+  #rhythmButtons {
+    position: absolute;
+    left: 10px;
+    top: 0px;
+  }
+  button {
+    margin-top: 10px;
+    height: 30px;
+    width: 100px;
+    display: block;
+    border: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: white;
+    background-color: #B5B5B5;
+  }
+  button.controlB {
+    float: right;
+  }
+  #rotateGroup button {
+    width: 136px;
+  }
+  button.rhythm, button.note {
+    width: 100px;
+  }
+  li button {
+    width: 20px;
+    height: 20px;
+    margin: 2px;
+    display: inline-block;
+  }
+  .active {
+    font-weight: bold;
+    color: #DB3352;
+  }
+  #tempoLabel {
+    display: block;
+    margin-top: 20px
+  }
+  #notes {
+    position: absolute;
+    right: 10px;
+    top: 0px;
+  }
+  #muteGroup, #rotateGroup {
+    margin-top: 20px;
+  }
+  #presets {
+    height: 260px;
+    overflow: hidden;
+    float: right;
+  }
+  #sequence {
+    height: 100px;
+    float: right;
+  }
+  #sequenceDisplay {
+    height: 20px;
+    width: 180px;
+    overflow: hidden;
+    text-align: right;
+    clear: both;
+  }
+  #sequenceDisplay span {
+    display: inline-block;
+    padding-left: 2px;
+  }
+  ul {
+    clear: both;
+    margin-top: 5px;
+    text-align: right;
+    padding: 5px 0 0 0;
+    list-style: outside none none;
+  }
+</style>
+</head>
+
+<body>
+  <div id="content">
+    <div id="container" class="center"></div>
+    <div id="controlA">
+      <div>
+          <input type="checkbox" id="rhythmPolygon" name="rhythmPolygon">
+          <label for="rhythmPolygon">Rhythm Polygon</label>
+      </div>
+      <div id="muteGroup">
+        <div>
+          <input type="checkbox" id="bassSnareCheck" name="bassSnareCheck" checked>
+          <label for="bassSnareCheck">Bass / Snare</label>
+        </div>
+        <div>
+          <input type="checkbox" id="hiHatCheck" name="hiHatCheck" checked>
+          <label for="hiHatCheck">Hi-hat</label>
+        </div>
+        <div>
+          <input type="checkbox" id="melodyCheck" name="melodyCheck" checked>
+          <label for="melodyCheck">Melody</label>
+        </div>
+      </div>
+      <div id="rotateGroup">
+        <button id="bass90">
+          Bass / Snare +90
+        </button>
+        <button id="hihat90">
+          Hi-hat +90
+        </button>
+        <button id="melody90">
+          Melody +90
+        </button>
+      </div>
+      <label for="tempo" id="tempoLabel">Tempo: </label><br>
+      <input type="range" name="tempo" id="tempo" min="20" max="180" value="90" class="slider">
+    </div>
+    <div id="volumeControl">
+      <label for="volume" id="volumeLabel">Volume: </label><br>
+      <input type="range" name="volume" id="volume" min="0" max="100" value="60" class="slider">
+    </div>
+    <div id="mirrorControl">
+      <div>
+        <input type="checkbox" id="mirrorVertical" name="mirrorVertical">
+        <label for="mirrorVertical">Mirror Vertical</label>
+      </div>
+      <div>
+        <input type="checkbox" id="mirrorHorizontal" name="mirrorHorizontal">
+        <label for="mirrorHorizontal">Mirror Horizontal</label>
+      </div>
+      <div>
+        <button id="reset">RESET</button>
+      </div>
+    </div>
+    <div id="controlB">
+      <div id="presets">
+        <button id="savePresetButton" class="controlB">
+          Save Preset
+        </button>
+        <ul id="presetList">
+      
+        </ul>
+      </div>
+      <div id="sequence">
+        <button id="sequenceControl" class="controlB">
+          Start
+        </button>
+        <div id="sequenceDisplay">
+        </div>
+        <button id="sequenceClear" class="controlB">
+          Clear
+        </button>
+      </div>
+    </div>
+    <div id="rhythmButtons">
+      <button id="bassDrum" class="rhythm" data-instrument="B">
+        Bass Drum
+      </button>
+      <button id="snareDrum" class="rhythm" data-instrument="S">
+        Snare Drum
+      </button>
+      <button id="rimshot" class="rhythm" data-instrument="R">
+        Rim Shot
+      </button>
+      <button id="hihat" class="rhythm" data-instrument="H">
+        Hi-hat
+      </button>
+      <button id="openHihat" class="rhythm" data-instrument="O">
+        Open Hi-hat
+      </button>
+      <button id="rideCymbal" class="rhythm" data-instrument="C">
+        Ride Cymbal
+      </button>
+    </div>
+
+    <div id="notes">
+        <button id="enterPitch">
+          Enter Pitch
+        </button>
+        <input type="radio" id="none" name="chord" value="" checked>
+        <label for="none">None</label><br/>
+        <input type="radio" id="Asus" name="chord" value="A1">
+        <label for="Asus">Asus</label><br/>
+        <input type="radio" id="Bm" name="chord" value="B1">
+        <label for="Bm">Bm</label><br/>
+        <input type="radio" id="D" name="chord" value="D2">
+        <label for="D">D</label><br/>
+        <input type="radio" id="Em" name="chord" value="E2">
+        <label for="Em">Em</label><br/>
+        <input type="radio" id="G" name="chord" value="G2">
+        <label for="G">G</label><br/>
+          
+    </div>
+</div>
+  <script type="text/javascript">
+
+var offset = 0
+function currentBeat() {
+  if (offset == 0) { return 0; }
+  var duration = Tone.now() - offset;
+  var bpm = Tone.Transport.bpm.value
+  var secondsPerBeat = 1.0 / bpm * 60.0
+  var beats = Math.floor(duration / secondsPerBeat)
+  return beats;
+}
+
+Tone.Transport.bpm.value = 90;
+Tone.Transport.loop = true;
+Tone.Transport.loopStart = "0";
+Tone.Transport.loopEnd = "2m";
+
+var loop = new Tone.Loop(updatePattern, "32n");
+
+var activeInstrument = 'B';
+var outerCustomPattern = emptyPattern();
+var innerCustomPattern = emptyPattern();
+var keys = createSequence();
+
+var samplerCustomPattern = emptyPattern();
+var sampler = createSampler();
+
+var chords = createChords();
+
+var sequence = [];
+var currentSequence = -1;
+
+function emptyPattern() {
+  return {
+    value: Array(32).fill('-'), 
+    amplitude: Array(32).fill(0),
+    duration: Array(32).fill(0)
+  }
+}
+
+function emptyPreset() {
+  return {innerCustomPattern: emptyPattern(),
+          outerCustomPattern: emptyPattern(),
+          samplerCustomPattern: emptyPattern()}
+}
+
+
+function updatePattern(time) {
+  var progressStep = Math.floor(Tone.Transport.progress * 64) % 32
+
+  drawPattern(innerPatternNotes, innerCustomPattern, innerMidRadius, progressStep, 32)
+  drawPattern(outerPatternNotes, outerCustomPattern, outerMidRadius, progressStep, 16)
+  drawPattern(samplerPatternNotes, samplerCustomPattern, samplerMidRadius, progressStep, 16)
+  // updateNumbers(progressStep);
+  updateHand(progressStep);
+
+  if (rhythmPolygon.checked) {
+    drawPolygons();
+  }
+
+  updatePosition(positionGroup, currentBeat());
+  layer.batchDraw();
+}
+
+loop.start();
+
+function createSequence() {
+  var keys = new Tone.Players({
+			"B" : "Sounds/Rhythm/Kit_1/Samples/bass.wav",
+			"S" : "Sounds/Rhythm/Kit_1/Samples/snare.wav",
+      "H" : "Sounds/Rhythm/Kit_1/Samples/hihat.wav",
+      "O" : "Sounds/Rhythm/Kit_1/Samples/hihat_open.wav",
+      "R" : "Sounds/Rhythm/Kit_1/Samples/rimshot.wav",
+      "C" : "Sounds/Rhythm/Kit_1/Samples/ride.wav"
+    }).toDestination();
+    return keys; 
+}
+
+var scale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'];
+var semitones = [2,3,2,2,3,2,3];
+// https://mycolor.space/?hex=%23845EC2&sub=1
+// var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#FFC75F'];
+var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#0089BA','#2C73D2'];
+
+function createSampler() {
+  var notes = ['A3', 'B3', 'C#4', 'D3', 'D4', 'E3', 'E4', 'F#3', 'F#4', 'G3'];
+  var baseDir = "Sounds/ElectroSynths/";
+  var baseVoice = "NKnee ";
+  var extension = ".wav";
+  var config = {}
+  notes.forEach(function(note){
+    config[note] = baseDir + baseVoice + encodeURIComponent(note) + extension;
+  })
+  var sampler = new Tone.Sampler(config).toDestination();
+  return sampler;
+}
+
+function createChords() {
+  var notes = ['A1','B1', 'D2', 'E2', 'G2']
+  var files = ['Mystical Asus-A1', 'Mystical Bm-B1', 'Mystical D-D2', 'Mystical Em-E2', 'Mystical G_D-G2'];
+  var baseDir = "Sounds/ElectroSynths/";
+  var extension = ".wav";
+  var config = {}
+  notes.forEach(function(note, index){
+    config[note] = baseDir + encodeURIComponent(files[index]) + extension;
+  })
+  var sampler = new Tone.Sampler(config).toDestination();
+  sampler.volume.value = -12;
+  return sampler;
+}
+
+var allSteps = new Array(32);
+for (var i = 0; i < allSteps.length; i++) {
+  allSteps[i] = i;
+}
+
+var bassSnare = document.getElementById('bassSnareCheck');
+var hiHat = document.getElementById('hiHatCheck');
+var melody = document.getElementById('melodyCheck');
+
+var loop = new Tone.Sequence(function(time, step){
+  var chordNote = document.querySelector('input[name="chord"]:checked').value
+  if (step == 0 & chordNote.length > 0) {
+    chords.triggerAttackRelease(chordNote, '1m', time, 0.5);
+  }
+  if (hiHat.checked) {
+    playActiveNote(innerCustomPattern, step, time);
+  }
+  if (bassSnare.checked) {
+    playActiveNote(outerCustomPattern, step, time);
+  }
+  if (melody.checked) {
+    playActiveNote(samplerCustomPattern, step, time);
+  }
+  if (currentSequence >= 0 && step == 31) {
+    currentSequence = ++currentSequence % sequence.length
+    updateSequenceDisplay();
+    loadPreset(presets[sequence[currentSequence]]);
+  }
+}, allSteps, "32n").start(0);
+
+function playActiveNote(customPattern, step, time) {
+  var note = customPattern.value[step];
+  if (note == '-') { return; }
+  if (note.toUpperCase() == 'H') {
+    keys.player('O').stop();
+  }
+  if (isRhythm(note)) {
+    keys.player(note).volume.value = amplitudeFor(customPattern, step);
+    keys.player(note).start(time);
+  } else {
+    var velocity = velocityFor(customPattern, step);
+    var duration = durationFor(customPattern, step);
+    // sampler.triggerAttack(note, time, velocity);
+    sampler.triggerAttackRelease(note, duration, time, velocity);
+  }
+}
+
+function isRhythm(note) {
+  return note.length == 1
+}
+
+function amplitudeFor(pattern, step) {
+  var note = pattern.value[step];
+  var amplitude = pattern.amplitude[step] || 0;
+
+  var max = note == 'H' ? 8 : 0;
+  var mid = note == 'H' ? 2 : -2;
+  var min = -4
+
+  switch (amplitude) {
+    case 1:
+      return -4;
+      break;
+    case 2:
+      return 'H' ? 2 : -2;
+      break;
+    case 3:
+      return 'H' ? 8 : 0;
+      break;
+    case 0:
+    default:
+      return -99;
+      break;
+  }
+}
+
+function velocityFor(pattern, step) {
+  var amplitude = pattern.amplitude[step] || 0;
+
+  switch (amplitude) {
+    case 1:
+      return 0.25;
+      break;
+    case 2:
+      return 0.5;
+      break;
+    case 3:
+      return 1.0;
+      break;
+    case 0:
+    default:
+      return 0;
+      break;
+  }
+}
+
+function durationFor(pattern, step) {
+  var duration = pattern.duration[step] || 0;
+
+  switch (duration) {
+    case 1:
+      return '16n';
+      break;
+    case 2:
+      return '8n';
+      break;
+    case 3:
+      return '4n';
+      break;
+    case 4:
+      return '2n';
+      break;
+    case 5:
+      return '1m';
+      break;
+    case 0:
+    default:
+      return 0;
+      break;
+  }
+}
+
+var buffersLoaded = false
+
+Tone.loaded().then(function(){
+  buffersLoaded = true
+  updateLoading()
+});
+
+  // first we need to create a stage
+var stage = new Konva.Stage({
+  container: 'container',   // id of container <div>
+  width: 1028,
+  height: 768 - 200
+});
+
+var layer = new Konva.Layer();
+
+var patternWidth = (34 + 12)
+var outerPadding = (34 + 12)
+var samplerWidth = (34 + 12) + 48
+var innerRadius = (97 + 12) - 48
+var patternOriginX = stage.width() / 2
+var patternOriginY = innerRadius + patternWidth * 2 + samplerWidth + outerPadding
+var innerMidRadius = innerRadius + patternWidth / 2
+var outerMidRadius = innerRadius + patternWidth * 1.5
+var samplerMidRadius = innerRadius + patternWidth * 2 + samplerWidth * 0.5
+var outerRadius = samplerMidRadius + samplerWidth * 0.5
+
+
+
+// https://jsfiddle.net/PimpTrizkit/a7ac0qvp/
+var noteColors = {
+    "_" : "#D9D9D9",
+    "B" : "#C687C6",
+    "S" : "#6B63AA",
+    "R" : "#D88766",
+    "X" : "#6B99BC",
+    "H" : "#6B99BC",
+    "O" : "#355670",
+    "C" : "#41C398",
+  }
+
+for (var i = 0; i < scale.length; i++) {
+  noteColors[scale[i]] = gradient[i];
+}
+
+noteColors.getColor = function(note, amplitude=3) {
+  var p = (3 - amplitude) * 0.1;
+  return pSBC(p, this[note]);
+}
+
+function createSlices() {
+  var sliceGroup = new Konva.Group()
+  for (var i = 0; i < 16; i++) {
+    var point = pointBeginning(i, outerRadius, patternOriginX, patternOriginY, 16);
+    var strokeWidth = 4
+    var strokeColor = 'rgba(255,255,255,0.5)'
+    if (i % 8 == 0) {
+      strokeWidth = 6
+      // strokeColor = '#cccccc'
+    }
+    if ((i-4) % 8 == 0) {
+      strokeWidth = 6
+      // strokeColor = '#cccccc'
+    }
+    var line = new Konva.Line({
+      points: [patternOriginX, patternOriginY, point.x, point.y],
+      stroke: strokeColor,
+      strokeWidth: strokeWidth,
+      // opacity: 0.8,
+      listening: false
+    });
+    sliceGroup.add(line);
+  }
+  return sliceGroup;
+}
+
+ 
+var controlBackgrounds = ['#F5F1F0', '#D9D9D9', '#B5B5B5'];
+
+var innerFilter = ['H','O', 'C'];
+var innerPatternNotes = new Konva.Group()
+var innerPatternControls = new Konva.Group()
+var innerPatternRing = createPatternControl(patternOriginX, patternOriginY, innerRadius, innerRadius + patternWidth, controlBackgrounds[0], innerPatternControls, innerCustomPattern, innerFilter, 32, true, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+
+var outerFilter = ['B','S','R'];
+var outerPatternNotes = new Konva.Group()
+var outerPatternControls = new Konva.Group()
+var outerPatternRing = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth, innerRadius + patternWidth * 2, controlBackgrounds[1], outerPatternControls, outerCustomPattern, outerFilter, 16, false, false, function(){ toggleSequence();}, function(){  toggleSequence(); })
+
+var samplerFilter = scale;
+var samplerPatternNotes = new Konva.Group()
+var samplerPatternControls = new Konva.Group()
+var samplerPatternRing = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 2 + samplerWidth, controlBackgrounds[2], samplerPatternControls, samplerCustomPattern, samplerFilter, 16, false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
+
+layer.add(samplerPatternRing);
+layer.add(outerPatternRing);
+layer.add(innerPatternRing);
+
+var slices = createSlices();
+layer.add(slices);
+
+layer.add(innerPatternNotes);
+layer.add(outerPatternNotes);
+layer.add(samplerPatternNotes);
+
+layer.add(innerPatternControls);
+layer.add(outerPatternControls);
+layer.add(samplerPatternControls);
+
+var numbers = createNumbers(outerRadius + outerPadding * 0.5);
+layer.add(numbers);
+
+var hand = createHand(patternOriginX, patternOriginY, outerRadius)
+layer.add(hand);
+
+var mirrorVerticalLine = createVerticalLine();
+layer.add(mirrorVerticalLine);
+var mirrorHorizontalLine = createHorizontalLine();
+layer.add(mirrorHorizontalLine);
+
+function createVerticalLine() {
+    var startPoint = pointBeginning(0, outerRadius, patternOriginX, patternOriginY, 16);
+    var endPoint = pointBeginning(8, outerRadius, patternOriginX, patternOriginY, 16);
+    var line = new Konva.Line({
+      points: [startPoint.x, startPoint.y, endPoint.x, endPoint.y],
+      stroke: '#add8e6',
+      strokeWidth: 4,
+      opacity: 0.75,
+      listening: false,
+      visible: false
+    });
+    return line;
+}
+
+function createHorizontalLine() {
+    var startPoint = pointBeginning(4, outerRadius, patternOriginX, patternOriginY, 16);
+    var endPoint = pointBeginning(12, outerRadius, patternOriginX, patternOriginY, 16);
+    var line = new Konva.Line({
+      points: [startPoint.x, startPoint.y, endPoint.x, endPoint.y],
+      stroke: '#add8e6',
+      strokeWidth: 4,
+      opacity: 0.75,
+      listening: false,
+      visible: false
+    });
+    return line;
+}
+
+var positionGroup = createPositionGroup(stage.width() - 200,98, 0);
+layer.add(positionGroup);
+
+function createPositionGroup(x, y, beat) {
+  var positionGroup = new Konva.Group();
+  
+  var size = 128 / 2
+  var width = 16 / 2
+
+  var text = new Konva.Text({
+        x: x - size/2,
+        y: y - size/2,
+        text: beat.toString(),
+        fontSize: 24,
+        fill: '#DB3352',
+        width: size,
+        height: size,
+        align: 'center',
+        verticalAlign: 'middle'
+      });
+  positionGroup.add(text);
+
+  var progress = (beat + 1) / 4
+  var angle = progress * 360 - 90
+  var radius = size / 2 
+  var arc = new Konva.Arc({
+        x: x,
+        y: y,
+        innerRadius: radius - width / 2,
+        outerRadius: radius + width / 2,
+        angle: angle,
+        fill: '#AAAAAA',
+        stroke: '#AAAAAA',
+        strokeWidth: 1,
+        rotation: -90,
+        listening: false,
+        visible: false
+      });
+  positionGroup.add(arc)
+
+  return positionGroup;
+}
+
+function updatePosition(group, beat) {
+  
+  var bar = Math.floor(beat / 4)
+  
+  var progress = (beat % 4 + 1) / 4
+  var angle = progress * 360
+
+  var arc = group.getChildren(function(node){
+   return node.getClassName() === 'Arc';
+  });
+
+  arc[0].visible(offset > 0);
+  arc[0].angle(angle);
+
+  var text = group.getChildren(function(node){
+   return node.getClassName() === 'Text';
+  }); 
+
+  text[0].text(bar.toString())
+
+}
+
+var loadingText = new Konva.Text({
+        x: stage.width() / 2 - 150,
+        y: stage.height() / 2 - 100,
+        text: 'Loading...',
+        fontSize: 30,
+        fill: 'black',
+        width: 300,
+        height: 100,
+        verticalAlign: 'middle',
+        align: 'center'
+      });
+layer.add(loadingText)
+
+function updateLoading() {
+  var isLoaded = buffersLoaded
+  loadingText.visible(!isLoaded)
+  layer.batchDraw();
+}
+
+
+
+function createPatternControl(originX, originY, innerRadius, outerRadius, fill, patternGroup, customPattern, filter, length, enableInteriorClick = false, enableExteriorClick = false, directClick, interiorClick) {
+  var patternControl = new Konva.Group();
+
+  var patternRing = createPatternRing(originX, originY, innerRadius, outerRadius, fill);
+  patternRing.hitFunc(function(context) {
+      context.beginPath();
+      var innerArcRadius = enableInteriorClick ? 0 : innerRadius;
+      var outerArcRadius = enableExteriorClick ? outerRadius + patternWidth : outerRadius;
+      context.arc(0, 0, innerArcRadius, 0, Math.PI * 2, true);
+      context.arc(0, 0, outerArcRadius, 0, Math.PI * 2, true);
+      context.fillStrokeShape(this);
+    })
+  async function patternRingEvent(event) {
+    await Tone.start();
+    var point = this.getStage().getPointerPosition();
+    var distance = Math.pow((point.x - this.x()),2) + Math.pow((point.y - this.y()),2)
+    var interior = distance <= Math.pow(innerRadius, 2)
+    var exterior = distance >= Math.pow(outerRadius, 2)
+    if (interior) {
+      interiorClick()
+    } else {
+      directClick()
+    }
+  }
+  patternRing.on('click', patternRingEvent);
+  patternRing.on('tap', patternRingEvent);
+      
+  patternControl.add(patternRing);
+
+  // [0,4,8,12].forEach(function(step) { 
+  //   var pulse = createPulse(originX, originY, innerRadius, outerRadius, step); 
+  //   patternControl.add(pulse);
+  // })
+
+  var highlightRing = createHighlightRing(originX, originY, innerRadius, outerRadius, '#F0E6C3');
+  highlightRing.visible(false);
+  highlightRing.name('highlightRing');
+  highlightRing.listening(false);
+  patternControl.add(highlightRing);
+
+  for (var i = 0; i < 32; i += 32 / length) {
+    var step = createStepSegments(originX, originY, innerRadius, outerRadius, i, customPattern, filter, length);
+    patternGroup.add(step);
+  }
+
+  return patternControl
+}
+
+var dragStart = {x: 0, y:0}
+var dragDegree = 0;
+
+function createStepSegments(originX, originY, innerRadius, outerRadius, step, pattern, filter, length) {
+  var segmentDegree = 360/32;
+  var rotation = -90 + step * segmentDegree;
+  var segmentLength = step % 2 == 0 ? 360/16 : 360/length;
+  var arc = new Konva.Arc({
+        x: originX,
+        y: originY,
+        innerRadius: innerRadius,
+        outerRadius: outerRadius,
+        angle: segmentLength,
+        stroke: noteColors[activeInstrument],
+        strokeWidth: 0,
+        rotation: rotation,
+        // visible: false,
+        draggable: true,
+        dragBoundFunc: function() {
+          var pos = this.getAbsolutePosition();
+          return {x: pos.x, y: pos.y};
+        }
+      });
+  arc.on('mouseover', function() {
+    if (filter.indexOf(activeInstrument.toUpperCase()) == -1 ) { return; }
+    if (disable32(step)) { return; };
+    arc.strokeWidth(1);
+    arc.stroke(noteColors[activeInstrument]);
+    layer.batchDraw();
+  });
+  arc.on('mouseout', function() {
+    if (filter.indexOf(activeInstrument.toUpperCase()) == -1) { return; }
+    arc.strokeWidth(0);
+    layer.batchDraw();
+  });
+  function arcEvent(){
+    if (filter.indexOf(activeInstrument.toUpperCase()) == -1) { return; }
+    if (disable32(step)) { return; };
+    if (activeInstrument.length > 1) {
+      var pointer = stage.getPointerPosition();
+      var drag = distance(originX, originY, pointer.x, pointer.y);
+      var travel = drag - innerRadius;
+      var index = stepFor(travel);
+      toggleStep(step, pattern, length, scale[index]);
+    } else {
+      toggleStep(step, pattern, length);
+    }
+    patternUpdated();
+    updatePattern();
+  }
+  arc.on('click tap', arcEvent);
+  arc.on('dragstart', function(){
+    var note = pattern.value[step]
+    if (note.length <= 1) { return }
+    dragStart = stage.getPointerPosition();
+    dragDegree = scale.indexOf(note);
+  });
+  arc.on ('dragmove', function(){
+    var note = pattern.value[step]
+    if (note.length <= 1) { return }
+    var pointer = stage.getPointerPosition();
+    var origin = distance(originX, originY, dragStart.x, dragStart.y);
+    var drag = distance(originX, originY, pointer.x, pointer.y);
+    var travel = drag - origin;
+
+    var factor = patternWidth * 2 / scale.length
+    var min = factor * -dragDegree;
+    var max = factor * (scale.length - 1 - dragDegree);
+    var normalized = Math.max(Math.min(max, travel),min);
+    var newIndex = dragDegree + Math.round(normalized / factor);
+
+    if (pattern.value[step] != scale[newIndex]){
+      pattern.value[step] = scale[newIndex];
+      patternUpdated();
+      updatePattern();
+    }
+  });
+  return arc
+}
+
+function distance(x1, y1, x2, y2) {
+  return  Math.sqrt(Math.pow((x2 - x1),2) + Math.pow((y2 - y1),2));
+}
+
+// var semitones = [2,3,2,2,3,2,3];
+function stepFor(travel) {
+  var semitonesTotal = semitones.reduce(function(acc, val) { return acc + val; }, 0);
+  var index = 0;
+  for (var i = 0; i < semitones.length; i++) {
+    var semitonesWithin = semitones.slice(0, i + 1).reduce(function(acc, val) { return acc + val; }, 0);
+    var percent = semitonesWithin / semitonesTotal;
+    var size = samplerWidth * percent;
+    index = i;
+    if (travel <= size) {
+      break
+    }
+  }
+  return index;
+}
+
+function sizeFor(index) {
+  var semitonesWithin = semitones.slice(0, index + 1).reduce(function(acc, val) { return acc + val; }, 0)
+  var semitonesTotal = semitones.reduce(function(acc, val) { return acc + val; }, 0);
+  var percent = semitonesWithin / semitonesTotal;
+  var size = samplerWidth * percent;
+  return size;
+}
+
+function incrementalSizeFor(index) {
+  var semitonesWithin = semitones[index]
+  var semitonesTotal = semitones.reduce(function(acc, val) { return acc + val; }, 0);
+  var percent = semitonesWithin / semitonesTotal;
+  var size = samplerWidth * percent;
+  return size;
+}
+
+function disable32(step) {
+  var enable32 = ['H','O','C'];
+  if (enable32.indexOf(activeInstrument.toUpperCase()) == -1) {
+    return step % 2 == 1;
+  }
+  if (mirrorVertical.checked || mirrorHorizontal.checked) {
+    return step % 2 == 1;
+  }
+  return false;
+}
+
+var mirrorHorizontal = document.getElementById('mirrorHorizontal');
+mirrorHorizontal.addEventListener('click',
+  function(event){
+    mirrorHorizontalLine.visible(this.checked);
+    layer.batchDraw();
+  }, false)
+var mirrorVertical = document.getElementById('mirrorVertical');
+mirrorVertical.addEventListener('click',
+  function(event){
+    mirrorVerticalLine.visible(this.checked);
+    layer.batchDraw();
+  }, false)
+
+var resetButton = document.getElementById('reset');
+resetButton.addEventListener('click',
+  function(event){
+    loadPreset(emptyPreset());
+    updatePattern();
+  }, false)
+
+function toggleStep(index, pattern, length, instrument=activeInstrument) {
+  var currentStep = pattern.value[index];
+
+  var currentAmplitude = pattern.amplitude[index] || 0;
+  var amplitudeMax = 3;
+
+  var isPitch = instrument.length > 1
+  var amplitude, value;
+  var duration = 1;
+  switch (currentStep) {
+    case instrument:
+      if (isPitch) {
+        var duration = pattern.duration[index];
+        var newDuration = ++duration % 6;
+        pattern.duration[index] = newDuration
+        amplitude = newDuration == 0 ? 0 : 3;
+      } else {
+        amplitude = ++currentAmplitude % 4;
+      }
+    
+      value = amplitude == 0 ? '-' : instrument;
+  
+      break;
+    case '-':
+    default:
+      amplitude = isPitch ? 3 : 1;
+      if (isPitch) {
+        pattern.duration[index] = 1;
+      }
+      value = instrument;
+      break;
+  }
+
+  pattern.amplitude[index] = amplitude;
+  pattern.value[index] = value;
+
+
+  if (mirrorVertical.checked) {
+    var verticalIndex = reflectPatternVertical(index, value, amplitude, pattern, duration);
+    if (mirrorHorizontal.checked) {
+      reflectPatternHorizontal(verticalIndex, value, amplitude, pattern, duration);
+    }
+  }
+
+  if (mirrorHorizontal.checked) {
+    horizontalIndex = reflectPatternHorizontal(index, value, amplitude, pattern, duration);
+  }
+
+  updatePattern();
+}
+
+function reflectPatternHorizontal(index, value, amplitude, pattern, duration) {
+  var offset = index % 2 == 0 ? 30 : 31;
+  var newIndex = (offset + 16 - index) % 32;
+  pattern.amplitude[newIndex] = amplitude;
+  pattern.value[newIndex] = value;
+  pattern.duration[newIndex] = duration;
+  return newIndex;
+}
+
+function reflectPatternVertical(index, value, amplitude, pattern, duration) {
+  var offset = index % 2 == 0 ? 30 : 31;
+  var newIndex = (offset - index) % 32;
+  pattern.amplitude[newIndex] = amplitude;
+  pattern.value[newIndex] = value;
+  pattern.duration[newIndex] = duration;
+  return newIndex;
+}
+
+function wrapMod(x, n) {
+  return (x % n + n) % n
+}
+
+function createPatternRing(originX, originY, innerRadius, outerRadius, fill) {
+  var ring = new Konva.Ring({
+        x: originX,
+        y: originY,
+        innerRadius: innerRadius,
+        outerRadius: outerRadius,
+        fill: fill
+      });
+
+  return ring;
+}
+
+function createHighlightRing(originX, originY, innerRadius, outerRadius, fill) {
+  var ring = new Konva.Group();
+  
+  var segmentDegree = 360/4;
+  for (var i = 0; i < 4; i++) {
+    var rotation = -90 + i * segmentDegree;
+    var segmentFill = i % 2 == 0 ?  fill : pSBC(0.5, fill);
+    var arc = new Konva.Arc({
+        x: originX,
+        y: originY,
+        innerRadius: innerRadius,
+        outerRadius: outerRadius,
+        angle: segmentDegree,
+        fill: segmentFill,
+        rotation: rotation,
+        listening: false
+      });
+    ring.add(arc);
+  }
+
+  return ring;
+}
+
+function createPulse(originX, originY, innerRadius, outerRadius, step) {
+  var segmentDegree = 360/16
+  var rotation = -90 + step * segmentDegree;
+  var arc = new Konva.Arc({
+        x: originX,
+        y: originY,
+        innerRadius: innerRadius,
+        outerRadius: outerRadius,
+        angle: segmentDegree,
+        fill: '#FFF2C6',
+        stroke: '#FFF2C6',
+        strokeWidth: 1,
+        rotation: rotation,
+        listening: false
+      });
+    if (step == 0) {
+      arc.stroke('#636363');
+      arc.strokeWidth(1);
+    }
+
+    return arc
+}
+
+function createNumbers(radius) {
+  var numbers = new Konva.Group();
+  for (var i = 0; i < 4; i++) {
+    if (i % 4 == 0) {
+      var number0 = drawNumber(radius - patternWidth/4, 0, i)
+      numbers.add(number0);
+      var number4 = drawNumber(radius + patternWidth/4, 4, i)
+      numbers.add(number4);
+    } else {
+      var numberLabel = drawNumber(radius, i % 4, i * 4)
+      numbers.add(numberLabel)
+    }
+  }
+  return numbers;
+}
+
+function drawNumber(radius, number, step) {
+  var segment = Math.PI * 2 / 16 
+  var dAlpha = - Math.PI / 2 + step * segment;
+  var dx = Math.cos(dAlpha) * radius;
+  var dy = Math.sin(dAlpha) * radius;
+    
+  var label = new Konva.Text({
+    x: patternOriginX + dx,
+    y: patternOriginY + dy,
+    text: number.toString(),
+    fontSize: 12,
+    fill: '#636363',
+    width: 20,
+    height: 20,
+    align: "center",
+    verticalAlign: "middle",
+    offsetX: 10,
+    offsetY: 10,
+    // visible: number % 4 == 0
+  });
+  return label
+}
+
+function updateNumbers(step) {
+  var normalizedStep = Math.floor(step/2);
+  var numberLabels = numbers.getChildren(function(node){
+   return node.getClassName() === 'Text';
+  });
+  numberLabels.forEach( function(label) {
+    var number = Number(label.text());
+    if (number % 4 == 0) { 
+      label.visible(true);
+    } else { 
+      label.visible(number <= normalizedStep);
+    }
+  })
+}
+
+function createHand(originX, originY, radius) {
+  var segmentDegree = 360/16;
+  var hand = new Konva.Arc({
+        x: originX,
+        y: originY,
+        innerRadius: 0,
+        outerRadius: radius,
+        angle: segmentDegree,
+        fill: '#FFF2C6', 
+        rotation: -90,
+        opacity: 0.5,
+        listening: false
+      });
+  return hand
+}
+
+function updateHand(step) {
+  var normalizedStep = Math.floor(step/2);
+  var segmentDegree = 360/16
+  var rotation = -90 + normalizedStep * segmentDegree;
+  hand.rotation(rotation);
+}
+
+function selectButton(buttonGroup, data, fillColor, activeColor) {
+  var nodes = buttonGroup.find('Circle')
+  nodes.forEach(node => {
+    node.fill(node.id() == data.selected ? activeColor : fillColor);
+  })
+  nodes = buttonGroup.find('Text')
+  nodes.forEach(node => {
+    node.fill(node.id() == data.selected ? 'white' : 'grey');
+  })
+  layer.batchDraw();
+}
+
+function selectLoop(index, players, loopUrls) {
+  if (!playing(players, loopUrls)) { return; }
+
+  for(var playerName in loopUrls) {
+    var player = players.get(playerName)
+    player.mute = playerName != index
+  }
+}
+
+function playing(players, loopUrls) {
+  for(var playerName in loopUrls) {
+    var player = players.get(playerName)
+    if (!player.mute) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function toggleLoop(index, players, loopUrls) {
+  Tone.context.resume()
+
+  for(var playerName in loopUrls) {
+    var player = players.get(playerName)
+    if (playerName == index) {
+      if (player.mute) {
+        player.mute = false
+        if (Tone.Transport.state != "started") {
+          offset = Tone.now()
+          Tone.Transport.start(offset)
+        }
+      } else {
+        player.mute = true
+      }
+    } else {
+      player.mute = true
+    }
+  }
+
+  autoStopTransport();
+  updatePattern();
+}
+
+function toggleSequence() {
+  Tone.context.resume()
+  if (Tone.Transport.state != "started") {
+    offset = Tone.now()
+    Tone.Transport.start(offset)
+  } else {
+    offset = 0;
+    Tone.Transport.stop();
+  }
+  updatePattern()
+}
+
+function firstPlayer(players, loopUrls) {
+    for(var playerName in loopUrls) {
+      var player = players.get(playerName)
+      if (player.mute) {
+        return index
+      }
+    }
+    return -1
+}
+
+function drawEmptyPattern(targetGroup, radius) {
+  for (var i = 0; i < 16; i++) {
+    var tick = createTick(patternOriginX, patternOriginY, radius, i)
+    targetGroup.add(tick)
+  }
+}
+
+function drawPattern(targetGroup, pattern, radius, step = 0) {
+  targetGroup.destroyChildren()
+
+  for (var i = 0; i < pattern.value.length; i++) {
+
+    // if (i == step  && i % 2 == 0) {
+    //   var normalizedStep = i / 2
+    //   var activeSegment = createActiveSegment(patternOriginX, patternOriginY, radius - patternWidth / 2, radius + patternWidth / 2, normalizedStep);
+    //   targetGroup.add(activeSegment);
+    // }
+
+    var note = pattern.value[i];
+    var amplitude = pattern.amplitude[i] || 0;
+    if (note == '-' && i % 2 == 0) {
+      // var normalizedStep = i / 2
+      // var tick = createTick(patternOriginX, patternOriginY, radius, normalizedStep)
+      // targetGroup.add(tick)
+    } else if (noteColors.hasOwnProperty(note)) {
+      var noteColor = noteColors.getColor(note, amplitude);
+      if (note.length > 1) {
+        var duration = pattern.duration[i] || 1;
+        var noteNode = createHarmonicNote(i, duration, noteColor, note, patternOriginX, patternOriginY, radius)
+      } else {
+        var noteNode = createNote(i, noteColor, patternOriginX, patternOriginY, radius)
+      }
+      targetGroup.add(noteNode)
+    }
+  }
+
+  // draw active step
+
+  // do I need to draw the active step before the other pattern? 
+  // do I need to skip the active step when drawing the other notes
+  // consider 32nd notes
+
+  layer.batchDraw();
+}
+
+function createActiveSegment(originX, originY, innerRadius, outerRadius, step) {
+  var segmentDegree = 360/16
+  var rotation = -90 + step * segmentDegree - segmentDegree/2
+  var fillColor = step % 2 == 0 ? '#FFF2C6' : '#E3FF8F';
+  var arc = new Konva.Arc({
+        x: originX,
+        y: originY,
+        innerRadius: innerRadius,
+        outerRadius: outerRadius,
+        angle: segmentDegree,
+        fill: fillColor,
+        rotation: rotation
+      });
+  if (step == 0) {
+    arc.stroke('#636363');
+    arc.strokeWidth(1);
+  }
+  return arc
+}
+
+function createTick(originX, originY, radius, step) {
+  var stroke = "#636363";
+  var segmentDegree = 360/16
+  var rotation = -90 + step * segmentDegree
+  var tick = new Konva.Circle({
+        x: originX,
+        y: originY,
+        radius: 3,
+        stroke: stroke,
+        strokeWidth: 1,
+        rotation: rotation
+      });
+  tick.offsetX(-radius)
+  return tick
+}
+
+function createNote(step, color, originX, originY, radius) {
+  var segmentDegree = 360/32;
+  var rotation = -90 + step * segmentDegree;
+  var angle = step % 2 == 0 ? 360/16 : 360/32;
+  var note = new Konva.Arc({
+    x: originX,
+    y: originY,
+    innerRadius: radius - patternWidth/2,
+    outerRadius: radius + patternWidth/2,
+    angle: angle,
+    fill: color,
+    stroke: 'rgba(255,255,255,0.5)',
+    strokeWidth: 3,
+    rotation: rotation,
+    listening: false
+  });
+  
+  return note
+}
+
+function createHarmonicNote(step, duration, color, label, originX, originY, radius) {
+  var group = new Konva.Group()
+
+  var scaleDegree = scale.indexOf(label);
+  // var percent = (scaleDegree + 1) / scale.length;
+  var innerRadius = radius - samplerWidth/2;
+  // var outerRadius = innerRadius + samplerWidth * percent;
+  var outerRadius = innerRadius + sizeFor(scaleDegree);
+
+  var segmentDegree = 360/32;
+  var rotation = -90 + step * segmentDegree;
+  var angle = step % 2 == 0 ? 360/16 : 360/32;
+  angle *= Math.pow(2, duration-1)
+  var note = new Konva.Arc({
+    x: originX,
+    y: originY,
+    innerRadius: innerRadius,
+    outerRadius: outerRadius,
+    angle: angle,
+    fill: color,
+    stroke: 'rgba(255,255,255,0.5)',
+    strokeWidth: 1,
+    rotation: rotation,
+    listening: false
+  });
+
+  var segment = Math.PI * 2 / 32 
+  var offset = step % 2 == 0 ? segment : segment / 2;
+  var dAlpha = - Math.PI / 2 + step * segment + offset;
+  var dx = Math.cos(dAlpha) * radius;
+  var dy = Math.sin(dAlpha) * radius;
+
+  var size = 32;
+    
+  var noteLabel = new Konva.Text({
+    x: patternOriginX + dx,
+    y: patternOriginY + dy,
+    text: label,
+    fontSize: 18,
+    fontStyle: 'bold',
+    fill: 'white',
+    width: size,
+    height: size,
+    align: "center",
+    verticalAlign: "middle",
+    offsetX: size / 2,
+    offsetY: size / 2,
+    shadowColor: 'black',
+    shadowBlur: 8,
+    shadowOffset: { x: 2, y: 2 },
+    shadowOpacity: 0.8,
+  });
+
+  group.add(note);
+  group.add(noteLabel);
+
+
+  for (var i = 0; i <= scaleDegree; i++) {
+    var innerLineRadius = i == 0 ? innerRadius : innerRadius + sizeFor(i-1);
+    var outerLineRadius = innerLineRadius + incrementalSizeFor(i);
+    var line = new Konva.Arc({
+      x: originX,
+      y: originY,
+      innerRadius: innerLineRadius,
+      outerRadius: outerLineRadius,
+      angle: angle,
+      stroke: 'rgba(255,255,255,0.5)',
+      strokeWidth: 2,
+      rotation: rotation,
+      listening: false
+    });    
+    group.add(line)
+  }
+  
+  return group
+}
+
+function autoStopTransport() {
+  if (!someLoop()) {
+    Tone.Transport.stop();
+    offset = 0;
+  }
+}
+
+function someLoop() {
+  return someBDSDLoop() || someHHLoop();
+}
+
+function someBDSDLoop() {
+  for(var playerName in bdsdURLs) {
+    var player = bdsdPlayers.get(playerName)
+    if (!player.mute) {
+      return true
+    }
+  }
+  return false;
+}
+
+function someHHLoop() {
+  for(var playerName in hhURLs) {
+    var player = hhPlayers.get(playerName)
+    if (!player.mute) {
+      return true
+    }
+  }
+  return false;
+}
+
+stage.add(layer);
+
+var slider = document.getElementById("tempo");
+var output = document.getElementById("tempoLabel");
+output.innerHTML = "Tempo: " + slider.value;
+      
+slider.oninput = function() {
+  output.innerHTML = "Tempo: " + this.value;
+  Tone.Transport.bpm.value = this.value;
+}
+
+var volumeSlider = document.getElementById("volume");
+var volumeLabel = document.getElementById("volumeLabel");
+volumeLabel.innerHTML = "Volume: " + volumeSlider.value;
+      
+volumeSlider.oninput = function() {
+  volumeLabel.innerHTML = "Volume: " + this.value;
+  Tone.Master.volume.value = scaleMap(this.value, 0, 100, -32, 6);
+}
+
+function scaleMap(num, in_min, in_max, out_min, out_max) {
+  return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+var enterPitch = document.getElementById("enterPitch");
+enterPitch.onmousedown = function() {
+  activeInstrument = scale[0];
+  showSelectedButton();
+  selectRing();
+}
+
+var rhythmButtons = document.getElementsByClassName("rhythm");
+Array.prototype.forEach.call(rhythmButtons, function(button){
+  var instrument = button.dataset.instrument;
+  button.addEventListener('click', 
+    function() { 
+      activeInstrument = instrument;
+      showSelectedButton();
+      selectRing();
+    }, 
+    false
+  );
+})
+
+function showSelectedButton() {
+  var rhythmButtons = document.getElementsByClassName("rhythm");
+  Array.prototype.forEach.call(rhythmButtons, function(button){
+    var instrument = button.dataset.instrument;
+    button.style.backgroundColor = activeInstrument.toUpperCase() == instrument.toUpperCase() ? noteColors[activeInstrument] : noteColors["_"];
+  })
+}
+
+showSelectedButton();
+selectRing();
+
+function selectRing() {
+  var controls = [innerPatternRing, outerPatternRing, samplerPatternRing];
+  var filters = [innerFilter, outerFilter, samplerFilter];
+  for (var i=0; i<controls.length; i++) {
+    var control = controls[i];
+    var filter = filters[i];
+    var ring = control.findOne('.highlightRing');
+    if (filter.includes(activeInstrument)) {
+      ring.visible(true);
+    } else {
+      ring.visible(false);
+    }
+  }
+  layer.batchDraw();
+}
+
+var bass90Button = document.getElementById("bass90");
+bass90Button.addEventListener('click', 
+  function() {
+    rotateAnimation(outerCustomPattern, outerMidRadius - patternWidth / 2,
+    function() {
+      patternRotate(outerCustomPattern, 8)
+      updatePattern();
+    });
+  }, 
+  false
+);
+
+var hihat90Button = document.getElementById("hihat90");
+hihat90Button.addEventListener('click', 
+  function() {
+    rotateAnimation(innerCustomPattern, innerMidRadius - patternWidth / 2,
+    function() {
+      patternRotate(innerCustomPattern, 8);
+      updatePattern();
+    });
+  }, 
+  false
+);
+
+var melody90Button = document.getElementById("melody90");
+melody90Button.addEventListener('click', 
+  function() {
+
+    rotateAnimation(samplerCustomPattern, samplerMidRadius - patternWidth / 2,
+    function() {
+      patternRotate(samplerCustomPattern, 8);
+      updatePattern();
+    });
+  }, 
+  false
+);
+
+function patternRotate(pattern, count) {
+  arrayRotate(pattern.value, count);
+  arrayRotate(pattern.amplitude, count);
+  arrayRotate(pattern.duration, count);
+  patternUpdated();
+}
+
+function arrayRotate(arr, count) {
+  arr.unshift.apply(arr, arr.splice(arr.length-count, count));
+  return arr;
+}
+
+function rotateAnimation(pattern, radius, completion) {
+  var slices = patternSliceGroup(pattern, radius);
+  layer.add(slices);
+  layer.batchDraw();
+
+  var duration = 333;
+  var sustain = 150;
+  var rotation = 90;
+  var anim = new Konva.Animation(function(frame) {
+    var time = frame.time,
+      timeDiff = frame.timeDiff,
+      frameRate = frame.frameRate;
+    if (time >= duration + sustain) {
+      slices.destroy();
+      anim.stop();
+      completion();
+    } else if (time > duration) {
+      slices.rotation(rotation);
+    } else {
+      var angle = rotation * frame.time / duration;
+      slices.rotation(angle);
+    }
+
+    
+  }, layer);
+  anim.start();
+}
+
+function patternSliceGroup(pattern, radius) {
+  var sliceGroup = new Konva.Group({
+    x: patternOriginX,
+    y: patternOriginY
+  });
+
+  var originX = patternOriginX, originY = patternOriginY;
+  for (var i = 0; i < 32; i++) {
+    if (pattern.value[i] == '-' || pattern.amplitude[i] == 0) {
+      continue;
+    }
+    var point = pointBeginning(i, radius, 0, 0);
+    var strokeWidth = 8;
+    var strokeColor = 'black';
+    var line = new Konva.Line({
+      points: [0, 0, point.x, point.y],
+      stroke: strokeColor,
+      strokeWidth: strokeWidth,
+      opacity: 0.5,
+      listening: false
+    });
+    sliceGroup.add(line);
+  }
+  return sliceGroup;  
+}
+
+var presetCounter = 1;
+var presets = [];
+var savePresetButton = document.getElementById("savePresetButton");
+var presetList = document.getElementById("presetList");
+
+savePresetButton.addEventListener('click', 
+  function() {
+    addPreset(capturePreset());
+  }, 
+  false
+);
+
+function addPreset(preset) {
+  console.log(preset)
+  console.log(presets)
+  if (presetList.childElementCount == 8) {
+      deletePreset(presetCounter, presetList.lastChild)
+    }
+    var entry = document.createElement('li');
+    var link = document.createElement('a');
+    link.href = ''
+    link.innerHTML = "Preset " + presetCounter;
+    link.dataset.presetID = presetCounter
+    entry.appendChild(link);
+    var id = 'preset' + presetCounter;
+    entry.setAttribute('id',id);
+    presets[presetCounter] = preset;
+    storePresets();
+    link.addEventListener('click',
+      function(event){
+        var presetToLoad = presets[this.dataset.presetID];
+        loadPreset(presetToLoad);
+        updatePattern();
+        event.preventDefault();
+      }, false)
+    entry.appendChild(deleteButton(presetCounter));
+    entry.appendChild(sequenceButton(presetCounter));
+    presetList.appendChild(entry);
+    presetCounter += 1;
+    updatePattern();
+}
+
+function storePresets() {
+  var filtered = presets.filter(function (el) {
+    return el != null;
+  });
+  localStorage.setItem('presets', JSON.stringify(filtered));
+}
+
+function deleteButton(preset) {
+  var deleteButton = document.createElement("BUTTON");
+  deleteButton.innerHTML = "X";
+  deleteButton.addEventListener('click',
+    (function(index) {
+      return function() {
+        deletePreset(index, this.parentNode);
+      }
+    })(preset),
+    false
+  );
+  return deleteButton;
+}
+
+function deletePreset(index, node) {
+  node.parentNode.removeChild(node);
+  delete presets[index];
+  storePresets();
+  sequence = sequence.filter(function(i) {
+      return i !== index;
+  })
+  currentSequence = -1;
+  updateSequenceDisplay();
+}
+
+var sequenceDisplay = document.getElementById('sequenceDisplay');
+function sequenceButton(preset) {
+  var sequenceButton = document.createElement("BUTTON");
+  sequenceButton.innerHTML = ">";
+  sequenceButton.addEventListener('click',
+    (function(index) {
+      return function() {
+        sequence.length = Math.min(sequence.length, 7);
+        sequence.push(preset);
+        updateSequenceDisplay();
+      }
+    })(preset),
+    false
+  );
+  return sequenceButton;
+}
+
+function updateSequenceDisplay() {
+  var display = sequence.map(function(preset, index){
+    var step = document.createElement("SPAN")
+    step.innerHTML = preset;
+    step.className = index == currentSequence ? 'active' : '';
+    return step.outerHTML;
+  })
+  sequenceDisplay.innerHTML = display.join(",");
+}
+
+var sequenceControl = document.getElementById("sequenceControl");
+sequenceControl.addEventListener('click', 
+  function() {
+    if (currentSequence >= 0) {
+      currentSequence = -1;
+      this.innerHTML = "start";
+    } else {
+      currentSequence = 0;
+      loadPreset(presets[sequence[currentSequence]]);
+      updateSequenceDisplay();
+      this.innerHTML = "stop";
+    }
+  }, 
+  false
+);
+
+function capturePreset() {
+  var preset = {
+      innerCustomPattern: patternFrom(innerCustomPattern),
+      outerCustomPattern: patternFrom(outerCustomPattern),
+      samplerCustomPattern: patternFrom(samplerCustomPattern)
+  }
+  return preset;
+}     
+
+function loadPreset(preset) {
+  loadPattern(preset.innerCustomPattern, innerCustomPattern);
+  loadPattern(preset.outerCustomPattern, outerCustomPattern);
+  loadPattern(preset.samplerCustomPattern, samplerCustomPattern);
+  patternUpdated();
+}
+
+function patternFrom(pattern) {
+  var clone = {
+    value: pattern.value.slice(),
+    amplitude: pattern.amplitude.slice(),
+    duration: pattern.duration.slice()
+  }
+  return clone
+}
+
+function loadPattern(pattern, target) {
+  target.value = pattern.value.slice();
+  target.amplitude = pattern.amplitude.slice();
+  target.duration = pattern.duration.slice();
+}
+
+
+var sequenceClear = document.getElementById("sequenceClear");
+sequenceClear.addEventListener('click', 
+  function() {
+    currentSequence = -1;
+    sequence = [];
+    updateSequenceDisplay();
+  }, 
+  false
+);
+
+
+
+var rhythmPolygon = document.getElementById('rhythmPolygon');
+
+
+rhythmPolygon.addEventListener('change', 
+  function() {
+    togglePolygon(rhythmPolygon.checked);
+  }, 
+  false
+);
+
+function togglePolygon(show) {
+  if (show) {
+      drawGuideSquare();
+      drawPolygons()
+    } else {
+      guideSquare.destroy();
+      destroyPolygons();
+      polygons = Array(3).fill(new Konva.Shape())
+      layer.batchDraw();
+    }
+}
+
+var guideSquare = new Konva.Shape();
+
+function drawGuideSquare() {
+  var radius = innerRadius;
+  var points = [];
+  [0,8,16,24].forEach( function(i){
+    var point = pointFor(i, radius, patternOriginX, patternOriginY);
+    points.push(point.x, point.y);
+  })
+
+  guideSquare = new Konva.Line({
+        points: points,
+        fill: '#D9D9D9',
+        strokeWidth: 0,
+        closed: true,
+        listening: false,
+        opacity: 0.5
+      });
+  layer.add(guideSquare);
+  layer.batchDraw();
+}
+
+
+var polygons = Array(3).fill(new Konva.Shape())
+
+function drawPolygons() {
+  destroyPolygons()
+
+  polygons[0] = drawPolygon(innerCustomPattern, innerMidRadius - patternWidth / 2);
+  polygons[1] = drawPolygon(outerCustomPattern, outerMidRadius - patternWidth / 2);  
+  polygons[2] = drawPolygon(samplerCustomPattern, samplerMidRadius - patternWidth / 2);
+  for (var i = 0; i < polygons.length; i++) {
+    layer.add(polygons[i]);
+  }
+  
+  layer.batchDraw();
+}
+
+function destroyPolygons() {
+  for (var i = 0; i < polygons.length; i++) {
+    polygons[i].destroy()
+  }
+}
+
+
+function drawPolygon(pattern, radius) {
+  var points = [];
+  for (var i = 0; i < pattern.value.length; i++) {
+    var note = pattern.value[i];
+    if (note != '-') {
+      var point = pointFor(i, radius, patternOriginX, patternOriginY);
+      points.push(point.x, point.y);
+    }
+  }
+
+  if (points.length == 0) {
+    return new Konva.Shape();
+  }
+
+  polygon = new Konva.Line({
+        points: points,
+        stroke: 'black',
+        strokeWidth: 1,
+        closed: true,
+        listening: false
+      });
+  return polygon;
+}
+
+function pointFor(step, radius, originX, originY, base=32) {
+  var segment = Math.PI * 2 / base;
+  var dAlpha = - Math.PI / 2 + step * segment;
+  var dx = Math.cos(dAlpha) * radius;
+  var dy = Math.sin(dAlpha) * radius;
+
+  return {
+    x: originX + dx,
+    y: originY + dy
+  }  
+}
+
+function pointBeginning(step, radius, originX, originY, base=32) {
+  var segment = Math.PI * 2 / base;
+  var dAlpha = - Math.PI / 2 + step * segment;
+  var dx = Math.cos(dAlpha) * radius;
+  var dy = Math.sin(dAlpha) * radius;
+
+  return {
+    x: originX + dx,
+    y: originY + dy
+  }  
+}
+
+function encodePreset(pattern=outerCustomPattern, key=outerFilter) {
+  return {a:encode(pattern.amplitude), v:encode(pattern.value, key), d: encode(pattern.duration, [], 6)}
+}
+
+function encode(pattern, filter=[], count=0) {
+  if (filter.length > 0) {
+    var pattern = pattern.map( function(note){ 
+      return filter.indexOf(note) + 1 
+    });
+  }
+
+  var size = codeableSize(filter, count)
+  
+  var chunks = chunk(pattern, 4);
+  var encoded = chunks.map(function(chunk) { 
+    var a = parseInt(chunk.join(''), size.base).toString(36)
+    return a.padStart(size.length, 0);
+  });
+
+  return encoded.join('');
+}
+
+
+
+function decodePreset(v,a,d,filter) {
+  if (!v || !a) return emptyPattern();
+  return {
+    value: decode(v, filter),
+    amplitude: decode(a),
+    duration: decode(d,[],6)
+  }
+}
+
+function decode(string, filter=[], count=0) {
+
+  var size = codeableSize(filter, count);
+  var a = chop(string, size.length)
+  var chunks = a.map( function (chunk) {
+    var a = parseInt(chunk, 36).toString(size.base)
+    return a.padStart(4, 0);
+  })
+
+  var ints = chunks.join('').split('')
+
+  if (filter.length > 0) {
+    ints = ints.map(function(index){ 
+      return --index < 0 ? '-' : filter[index]; 
+    })
+  } else {
+    ints = ints.map(function(index){ 
+      return parseInt(index, 10); 
+    })
+  }
+
+  return ints
+}
+
+function codeableSize(filter, count) {
+  var size = Math.max(filter.length, count);
+  return {
+    length: size < 4 ? 2 : 3,
+    base: size < 4 ? 4 : 8
+  }
+}
+
+function chunk(array, size) {
+  const chunked_arr = [];
+  let index = 0;
+  while (index < array.length) {
+    chunked_arr.push(array.slice(index, size + index));
+    index += size;
+  } 
+  return chunked_arr;
+}
+
+function chop(str, size){
+      if (str == null || str.length == 0) return [];
+      str = String(str);
+      size = ~~size;
+      return size > 0 ? str.match(new RegExp('.{1,' + size + '}', 'g')) : [str];
+}
+
+function patternUpdated() {
+  var inner = encodePreset(innerCustomPattern, innerFilter);
+  var outer = encodePreset(outerCustomPattern, outerFilter);
+  var sampler = encodePreset(samplerCustomPattern, scale);
+  var obj = {
+    v1: inner.v,
+    a1: inner.a,
+    v2: outer.v,
+    a2: outer.a,
+    v3: sampler.v,
+    a3: sampler.a,
+    d3: sampler.d
+  }
+  var str = "";
+  for (var key in obj) {
+    if (str != "") {
+        str += "&";
+    }
+    str += key + "=" + encodeURIComponent(obj[key]);
+  }
+  // var query = stateObj.entries.map(function() { return key + '=' + val  }).join('&')
+  history.replaceState({}, "", '?' + str);
+}
+
+function queryString(preset) {
+  var inner = encodePreset(preset.innerCustomPattern, innerFilter);
+  var outer = encodePreset(preset.outerCustomPattern, outerFilter);
+  var sampler = encodePreset(preset.samplerCustomPattern, scale);
+  var obj = {
+    v1: inner.v,
+    a1: inner.a,
+    v2: outer.v,
+    a2: outer.a,
+    v3: sampler.v,
+    a3: sampler.a,
+    d3: sampler.d
+  }
+  var str = "";
+  for (var key in obj) {
+    if (str != "") {
+        str += "&";
+    }
+    str += key + "=" + encodeURIComponent(obj[key]);
+  }
+
+  return str
+}
+
+function loadPresetFromURL() {
+  var urlParams = new URLSearchParams(window.location.search);
+  var v1 = urlParams.get('v1');
+  var a1 = urlParams.get('a1');
+  var v2 = urlParams.get('v2');
+  var a2 = urlParams.get('a2');
+  var v3 = urlParams.get('v3');
+  var a3 = urlParams.get('a3');
+  var d3 = urlParams.get('d3');
+  var urlPreset = {
+    innerCustomPattern: decodePreset(v1, a1, '', innerFilter),
+    outerCustomPattern: decodePreset(v2, a2, '', outerFilter),
+    samplerCustomPattern: decodePreset(v3, a3, d3, scale)
+  }
+  loadPreset(urlPreset);
+  updatePattern();
+}
+
+function loadPresetsFromStorage() {
+  var localPresets = JSON.parse(localStorage.getItem('presets')) ?? [];
+  console.log(localPresets);
+  localPresets.forEach( function(preset){
+    addPreset(preset);
+  })
+}
+
+function dumpPresets() {
+  presets.forEach( function(preset) {
+    console.log( queryString(preset) );
+  }); 
+}
+
+loadPresetFromURL();
+loadPresetsFromStorage();
+
+</script>
+</body>
+</html>
