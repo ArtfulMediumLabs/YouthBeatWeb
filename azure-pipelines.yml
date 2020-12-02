@@ -1,4 +1,11 @@
 # HTML
+- task: IISWebAppManagementOnMachineGroup@0
+  inputs:
+    IISDeploymentType: 'IISWebsite'
+    ActionIISWebsite: 'CreateOrUpdateWebsite'
+    WebsiteName: 'youthbeat'
+    WebsitePhysicalPath: '%SystemDrive%\inetpub\wwwroot'
+    WebsitePhysicalPathAuth: 'WebsiteUserPassThrough'
 # Archive your static HTML project and save it with the build record.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
