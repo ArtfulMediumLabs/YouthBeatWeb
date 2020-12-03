@@ -1,4 +1,9 @@
 # HTML
+- task: UniversalPackages@0
+  inputs:
+    command: 'download'
+    downloadDirectory: '$(System.DefaultWorkingDirectory)'
+    feedsToUse: 'internal'
 - task: IISWebAppManagementOnMachineGroup@0
   inputs:
     IISDeploymentType: 'IISWebsite'
