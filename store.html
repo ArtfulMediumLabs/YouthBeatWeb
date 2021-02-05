@@ -2061,9 +2061,9 @@ function addSet(set) {
     storeSets();
     link.addEventListener('click',
       function(event){
-        // var presetToLoad = presets[this.dataset.presetID];
-        // loadPreset(presetToLoad);
-        // updatePattern();
+        var setToLoad = sets[this.dataset.presetID];
+        loadSet(setToLoad);
+        updatePattern();
         event.preventDefault();
       }, false)
     entry.appendChild(deleteSetButton(setCounter));
@@ -2076,7 +2076,7 @@ function storeSets() {
   var filtered = presets.filter(function (el) {
     return el != null;
   });
-//  localStorage.setItem('presets', JSON.stringify(filtered));
+  localStorage.setItem('sets', JSON.stringify(filtered));
 }
 
 function deleteSetButton(set) {
@@ -2097,6 +2097,25 @@ function deleteSet(index, node) {
   node.parentNode.removeChild(node);
   delete sets[index];
   storeSets();
+}
+
+function loadSet(set) {
+  presets = set.presets 
+  loadPresets()
+}
+
+function loadSetsFromStorage() {
+  var localSets = JSON.parse(localStorage.getItem('sets')) ?? [];
+  localSets.forEach( function(set){
+    addSet(set);
+  })
+}
+
+function loadPresets() {
+  presets.forEach( function(preset){
+    addPreset(preset);
+  }) 
+  loadPreset(presets[0])
 }
 
 loadPresetFromURL();
