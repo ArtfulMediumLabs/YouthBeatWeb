@@ -2023,10 +2023,30 @@ var setsList = document.getElementById("setsList");
 
 saveSetButton.addEventListener('click', 
   function() {
-    addSet({presets: presets});
+    addSet({presets: clonePresets()});
   }, 
   false
 );
+
+function clonePresets() {
+  var newPresets = []
+  var filtered = presets.filter(function (el) {
+    return el != null
+  })
+  filtered.forEach( function(preset){
+    newPresets.push(clonePreset(preset))
+  })
+  return newPresets
+}
+
+function clonePreset(preset) {
+  var newPreset = {
+      innerCustomPattern: patternFrom(preset.innerCustomPattern),
+      outerCustomPattern: patternFrom(preset.outerCustomPattern),
+      samplerCustomPattern: patternFrom(preset.samplerCustomPattern)
+    }
+  return newPreset;
+}
 
 function addSet(set) {
   if (setsList.childElementCount == 8) {
