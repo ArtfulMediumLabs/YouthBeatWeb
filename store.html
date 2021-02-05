@@ -136,7 +136,7 @@
   }
   #sets {
     background-color: white;
-    width: 175px;
+    width: 100px;
     margin: auto;
     position: relative;
     }
@@ -2050,6 +2050,7 @@ function addSet(set) {
         event.preventDefault();
       }, false)
     entry.appendChild(deleteSetButton(setCounter));
+    // entry.appendChild(exportSetButton(setCounter));
     setsList.appendChild(entry);
     setCounter += 1;
 }
@@ -2083,7 +2084,8 @@ function deleteSet(index, node) {
 
 function loadSet(set) {
   presetList.innerHTML = ''
-  presetCounter = 0
+  presetCounter = 1
+  presets = []
   loadPresets(set.presets)
 }
 
@@ -2103,6 +2105,24 @@ function loadPresets(newPresets) {
   }) 
   var first = filtered.shift();
   loadPreset(first ?? emptyPreset())
+}
+
+function exportSetButton(set) {
+  var exportButton = document.createElement("BUTTON");
+  exportButton.innerHTML = "&darr;";
+  exportButton.addEventListener('click',
+    (function(index) {
+      return function() {
+        exportSet(index, this.parentNode);
+      }
+    })(set),
+    false
+  );
+  return exportButton;
+}
+
+function exportSet(index) {
+  console.log("export set: ", index)
 }
 
 loadSetsFromStorage();
