@@ -1607,8 +1607,6 @@ savePresetButton.addEventListener('click',
 );
 
 function addPreset(preset) {
-  console.log(preset)
-  console.log(presets)
   if (presetList.childElementCount == 8) {
       deletePreset(presetCounter, presetList.lastChild)
     }
@@ -1621,7 +1619,7 @@ function addPreset(preset) {
     var id = 'preset' + presetCounter;
     entry.setAttribute('id',id);
     presets[presetCounter] = preset;
-    storePresets();
+    // storePresets();
     link.addEventListener('click',
       function(event){
         var presetToLoad = presets[this.dataset.presetID];
@@ -1660,7 +1658,7 @@ function deleteButton(preset) {
 function deletePreset(index, node) {
   node.parentNode.removeChild(node);
   delete presets[index];
-  storePresets();
+  // storePresets();
   sequence = sequence.filter(function(i) {
       return i !== index;
   })
@@ -2018,20 +2016,6 @@ function loadPresetFromURL() {
   updatePattern();
 }
 
-function loadPresetsFromStorage() {
-  var localPresets = JSON.parse(localStorage.getItem('presets')) ?? [];
-  console.log(localPresets);
-  localPresets.forEach( function(preset){
-    addPreset(preset);
-  })
-}
-
-function dumpPresets() {
-  presets.forEach( function(preset) {
-    console.log( queryString(preset) );
-  }); 
-}
-
 var setCounter = 1;
 var sets = [];
 var saveSetButton = document.getElementById("saveSetButton");
@@ -2039,15 +2023,14 @@ var setsList = document.getElementById("setsList");
 
 saveSetButton.addEventListener('click', 
   function() {
-    // addSet(captureSet());
-    addSet({});
+    addSet({presets: presets});
   }, 
   false
 );
 
 function addSet(set) {
   if (setsList.childElementCount == 8) {
-      deletePreset(setCounter, setsList.lastChild)
+      deleteSet(setCounter, setsList.lastChild)
     }
     var entry = document.createElement('li');
     var link = document.createElement('a');
@@ -2061,19 +2044,18 @@ function addSet(set) {
     storeSets();
     link.addEventListener('click',
       function(event){
-        var setToLoad = sets[this.dataset.presetID];
+        var setToLoad = sets[this.dataset.setID];
         loadSet(setToLoad);
         updatePattern();
         event.preventDefault();
       }, false)
     entry.appendChild(deleteSetButton(setCounter));
- //   entry.appendChild(sequenceButton(presetCounter));
     setsList.appendChild(entry);
     setCounter += 1;
 }
 
 function storeSets() {
-  var filtered = presets.filter(function (el) {
+  var filtered = sets.filter(function (el) {
     return el != null;
   });
   localStorage.setItem('sets', JSON.stringify(filtered));
@@ -2100,8 +2082,9 @@ function deleteSet(index, node) {
 }
 
 function loadSet(set) {
-  presets = set.presets 
-  loadPresets()
+  presetList.innerHTML = ''
+  presetCounter = 0
+  loadPresets(set.presets)
 }
 
 function loadSetsFromStorage() {
@@ -2111,16 +2094,20 @@ function loadSetsFromStorage() {
   })
 }
 
-function loadPresets() {
-  presets.forEach( function(preset){
+function loadPresets(newPresets) {
+  var filtered = newPresets.filter(function (el) {
+    return el != null;
+  });
+  filtered.forEach( function(preset){
     addPreset(preset);
   }) 
-  loadPreset(presets[0])
+  var first = filtered.shift();
+  loadPreset(first ?? emptyPreset())
 }
 
-loadPresetFromURL();
-loadPresetsFromStorage();
+loadSetsFromStorage();
 
 </script>
 </body>
 </html>
+\
