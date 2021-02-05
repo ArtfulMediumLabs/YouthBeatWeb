@@ -134,6 +134,12 @@
     padding: 5px 0 0 0;
     list-style: outside none none;
   }
+  #sets {
+    background-color: white;
+    width: 175px;
+    margin: auto;
+    position: relative;
+    }
 </style>
 </head>
 
@@ -249,6 +255,14 @@
         <label for="G">G</label><br/>
           
     </div>
+</div>
+<div id="sets""> 
+  <button id="saveSetButton">
+    Save Set
+  </button>
+  <ul id="setsList">
+
+  </ul>
 </div>
   <script type="text/javascript">
 
@@ -2016,6 +2030,73 @@ function dumpPresets() {
   presets.forEach( function(preset) {
     console.log( queryString(preset) );
   }); 
+}
+
+var setCounter = 1;
+var sets = [];
+var saveSetButton = document.getElementById("saveSetButton");
+var setsList = document.getElementById("setsList");
+
+saveSetButton.addEventListener('click', 
+  function() {
+    // addSet(captureSet());
+    addSet({});
+  }, 
+  false
+);
+
+function addSet(set) {
+  if (setsList.childElementCount == 8) {
+      deletePreset(setCounter, setsList.lastChild)
+    }
+    var entry = document.createElement('li');
+    var link = document.createElement('a');
+    link.href = ''
+    link.innerHTML = "Set " + setCounter;
+    link.dataset.setID = setCounter
+    entry.appendChild(link);
+    var id = 'Set' + setCounter;
+    entry.setAttribute('id',id);
+    sets[setCounter] = set;
+    storeSets();
+    link.addEventListener('click',
+      function(event){
+        // var presetToLoad = presets[this.dataset.presetID];
+        // loadPreset(presetToLoad);
+        // updatePattern();
+        event.preventDefault();
+      }, false)
+    entry.appendChild(deleteSetButton(setCounter));
+ //   entry.appendChild(sequenceButton(presetCounter));
+    setsList.appendChild(entry);
+    setCounter += 1;
+}
+
+function storeSets() {
+  var filtered = presets.filter(function (el) {
+    return el != null;
+  });
+//  localStorage.setItem('presets', JSON.stringify(filtered));
+}
+
+function deleteSetButton(set) {
+  var deleteButton = document.createElement("BUTTON");
+  deleteButton.innerHTML = "X";
+  deleteButton.addEventListener('click',
+    (function(index) {
+      return function() {
+        deleteSet(index, this.parentNode);
+      }
+    })(set),
+    false
+  );
+  return deleteButton;
+}
+
+function deleteSet(index, node) {
+  node.parentNode.removeChild(node);
+  delete sets[index];
+  storeSets();
 }
 
 loadPresetFromURL();
