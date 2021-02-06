@@ -140,6 +140,20 @@
     margin: auto;
     position: relative;
     }
+  #export {
+    background-color: white;
+    width: 840px;
+    height: 200px;
+    margin: 10px auto;
+    position: relative;
+    }
+  #exportText {
+    width: 840px;
+    height: 200px;
+    margin: 0px;
+    padding: 0px;
+    resize: none;
+  }
 </style>
 </head>
 
@@ -263,6 +277,9 @@
   <ul id="setsList">
 
   </ul>
+</div>
+<div id="export">
+  <textarea id="exportText"></textarea>
 </div>
   <script type="text/javascript">
 
@@ -2023,7 +2040,9 @@ var setsList = document.getElementById("setsList");
 
 saveSetButton.addEventListener('click', 
   function() {
-    addSet({presets: clonePresets()});
+    var set = {presets: clonePresets()}
+    addSet(set);
+    exportSet(set);
   }, 
   false
 );
@@ -2107,6 +2126,7 @@ function loadSet(set) {
   presetCounter = 1
   presets = []
   loadPresets(set.presets)
+  exportSet(set)
 }
 
 function loadSetsFromStorage() {
@@ -2141,8 +2161,101 @@ function exportSetButton(set) {
   return exportButton;
 }
 
-function exportSet(index) {
-  console.log("export set: ", index)
+var exportText = document.getElementById("exportText");
+
+function exportSet(set) {
+  var filtered = set.presets.filter(function (el) {
+    return el != null;
+  });
+
+  var exportString = ''
+  filtered.forEach( function(preset){
+    exportString += shortEncode(preset)
+  }) 
+
+  exportText.innerText = exportString
+}
+
+// base 10 x 8 = base 62 x 5 -> 20 (x2)
+// base 22 x 8 = base 62 x 6 -> 24
+// base 6 x 8 = base 62 x 4  -> 16
+
+function shortEncode(preset) {
+  var inner = encodeValueAmplitudePattern(preset.innerCustomPattern, innerFilter);
+  var outer = encodeValueAmplitudePattern(preset.outerCustomPattern, outerFilter);
+  var sampler = encodeValueAmplitudePattern(samplerCustomPattern, scale);
+  samplerNewBase = sampler.map(function(note){ return note.toString(22) })
+  var samplerDuration = encodeDurationPattern(samplerCustomPattern);
+
+  var exportString = inner.join('') + outer.join('') + samplerNewBase.join('') + samplerDuration.join('')
+  return exportString
+}
+
+function encodeValueAmplitudePattern(pattern, filter) {
+  var encoded = []
+  for(var i = 0; i < 32; i++){
+    var note = pattern.value[i]
+    var amplitude = pattern.amplitude[i]
+    var index = filter.indexOf(note)
+    var value = 0
+    if (index != -1) {
+      var value = index * 3 + amplitude
+    }
+    encoded.push(value)
+  }
+  return encoded
+}
+
+function encodeDurationPattern(pattern) {
+  var encoded = []
+  for(var i = 0; i < 32; i++){
+    var duration = pattern.duration[i]
+    encoded.push(duration)
+  }
+  return encoded
+}
+
+function base62(values, inChunkCount, outChunkCount) {
+  var chunks = chunk(values, inChunkCount);
+  var encoded = chunks.map(function(chunk) { 
+    var a = toBase62(parseInt(chunk.join(''), 10))
+    return a.padStart(outChunkCount, 0);
+  });
+  return encoded.join('')
+}
+
+function toBase62(n) {
+  if (n === 0) {
+    return '0';
+  }
+  var digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  var result = ''; 
+  while (n > 0) {
+    result = digits[n % digits.length] + result;
+    n = parseInt(n / digits.length, 10);
+  }
+  
+  return result;
+}
+
+function fromBase62(s) {
+  var digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  var result = 0;
+  for (var i=0 ; i<s.length ; i++) {
+    var p = digits.indexOf(s[i]);
+    if (p < 0) {
+      return NaN;
+    }
+    result += p * Math.pow(digits.length, s.length - i - 1);
+  }
+  return result;
+}
+
+function importSets() {
+  var importString = exportText.value.replace(/\s/g,'')
+  // var presetSize = 32 * 4
+  var newPresets = importString.match(/.{1,128}/g)
+  console.log(newPresets)
 }
 
 loadSetsFromStorage();
@@ -2150,4 +2263,3 @@ loadSetsFromStorage();
 </script>
 </body>
 </html>
-\
