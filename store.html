@@ -141,11 +141,11 @@
     padding: 5px;
     position: relative;
     }
-  #sets button {
+  #saveSetButton {
     width: 40px;
     height: 20px;
     margin: 2px;
-    display: inline-block;
+    display: none;
   }
   #sets ul, #sets li {
     display:inline;
@@ -153,6 +153,7 @@
     padding: 5px;
     margin: 0px;
   }
+
   #export {
     background-color: white;
     width: 840px;
@@ -284,7 +285,7 @@
     </div>
 </div>
 <div id="sets""> 
-  <span id="setLabel">Set 1</span><button id="saveSetButton">SAVE</button>
+  <span id="setLabel"></span><button id="saveSetButton">SAVE</button>
   <ul id="setsList">
   </ul>
 </div>
@@ -1978,6 +1979,10 @@ function chop(str, size){
 }
 
 function patternUpdated() {
+  // updatePatternURL()
+}
+
+function updatePatternURL() {
   var inner = encodePreset(innerCustomPattern, innerFilter);
   var outer = encodePreset(outerCustomPattern, outerFilter);
   var sampler = encodePreset(samplerCustomPattern, scale);
@@ -2051,10 +2056,12 @@ var setsList = document.getElementById("setsList");
 
 saveSetButton.addEventListener('click', 
   function() {
-    var set = {presets: clonePresets()}; 
-    storeSet(set, currentSetID);
-    // addSet(set);
-    exportSet(set);
+    if (checkSetRange(currentSetID)) {
+      var set = {presets: clonePresets()}; 
+      storeSet(set, currentSetID);
+      // addSet(set);
+      exportSet(set);
+    }
   }, 
   false
 );
@@ -2150,6 +2157,8 @@ function loadSet(setID) {
   currentSetID = setID;
   setLabel.innerText = 'Set ' + setID;
   var set = sets[setID];
+  saveSetButton.style.display = 'inline-block';
+  history.replaceState({}, "", '?setID=' + setID);
   if (typeof set === 'object' && set.hasOwnProperty('presets') ) {
     loadPresets(set.presets);
     exportSet(set);
@@ -2171,6 +2180,18 @@ function loadDefaultSets() {
   for(var i = 1; i <= 8; i++) {
     addSetLink(i);
   }
+}
+
+function loadSetFromURL() {
+  var urlParams = new URLSearchParams(window.location.search);
+  var setID = urlParams.get("setID") ?? 0
+  if (checkSetRange(setID)) {
+    loadSet(setID)
+  }
+}
+
+function checkSetRange(setID){
+  return (setID > 0 && setID <= 8)
 }
 
 function loadPresets(newPresets) {
@@ -2297,6 +2318,7 @@ function importSets() {
 
 // loadSetsFromStorage();
 loadDefaultSets();
+loadSetFromURL();
 
 </script>
 </body>
