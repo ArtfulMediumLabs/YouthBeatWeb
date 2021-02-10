@@ -136,10 +136,23 @@
   }
   #sets {
     background-color: white;
-    width: 100px;
-    margin: auto;
+    width: 1018px;
+    margin: 5px auto;
+    padding: 5px;
     position: relative;
     }
+  #sets button {
+    width: 40px;
+    height: 20px;
+    margin: 2px;
+    display: inline-block;
+  }
+  #sets ul, #sets li {
+    display:inline;
+    text-align: center;
+    padding: 5px;
+    margin: 0px;
+  }
   #export {
     background-color: white;
     width: 840px;
@@ -271,11 +284,8 @@
     </div>
 </div>
 <div id="sets""> 
-  <button id="saveSetButton">
-    Save Set
-  </button>
+  <span id="setLabel">Set 1</span><button id="saveSetButton">SAVE</button>
   <ul id="setsList">
-
   </ul>
 </div>
 <div id="export">
@@ -2035,13 +2045,15 @@ function loadPresetFromURL() {
 
 var setCounter = 1;
 var sets = [];
+var currentSetID = 0;
 var saveSetButton = document.getElementById("saveSetButton");
 var setsList = document.getElementById("setsList");
 
 saveSetButton.addEventListener('click', 
   function() {
-    var set = {presets: clonePresets()}
-    addSet(set);
+    var set = {presets: clonePresets()}; 
+    storeSet(set, currentSetID);
+    // addSet(set);
     exportSet(set);
   }, 
   false
@@ -2067,31 +2079,39 @@ function clonePreset(preset) {
   return newPreset;
 }
 
+function storeSet(set, setID) {
+  sets[setID] = set;
+  storeSets();  
+}
+
 function addSet(set) {
-  if (setsList.childElementCount == 8) {
+    if (setsList.childElementCount == 8) {
       deleteSet(setCounter, setsList.lastChild)
     }
-    var entry = document.createElement('li');
-    var link = document.createElement('a');
-    link.href = ''
-    link.innerHTML = "Set " + setCounter;
-    link.dataset.setID = setCounter
-    entry.appendChild(link);
-    var id = 'Set' + setCounter;
-    entry.setAttribute('id',id);
     sets[setCounter] = set;
-    storeSets();
-    link.addEventListener('click',
-      function(event){
-        var setToLoad = sets[this.dataset.setID];
-        loadSet(setToLoad);
-        updatePattern();
-        event.preventDefault();
-      }, false)
-    entry.appendChild(deleteSetButton(setCounter));
-    // entry.appendChild(exportSetButton(setCounter));
-    setsList.appendChild(entry);
+    addSetLink(setCounter);
     setCounter += 1;
+}
+
+function addSetLink(setID) {
+  var entry = document.createElement('li');
+  var link = document.createElement('a');
+  link.href = ''
+  link.innerHTML = "Set " + setID;
+  link.dataset.setID = setCounter
+  entry.appendChild(link);
+  var id = 'Set' + setCounter;
+  entry.setAttribute('id',id);
+  link.addEventListener('click',
+    function(event){
+      loadSet(this.dataset.setID);
+      updatePattern();
+      event.preventDefault();
+    }, false)
+  // entry.appendChild(deleteSetButton(setCounter));
+  // entry.appendChild(exportSetButton(setCounter));
+  setsList.appendChild(entry);
+  setCounter += 1;
 }
 
 function storeSets() {
@@ -2121,12 +2141,22 @@ function deleteSet(index, node) {
   storeSets();
 }
 
-function loadSet(set) {
-  presetList.innerHTML = ''
-  presetCounter = 1
-  presets = []
-  loadPresets(set.presets)
-  exportSet(set)
+var setLabel = document.getElementById("setLabel");
+
+function loadSet(setID) {
+  presetList.innerHTML = '';
+  presetCounter = 1;
+  presets = [];
+  currentSetID = setID;
+  setLabel.innerText = 'Set ' + setID;
+  var set = sets[setID];
+  if (typeof set === 'object' && set.hasOwnProperty('presets') ) {
+    loadPresets(set.presets);
+    exportSet(set);
+  } else {
+    loadPreset(emptyPreset());
+    exportText.innerText = '';
+  }
 }
 
 function loadSetsFromStorage() {
@@ -2134,6 +2164,13 @@ function loadSetsFromStorage() {
   localSets.forEach( function(set){
     addSet(set);
   })
+}
+
+function loadDefaultSets() {
+  sets = JSON.parse(localStorage.getItem('sets')) ?? [];
+  for(var i = 1; i <= 8; i++) {
+    addSetLink(i);
+  }
 }
 
 function loadPresets(newPresets) {
@@ -2258,7 +2295,8 @@ function importSets() {
   console.log(newPresets)
 }
 
-loadSetsFromStorage();
+// loadSetsFromStorage();
+loadDefaultSets();
 
 </script>
 </body>
