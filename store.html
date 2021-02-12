@@ -2106,9 +2106,9 @@ function addSetLink(setID) {
   var link = document.createElement('a');
   link.href = ''
   link.innerHTML = "Set " + setID;
-  link.dataset.setID = setCounter
+  link.dataset.setID = setID
   entry.appendChild(link);
-  var id = 'Set' + setCounter;
+  var id = 'Set' + setID;
   entry.setAttribute('id',id);
   link.addEventListener('click',
     function(event){
@@ -2119,7 +2119,6 @@ function addSetLink(setID) {
   // entry.appendChild(deleteSetButton(setCounter));
   // entry.appendChild(exportSetButton(setCounter));
   setsList.appendChild(entry);
-  setCounter += 1;
 }
 
 function storeSets() {
