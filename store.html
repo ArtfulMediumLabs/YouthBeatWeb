@@ -2231,10 +2231,10 @@ function shortEncode(preset) {
   var outer = encodeValueAmplitudePattern(preset.outerCustomPattern, outerFilter);
   var outer62 = base62(outer, 5)
 
-  var sampler = encodeValueAmplitudePattern(samplerCustomPattern, scale).map(function(value){ return value.toString(22) });
+  var sampler = encodeValueAmplitudePattern(preset.samplerCustomPattern, scale).map(function(value){ return value.toString(22) });
   var sampler62 = base62(sampler, 6, 22)
 
-  var samplerDuration = encodeDurationPattern(samplerCustomPattern);
+  var samplerDuration = encodeDurationPattern(preset.samplerCustomPattern);
   var samplerDuration62 = base62(samplerDuration, 4)
 
   var exportString = [inner62,outer62,sampler62,samplerDuration62].join(",")
