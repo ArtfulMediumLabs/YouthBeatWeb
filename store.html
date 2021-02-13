@@ -147,26 +147,17 @@
     margin: 2px;
     display: none;
   }
+  #exportSetButton {
+    width: 60px;
+    height: 20px;
+    margin: 2px;
+    display: none;
+  }
   #sets ul, #sets li {
     display:inline;
     text-align: center;
     padding: 5px;
     margin: 0px;
-  }
-
-  #export {
-    background-color: white;
-    width: 840px;
-    height: 200px;
-    margin: 10px auto;
-    position: relative;
-    }
-  #exportText {
-    width: 840px;
-    height: 200px;
-    margin: 0px;
-    padding: 0px;
-    resize: none;
   }
 </style>
 </head>
@@ -285,13 +276,13 @@
     </div>
 </div>
 <div id="sets""> 
-  <span id="setLabel"></span><button id="saveSetButton">SAVE</button>
+  <span id="setLabel"></span>
+  <button id="saveSetButton">SAVE</button>
+  <button id="exportSetButton">EXPORT</button>
   <ul id="setsList">
   </ul>
 </div>
-<div id="export">
-  <textarea id="exportText"></textarea>
-</div>
+
   <script type="text/javascript">
 
 var offset = 0
@@ -2052,6 +2043,7 @@ var setCounter = 1;
 var sets = [];
 var currentSetID = 0;
 var saveSetButton = document.getElementById("saveSetButton");
+var exportSetButton = document.getElementById("exportSetButton");
 var setsList = document.getElementById("setsList");
 
 saveSetButton.addEventListener('click', 
@@ -2059,8 +2051,6 @@ saveSetButton.addEventListener('click',
     if (checkSetRange(currentSetID)) {
       var set = {presets: clonePresets()}; 
       storeSet(set, currentSetID);
-      // addSet(set);
-      exportSet(set);
     }
   }, 
   false
@@ -2111,12 +2101,11 @@ function addSetLink(setID) {
   entry.setAttribute('id',id);
   link.addEventListener('click',
     function(event){
-      loadSet(this.dataset.setID);
+      loadSetID(this.dataset.setID);
       updatePattern();
       event.preventDefault();
     }, false)
   // entry.appendChild(deleteSetButton(setCounter));
-  // entry.appendChild(exportSetButton(setCounter));
   setsList.appendChild(entry);
 }
 
@@ -2149,21 +2138,26 @@ function deleteSet(index, node) {
 
 var setLabel = document.getElementById("setLabel");
 
-function loadSet(setID) {
-  presetList.innerHTML = '';
-  presetCounter = 1;
-  presets = [];
+function loadSetID(setID) {
   currentSetID = setID;
   setLabel.innerText = 'Set ' + setID;
   var set = sets[setID];
-  saveSetButton.style.display = 'inline-block';
   history.replaceState({}, "", '?setID=' + setID);
+  saveSetButton.style.display = 'inline-block';
+  exportSetButton.style.display = 'inline-block';
+
+  loadSet(set)
+}
+
+function loadSet(set){
+  presetList.innerHTML = '';
+  presetCounter = 1;
+  presets = [];
+  
   if (typeof set === 'object' && set.hasOwnProperty('presets') ) {
     loadPresets(set.presets);
-    exportSet(set);
   } else {
     loadPreset(emptyPreset());
-    exportText.innerText = '';
   }
 }
 
@@ -2181,11 +2175,11 @@ function loadDefaultSets() {
   }
 }
 
-function loadSetFromURL() {
+function loadSetIDFromURL() {
   var urlParams = new URLSearchParams(window.location.search);
   var setID = urlParams.get("setID") ?? 0
   if (checkSetRange(setID)) {
-    loadSet(setID)
+    loadSetID(setID)
   }
   updatePattern();
 }
@@ -2205,21 +2199,16 @@ function loadPresets(newPresets) {
   loadPreset(first ?? emptyPreset())
 }
 
-function exportSetButton(set) {
-  var exportButton = document.createElement("BUTTON");
-  exportButton.innerHTML = "&darr;";
-  exportButton.addEventListener('click',
-    (function(index) {
-      return function() {
-        exportSet(index, this.parentNode);
-      }
-    })(set),
-    false
-  );
-  return exportButton;
-}
-
-var exportText = document.getElementById("exportText");
+exportSetButton.addEventListener('click', 
+  function() {
+    var set = {presets: clonePresets()};
+    var exportString = exportSet(set);
+    
+    var newUrl = document.location.origin + document.location.pathname + '?set=' + exportString;
+    window.open(newUrl,'_blank');
+  }, 
+  false
+);
 
 function exportSet(set) {
   var filtered = set.presets.filter(function (el) {
@@ -2227,7 +2216,8 @@ function exportSet(set) {
   });
 
   var encoded = filtered.map( shortEncode ) 
-  exportText.innerText = encoded.join('|')
+  var exportString = encoded.join('|')
+  return exportString
 }
 
 // base 10 x 8 = base 62 x 5 -> 20 (x2)
@@ -2237,11 +2227,13 @@ function exportSet(set) {
 function shortEncode(preset) {
   var inner = encodeValueAmplitudePattern(preset.innerCustomPattern, innerFilter);
   var inner62 = base62(inner, 5) 
+
   var outer = encodeValueAmplitudePattern(preset.outerCustomPattern, outerFilter);
   var outer62 = base62(outer, 5)
-  var sampler = encodeValueAmplitudePattern(samplerCustomPattern, scale);
-  // samplerNewBase = sampler.map(function(note){ return note.toString(22) })
-  var sampler62 = base62(sampler, 6)
+
+  var sampler = encodeValueAmplitudePattern(samplerCustomPattern, scale).map(function(value){ return value.toString(22) });
+  var sampler62 = base62(sampler, 6, 22)
+
   var samplerDuration = encodeDurationPattern(samplerCustomPattern);
   var samplerDuration62 = base62(samplerDuration, 4)
 
@@ -2273,10 +2265,10 @@ function encodeDurationPattern(pattern) {
   return encoded
 }
 
-function base62(values, targetLength) {
+function base62(values, targetLength, base=10) {
   var chunks = chunk(values, 8);
   var encoded = chunks.map(function(chunk) { 
-    var a = toBase62(parseInt(chunk.join(''), 10))
+    var a = toBase62(parseInt(chunk.join(''), base))
     return a.padStart(targetLength, 0);
   });
   return encoded.join('')
@@ -2296,6 +2288,57 @@ function toBase62(n) {
   return result;
 }
 
+function importSetFromURL() {
+  var urlParams = new URLSearchParams(window.location.search);
+  var importString = urlParams.get("set") ?? ''
+  if (importString.length > 0) {
+    importSet(importString);
+  }
+}
+
+
+function importSet(setString) {
+  var importString = setString.replace(/\s/g,'')
+  var presetStrings = importString.split("|")
+  var newPresets = presetStrings.map(function(presetString){
+    var patterns = presetString.split(",")
+    
+    var innerValues = parseBase62(patterns[0].split(''), 5);
+    var innerPattern = decodeValueAmplitudePattern(innerValues, innerFilter);
+
+    var outerValues = parseBase62(patterns[1].split(''), 5);
+    var outerPattern = decodeValueAmplitudePattern(outerValues, outerFilter);
+
+    var samplerValues = parseBase62(patterns[2].split(''), 6, 22).map(function(value){ return parseInt(value, 22).toString(10) });
+    var samplerPattern = decodeValueAmplitudePattern(samplerValues, samplerFilter);
+    var durationValues = parseBase62(patterns[3].split(''), 4);
+    samplerPattern.duration = durationValues;
+
+    return {innerCustomPattern: innerPattern,
+      outerCustomPattern: outerPattern,
+      samplerCustomPattern: samplerPattern}
+  });
+
+  currentSetID = 0;
+  setLabel.innerText = 'Imported Set';
+  saveSetButton.style.display = 'none';
+  exportSetButton.style.display = 'none';
+
+  var set = {presets: newPresets};
+  loadSet(set);
+  updatePattern();
+}
+
+function parseBase62(string, originLength, base=10) {
+  var chunks = chunk(string, originLength)
+  var decoded = chunks.reduce(function(accumulator, chunk){
+    var base62Values = fromBase62(chunk.join(''))
+    var values = base62Values.toString(base).padStart(8, 0).split('')
+    return accumulator.concat(values)
+  }, [])
+  return decoded
+}
+
 function fromBase62(s) {
   var digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   var result = 0;
@@ -2309,16 +2352,30 @@ function fromBase62(s) {
   return result;
 }
 
-function importSets() {
-  var importString = exportText.value.replace(/\s/g,'')
-  // var presetSize = 32 * 4
-  var newPresets = importString.match(/.{1,128}/g)
-  console.log(newPresets)
+
+function decodeValueAmplitudePattern(values, filter) {
+  var pattern = emptyPattern();
+  var amplitudeMax = 3
+  for(var i = 0; i < 32; i++){
+    var value = values[i];
+    var noteValue = Math.floor((value-1)/amplitudeMax)
+    var note = '-'
+    var amplitude = 0
+    if (value > 0) {
+      note = filter[noteValue];
+      amplitude = (value - 1) % amplitudeMax + 1;
+    }
+    pattern.value[i] = note;
+    pattern.amplitude[i] = amplitude;
+    // console.log(i,value,noteValue,note,amplitude)
+  }
+  return pattern
 }
 
 // loadSetsFromStorage();
 loadDefaultSets();
-loadSetFromURL();
+loadSetIDFromURL();
+importSetFromURL();
 
 </script>
 </body>
