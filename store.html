@@ -160,7 +160,6 @@
     height: 200px;
     margin: 10px auto;
     position: relative;
-    display: none;
     }
   #exportText {
     width: 840px;
@@ -2227,12 +2226,8 @@ function exportSet(set) {
     return el != null;
   });
 
-  var exportString = ''
-  filtered.forEach( function(preset){
-    exportString += shortEncode(preset)
-  }) 
-
-  exportText.innerText = exportString
+  var encoded = filtered.map( shortEncode ) 
+  exportText.innerText = encoded.join('|')
 }
 
 // base 10 x 8 = base 62 x 5 -> 20 (x2)
@@ -2241,12 +2236,16 @@ function exportSet(set) {
 
 function shortEncode(preset) {
   var inner = encodeValueAmplitudePattern(preset.innerCustomPattern, innerFilter);
+  var inner62 = base62(inner, 5) 
   var outer = encodeValueAmplitudePattern(preset.outerCustomPattern, outerFilter);
+  var outer62 = base62(outer, 5)
   var sampler = encodeValueAmplitudePattern(samplerCustomPattern, scale);
-  samplerNewBase = sampler.map(function(note){ return note.toString(22) })
+  // samplerNewBase = sampler.map(function(note){ return note.toString(22) })
+  var sampler62 = base62(sampler, 6)
   var samplerDuration = encodeDurationPattern(samplerCustomPattern);
+  var samplerDuration62 = base62(samplerDuration, 4)
 
-  var exportString = inner.join('') + outer.join('') + samplerNewBase.join('') + samplerDuration.join('')
+  var exportString = [inner62,outer62,sampler62,samplerDuration62].join(",")
   return exportString
 }
 
@@ -2274,11 +2273,11 @@ function encodeDurationPattern(pattern) {
   return encoded
 }
 
-function base62(values, inChunkCount, outChunkCount) {
-  var chunks = chunk(values, inChunkCount);
+function base62(values, targetLength) {
+  var chunks = chunk(values, 8);
   var encoded = chunks.map(function(chunk) { 
     var a = toBase62(parseInt(chunk.join(''), 10))
-    return a.padStart(outChunkCount, 0);
+    return a.padStart(targetLength, 0);
   });
   return encoded.join('')
 }
