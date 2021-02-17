@@ -2322,7 +2322,8 @@ function importSet(setString) {
   currentSetID = 0;
   setLabel.innerText = 'Imported Set';
   saveSetButton.style.display = 'none';
-  exportSetButton.style.display = 'none';
+  exportSetButton.style.display = 'inline-block';
+//  exportSetButton.style.display = 'none';
 
   var set = {presets: newPresets};
   loadSet(set);
