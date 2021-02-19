@@ -2082,6 +2082,7 @@ var setsList = document.getElementById("setsList");
 saveSetButton.addEventListener('click', 
   function() {
     if (checkSetRange(currentSetID)) {
+      setLabel.innerText = 'Set ' + currentSetID;
       var set = {presets: clonePresets()}; 
       storeSet(set, currentSetID);
     }
