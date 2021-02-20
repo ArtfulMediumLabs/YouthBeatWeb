@@ -235,7 +235,7 @@
     <div id="controlB">
       <div id="presets">
         <button id="savePresetButton" class="controlB">
-          Save Preset
+          Add Preset
         </button>
         <ul id="presetList">
       
@@ -1735,7 +1735,7 @@ function deletePreset(index, node) {
 var sequenceDisplay = document.getElementById('sequenceDisplay');
 function sequenceButton(preset) {
   var sequenceButton = document.createElement("BUTTON");
-  sequenceButton.innerHTML = ">";
+  sequenceButton.innerHTML = "+";
   sequenceButton.className = "sequencePreset";
   sequenceButton.addEventListener('click',
     (function(index) {
