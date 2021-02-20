@@ -2179,7 +2179,9 @@ function saveSetButton(set) {
     (function(index) {
       return function() {
         saveSet(index);
-        loadSetID(index);
+        if (currentSetID != index) {
+          loadSetID(index);
+        }
       }
     })(set),
     false
