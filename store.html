@@ -153,6 +153,7 @@
     height: 20px;
     margin: 2px;
     display: inline-block;
+    float: right;
   }
   #sets ul, #sets li {
     display:inline;
@@ -1789,6 +1790,7 @@ function loadPreset(preset) {
   loadPattern(preset.outerCustomPattern, outerCustomPattern);
   loadPattern(preset.samplerCustomPattern, samplerCustomPattern);
   patternUpdated();
+  updatePattern();
 }
 
 function patternFrom(pattern) {
@@ -2089,7 +2091,7 @@ function loadPresetFromURL() {
 var setCounter = 1;
 var sets = [];
 var currentSetID = 0;
-// var exportSetButton = document.getElementById("exportSetButton");
+var exportSetButton = document.getElementById("exportSetButton");
 var setsList = document.getElementById("setsList");
 
 function saveSet(setID) {
@@ -2136,7 +2138,9 @@ function addSet(set) {
 function addSetLink(setID) {
   var entry = document.createElement('li');
   entry.dataset.setID = setID;
-  entry.append(saveSetButton(setID))
+  if (setID != 0) {
+    entry.append(saveSetButton(setID))
+  }
   var link = setLink(setID)
   link.addEventListener('click',
     function(event){
@@ -2151,7 +2155,8 @@ function addSetLink(setID) {
 function setLink(setID) {
   var button = document.createElement("BUTTON");
   button.className = "loadSet";
-  button.innerHTML = "Set " + setID;
+  var label = setID == 0 ? "URL" : "Set " + setID;
+  button.innerHTML = label;
   button.dataset.setID = setID
   return button
 }
@@ -2173,8 +2178,8 @@ function saveSetButton(set) {
 }
 
 function storeSets() {
-  var filtered = sets.filter(function (el) {
-    return el != null;
+  var filtered = sets.filter(function (el, i) {
+    return (i != 0) && (el != null);
   });
   localStorage.setItem('sets', JSON.stringify(filtered));
 }
@@ -2206,9 +2211,6 @@ function loadSetID(setID) {
   activeSet();
   // setLabel.innerText = 'Set ' + setID;
   var set = sets[setID];
-  history.replaceState({}, "", '?setID=' + setID);
-  // exportSetButton.style.display = 'inline-block';
-
   loadSet(set)
 }
 
@@ -2245,7 +2247,9 @@ function loadSetsFromStorage() {
 }
 
 function loadDefaultSets() {
-  sets = JSON.parse(localStorage.getItem('sets')) ?? [];
+  var newSets = JSON.parse(localStorage.getItem('sets')) ?? [];
+  newSets.unshift(sets[0]);
+  sets = newSets;
   for(var i = 1; i <= 8; i++) {
     addSetLink(i);
   }
@@ -2275,9 +2279,9 @@ function loadPresets(newPresets) {
   loadPreset(first ?? emptyPreset())
 }
 
-// exportSetButton.addEventListener('click', exportSet, false);
+exportSetButton.addEventListener('click', exportSetAction, false);
 
-function exportSet() {
+function exportSetAction() {
     var set = {presets: clonePresets()};
     var exportString = exportSet(set);
     
@@ -2401,11 +2405,10 @@ function importSet(setString) {
   });
 
   currentSetID = 0;
-  // setLabel.innerText = 'Imported Set';
-  // exportSetButton.style.display = 'inline-block';
-//  exportSetButton.style.display = 'none';
+  addSetLink(0);
 
   var set = {presets: newPresets};
+  sets[0] = set;
   loadSet(set);
   updatePattern();
 }
@@ -2457,9 +2460,14 @@ function decodeValueAmplitudePattern(values, filter) {
 // loadDefaultSets();
 // loadSetIDFromURL();
 
-loadDefaultSets();
-loadSetID(1);
 importSetFromURL();
+loadDefaultSets();
+if (!shouldImportSet()) {
+  loadSetID(1);
+} else {
+  activeSet();
+}
+
 
 </script>
 </body>
