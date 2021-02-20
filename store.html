@@ -86,7 +86,7 @@
   button.rhythm, button.note {
     width: 100px;
   }
-  li button {
+  .deletePreset, .sequencePreset {
     width: 20px;
     height: 20px;
     margin: 2px;
@@ -159,6 +159,21 @@
     text-align: center;
     padding: 5px;
     margin: 0px;
+  }
+  .saveSet {
+    width: 20px;
+    height: 20px;
+    margin: 2px;
+    display: inline-block;
+  }
+  .loadSet, .currentSet {
+    width: auto;
+    height: 20px;
+    margin: 2px;
+    display: inline-block;
+  }
+  .currentSet {
+    background-color: #DB3352;
   }
 </style>
 </head>
@@ -1693,6 +1708,7 @@ function storePresets() {
 function deleteButton(preset) {
   var deleteButton = document.createElement("BUTTON");
   deleteButton.innerHTML = "X";
+  deleteButton.className = "deletePreset";
   deleteButton.addEventListener('click',
     (function(index) {
       return function() {
@@ -1719,6 +1735,7 @@ var sequenceDisplay = document.getElementById('sequenceDisplay');
 function sequenceButton(preset) {
   var sequenceButton = document.createElement("BUTTON");
   sequenceButton.innerHTML = ">";
+  sequenceButton.className = "sequencePreset";
   sequenceButton.addEventListener('click',
     (function(index) {
       return function() {
@@ -2132,15 +2149,16 @@ function addSetLink(setID) {
 }
 
 function setLink(setID) {
-  var button = document.createElement("a");
+  var button = document.createElement("BUTTON");
+  button.className = "loadSet";
   button.innerHTML = "Set " + setID;
-  button.href = '';
   button.dataset.setID = setID
   return button
 }
 
 function saveSetButton(set) {
   var button = document.createElement("BUTTON");
+  button.className = "saveSet";
   button.innerHTML = ">";
   button.addEventListener('click',
     (function(index) {
@@ -2196,12 +2214,13 @@ function loadSetID(setID) {
 
 
 function activeSet() {
-  for (let i = 0; i < setsList.children.length; i++) {
-    var child = setsList.children[i];
-    if (child.dataset.setID == currentSetID) {
-      child.style.border = "1px solid #DB3352"
+  var loadSetButtons = document.getElementsByClassName("loadSet");
+  for (let i = 0; i < loadSetButtons.length; i++) {
+    var button = loadSetButtons[i];
+    if (button.dataset.setID == currentSetID) {
+      button.classList.add("currentSet")
     } else {
-      child.style.border = "1px solid transparent"
+      button.classList.remove("currentSet")
     }
   }
 }
