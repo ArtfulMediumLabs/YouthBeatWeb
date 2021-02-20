@@ -86,7 +86,7 @@
   button.rhythm, button.note {
     width: 100px;
   }
-  .deletePreset, .sequencePreset {
+  .deletePreset, .sequencePreset, .savePreset {
     width: 20px;
     height: 20px;
     margin: 2px;
@@ -234,7 +234,7 @@
     </div>
     <div id="controlB">
       <div id="presets">
-        <button id="savePresetButton" class="controlB">
+        <button id="addPresetButton" class="controlB">
           Add Preset
         </button>
         <ul id="presetList">
@@ -1661,42 +1661,60 @@ function patternSliceGroup(pattern, radius) {
 
 var presetCounter = 1;
 var presets = [];
-var savePresetButton = document.getElementById("savePresetButton");
+var addPresetButton = document.getElementById("addPresetButton");
 var presetList = document.getElementById("presetList");
 
-savePresetButton.addEventListener('click', 
+addPresetButton.addEventListener('click', 
   function() {
     addPreset(capturePreset());
   }, 
   false
 );
 
+function savePreset(id) {
+  presets[id] = capturePreset();
+}
+
 function addPreset(preset) {
   if (presetList.childElementCount == 8) {
-      deletePreset(presetCounter, presetList.lastChild)
-    }
-    var entry = document.createElement('li');
-    var link = document.createElement('a');
-    link.href = ''
-    link.innerHTML = "Preset " + presetCounter;
-    link.dataset.presetID = presetCounter
-    entry.appendChild(link);
-    var id = 'preset' + presetCounter;
-    entry.setAttribute('id',id);
-    presets[presetCounter] = preset;
+    deletePreset(presetCounter, presetList.lastChild)
+  }
+  presets[presetCounter] = preset;
 
-    link.addEventListener('click',
-      function(event){
-        var presetToLoad = presets[this.dataset.presetID];
-        loadPreset(presetToLoad);
-        updatePattern();
-        event.preventDefault();
-      }, false)
-    entry.appendChild(deleteButton(presetCounter));
-    entry.appendChild(sequenceButton(presetCounter));
-    presetList.appendChild(entry);
-    presetCounter += 1;
-    updatePattern();
+  var entry = document.createElement('li');
+  entry.append(savePresetButton(presetCounter));
+  var link = document.createElement('a');
+  link.href = ''
+  link.innerHTML = "Preset " + presetCounter;
+  link.dataset.presetID = presetCounter
+  entry.appendChild(link);
+  link.addEventListener('click',
+    function(event){
+      var presetToLoad = presets[this.dataset.presetID];
+      loadPreset(presetToLoad);
+      updatePattern();
+      event.preventDefault();
+    }, false)
+  entry.appendChild(deleteButton(presetCounter));
+  entry.appendChild(sequenceButton(presetCounter));
+  presetList.appendChild(entry);
+  presetCounter += 1;
+  updatePattern();
+}
+
+function savePresetButton(preset) {
+  var button = document.createElement("BUTTON");
+  button.className = "savePreset";
+  button.innerHTML = ">";
+  button.addEventListener('click',
+    (function(index) {
+      return function() {
+        savePreset(index);
+      }
+    })(preset),
+    false
+  );
+  return button;
 }
 
 function deleteButton(preset) {
