@@ -152,7 +152,7 @@
     width: 60px;
     height: 20px;
     margin: 2px;
-    display: none;
+    display: inline-block;
   }
   #sets ul, #sets li {
     display:inline;
@@ -277,10 +277,8 @@
     </div>
 </div>
 <div id="sets""> 
-  <span id="setLabel"></span>
   <button id="exportSetButton">EXPORT</button>
-  <ul id="setsList">
-  </ul>
+  <ul id="setsList"></ul>
 </div>
 
   <script type="text/javascript">
@@ -2074,7 +2072,7 @@ function loadPresetFromURL() {
 var setCounter = 1;
 var sets = [];
 var currentSetID = 0;
-var exportSetButton = document.getElementById("exportSetButton");
+// var exportSetButton = document.getElementById("exportSetButton");
 var setsList = document.getElementById("setsList");
 
 function saveSet(setID) {
@@ -2122,21 +2120,23 @@ function addSetLink(setID) {
   var entry = document.createElement('li');
   entry.dataset.setID = setID;
   entry.append(saveSetButton(setID))
-  var link = document.createElement('a');
-  link.href = ''
-  link.innerHTML = "Set " + setID;
-  link.dataset.setID = setID
-  entry.appendChild(link);
-  var id = 'Set' + setID;
-  entry.setAttribute('id',id);
+  var link = setLink(setID)
   link.addEventListener('click',
     function(event){
       loadSetID(this.dataset.setID);
       updatePattern();
       event.preventDefault();
     }, false)
-  // entry.appendChild(deleteSetButton(setCounter));
+  entry.appendChild(link);  
   setsList.appendChild(entry);
+}
+
+function setLink(setID) {
+  var button = document.createElement("a");
+  button.innerHTML = "Set " + setID;
+  button.href = '';
+  button.dataset.setID = setID
+  return button
 }
 
 function saveSetButton(set) {
@@ -2175,31 +2175,35 @@ function deleteSetButton(set) {
   return deleteButton;
 }
 
-function removeImportButtons() {
-  for (let i = 0; i < setsList.children.length; i++) {
-    var child = setsList.children[i];
-    if (child.firstChild.tagName == 'BUTTON') {
-      child.firstChild.remove()
-    }
-  }
-}
-
 function deleteSet(index, node) {
   node.parentNode.removeChild(node);
   delete sets[index];
   storeSets();
 }
 
-var setLabel = document.getElementById("setLabel");
+// var setLabel = document.getElementById("setLabel");
 
 function loadSetID(setID) {
   currentSetID = setID;
-  setLabel.innerText = 'Set ' + setID;
+  activeSet();
+  // setLabel.innerText = 'Set ' + setID;
   var set = sets[setID];
   history.replaceState({}, "", '?setID=' + setID);
-  exportSetButton.style.display = 'inline-block';
+  // exportSetButton.style.display = 'inline-block';
 
   loadSet(set)
+}
+
+
+function activeSet() {
+  for (let i = 0; i < setsList.children.length; i++) {
+    var child = setsList.children[i];
+    if (child.dataset.setID == currentSetID) {
+      child.style.border = "1px solid #DB3352"
+    } else {
+      child.style.border = "1px solid transparent"
+    }
+  }
 }
 
 function loadSet(set){
@@ -2252,16 +2256,15 @@ function loadPresets(newPresets) {
   loadPreset(first ?? emptyPreset())
 }
 
-exportSetButton.addEventListener('click', 
-  function() {
+// exportSetButton.addEventListener('click', exportSet, false);
+
+function exportSet() {
     var set = {presets: clonePresets()};
     var exportString = exportSet(set);
     
     var newUrl = document.location.origin + document.location.pathname + '?set=' + exportString;
     window.open(newUrl,'_blank');
-  }, 
-  false
-);
+}
 
 function exportSet(set) {
   var filtered = set.presets.filter(function (el) {
@@ -2379,7 +2382,7 @@ function importSet(setString) {
   });
 
   currentSetID = 0;
-  setLabel.innerText = 'Imported Set';
+  // setLabel.innerText = 'Imported Set';
   // exportSetButton.style.display = 'inline-block';
 //  exportSetButton.style.display = 'none';
 
@@ -2435,8 +2438,9 @@ function decodeValueAmplitudePattern(values, filter) {
 // loadDefaultSets();
 // loadSetIDFromURL();
 
-importSetFromURL();
 loadDefaultSets();
+loadSetID(1);
+importSetFromURL();
 
 </script>
 </body>
