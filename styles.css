@@ -1,0 +1,189 @@
+body {
+    background-color: #F5F1F0;
+}
+
+#content {
+    background-color: white;
+    width: 1028px;
+    margin: auto;
+    position: relative;
+}
+
+.center {
+    margin: auto;
+    width: 1028px;
+}
+
+audio {
+    width: 100px;
+}
+
+#controlA {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+}
+
+#controlB {
+    position: absolute;
+    width: 175px;
+    right: 10px;
+    bottom: 10px;
+    overflow: hidden;
+    clear: both;
+}
+
+#mirrorControl {
+    position: absolute;
+    left: 150px;
+    top: 10px;
+}
+
+#volumeControl {
+    position: absolute;
+    left: 150px;
+    bottom: 10px;
+}
+
+#volumeLabel {
+    display: block;
+    margin-top: 20px
+}
+
+#rhythmButtons {
+    position: absolute;
+    left: 10px;
+    top: 0px;
+}
+
+button {
+    margin-top: 10px;
+    height: 30px;
+    width: 100px;
+    display: block;
+    border: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: white;
+    background-color: #B5B5B5;
+    cursor: pointer;
+}
+
+button.controlB {
+    float: right;
+}
+
+#rotateGroup button {
+    width: 136px;
+}
+
+button.rhythm, button.note {
+    width: 100px;
+}
+
+.deletePreset, .sequencePreset, .savePreset {
+    width: 20px;
+    height: 20px;
+    margin: 2px;
+    display: inline-block;
+}
+
+.active {
+    font-weight: bold;
+    color: #DB3352;
+}
+
+#tempoLabel {
+    display: block;
+    margin-top: 20px
+}
+
+#notes {
+    position: absolute;
+    right: 10px;
+    top: 0px;
+}
+
+#muteGroup, #rotateGroup {
+    margin-top: 20px;
+}
+
+#presets {
+    height: 260px;
+    overflow: hidden;
+    float: right;
+}
+
+#sequence {
+    height: 100px;
+    float: right;
+}
+
+#sequenceDisplay {
+    height: 20px;
+    width: 180px;
+    overflow: hidden;
+    text-align: right;
+    clear: both;
+}
+
+#sequenceDisplay span {
+    display: inline-block;
+    padding-left: 2px;
+}
+
+ul {
+    clear: both;
+    margin-top: 5px;
+    text-align: right;
+    padding: 5px 0 0 0;
+    list-style: outside none none;
+}
+
+#sets {
+    background-color: white;
+    width: 1018px;
+    margin: 5px auto;
+    padding: 5px;
+    position: relative;
+}
+
+#saveSetButton {
+    width: 40px;
+    height: 20px;
+    margin: 2px;
+    display: none;
+}
+
+#exportSetButton {
+    width: 60px;
+    height: 20px;
+    margin: 2px;
+    display: inline-block;
+    float: right;
+}
+
+#sets ul, #sets li {
+    display: inline;
+    text-align: center;
+    padding: 5px;
+    margin: 0px;
+}
+
+.saveSet {
+    width: 20px;
+    height: 20px;
+    margin: 2px;
+    display: inline-block;
+}
+
+.loadSet, .currentSet {
+    width: auto;
+    height: 20px;
+    margin: 2px;
+    display: inline-block;
+}
+
+.currentSet {
+    background-color: #DB3352;
+}
