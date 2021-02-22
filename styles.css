@@ -67,6 +67,7 @@ button {
     color: white;
     background-color: #B5B5B5;
     cursor: pointer;
+    vertical-align: middle;
 }
 
 button.controlB {
@@ -81,8 +82,8 @@ button.rhythm, button.note {
     width: 100px;
 }
 
-.deletePreset, .sequencePreset, .savePreset {
-    width: 20px;
+.deletePreset, .sequencePreset, .savePreset, .saveSet {
+    width: auto;
     height: 20px;
     margin: 2px;
     display: inline-block;
@@ -168,13 +169,6 @@ ul {
     text-align: center;
     padding: 5px;
     margin: 0px;
-}
-
-.saveSet {
-    width: 20px;
-    height: 20px;
-    margin: 2px;
-    display: inline-block;
 }
 
 .loadSet, .currentSet {
