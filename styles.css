@@ -82,10 +82,11 @@ button.rhythm, button.note {
     width: 100px;
 }
 
-.deletePreset, .sequencePreset, .savePreset, .saveSet {
+.deletePreset, .sequencePreset, .savePreset, .saveSet, .exportSet {
     width: auto;
     height: 20px;
     margin: 2px;
+    padding: 2px;
     display: inline-block;
 }
 
@@ -149,18 +150,7 @@ ul {
     position: relative;
 }
 
-#saveSetButton {
-    width: 40px;
-    height: 20px;
-    margin: 2px;
-    display: none;
-}
-
-#exportSetButton {
-    width: 60px;
-    height: 20px;
-    margin: 2px;
-    display: inline-block;
+.exportSet {
     float: right;
 }
 
