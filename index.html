@@ -8,133 +8,13 @@
   <meta name="description" content="YouthBeat">
   <meta name="author" content="The Royal Conservatory">
 
-  <!-- <link rel="stylesheet" href="css/styles.css?v=1.0"> -->
+  <link rel="stylesheet" href="styles.css">
 
   <script src="https://unpkg.com/konva@^7/konva.min.js"></script>
   <script src="https://unpkg.com/tone@^14/build/Tone.js"></script>
   <script src="https://unpkg.com/@ungap/url-search-params@0.1.2/min.js"></script>
   <script src="pSBC.js"></script>
   <script src="fill.js"></script>
-
-  <style>
-  body {
-    background-color: #F5F1F0;
-  }
-  #content {
-    background-color: white;
-    width: 1028px;
-    margin: auto;
-    position: relative;
-    }
-  .center {
-    margin: auto;
-    width: 1028px;
-  }
-  audio {
-    width: 100px;
-  }
-  #controlA {
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-  }
-  #controlB {
-    position: absolute;
-    width: 175px;
-    right: 10px;
-    bottom: 10px;
-    overflow: hidden;
-    clear: both;
-  }
-  #mirrorControl {
-    position: absolute;
-    left: 150px;
-    top: 10px;
-  }
-  #volumeControl {
-    position: absolute;
-    left: 150px;
-    bottom: 10px;
-  }
-  #volumeLabel {
-    display: block;
-    margin-top: 20px
-  }
-  #rhythmButtons {
-    position: absolute;
-    left: 10px;
-    top: 0px;
-  }
-  button {
-    margin-top: 10px;
-    height: 30px;
-    width: 100px;
-    display: block;
-    border: none;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: white;
-    background-color: #B5B5B5;
-  }
-  button.controlB {
-    float: right;
-  }
-  #rotateGroup button {
-    width: 136px;
-  }
-  button.rhythm, button.note {
-    width: 100px;
-  }
-  li button {
-    width: 20px;
-    height: 20px;
-    margin: 2px;
-    display: inline-block;
-  }
-  .active {
-    font-weight: bold;
-    color: #DB3352;
-  }
-  #tempoLabel {
-    display: block;
-    margin-top: 20px
-  }
-  #notes {
-    position: absolute;
-    right: 10px;
-    top: 0px;
-  }
-  #muteGroup, #rotateGroup {
-    margin-top: 20px;
-  }
-  #presets {
-    height: 260px;
-    overflow: hidden;
-    float: right;
-  }
-  #sequence {
-    height: 100px;
-    float: right;
-  }
-  #sequenceDisplay {
-    height: 20px;
-    width: 180px;
-    overflow: hidden;
-    text-align: right;
-    clear: both;
-  }
-  #sequenceDisplay span {
-    display: inline-block;
-    padding-left: 2px;
-  }
-  ul {
-    clear: both;
-    margin-top: 5px;
-    text-align: right;
-    padding: 5px 0 0 0;
-    list-style: outside none none;
-  }
-</style>
 </head>
 
 <body>
@@ -192,8 +72,8 @@
     </div>
     <div id="controlB">
       <div id="presets">
-        <button id="savePresetButton" class="controlB">
-          Save Preset
+        <button id="addPresetButton" class="controlB">
+          Add Preset
         </button>
         <ul id="presetList">
       
@@ -250,6 +130,13 @@
           
     </div>
 </div>
+<div id="sets""> 
+  <button id="exportSetButton" class="exportSet">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.854 8.803a.5.5 0 1 1-.708-.707L9.243 6H6.475a.5.5 0 1 1 0-1h3.975a.5.5 0 0 1 .5.5v3.975a.5.5 0 1 1-1 0V6.707l-4.096 4.096z"/></svg>
+  </button>
+  <ul id="setsList"></ul>
+</div>
+
   <script type="text/javascript">
 
 var offset = 0
@@ -630,6 +517,34 @@ function createHorizontalLine() {
     });
     return line;
 }
+
+var play = new Konva.RegularPolygon({
+        x: patternOriginX,
+        y: patternOriginY,
+        sides: 3,
+        radius: 24,
+        fill: '#B5B5B5',
+        stroke: '#B5B5B5',
+        strokeWidth: 1,
+        rotation: 90,
+        visible: true,
+        listening: false
+      });
+layer.add(play)  
+var stopWidth = 38;
+var stop = new Konva.Rect({
+        x: patternOriginX - stopWidth/2,
+        y: patternOriginY - stopWidth/2,
+        width: stopWidth,
+        height: stopWidth,
+        fill: '#B5B5B5',
+        stroke: '#B5B5B5',
+        strokeWidth: 1,
+        visible: false,
+        listening: false
+      });
+layer.add(stop)
+
 
 var positionGroup = createPositionGroup(stage.width() - 200,98, 0);
 layer.add(positionGroup);
@@ -1180,9 +1095,13 @@ function toggleSequence() {
   if (Tone.Transport.state != "started") {
     offset = Tone.now()
     Tone.Transport.start(offset)
+    play.visible(false)
+    stop.visible(true)
   } else {
     offset = 0;
     Tone.Transport.stop();
+    play.visible(true)
+    stop.visible(false)
   }
   updatePattern()
 }
@@ -1582,42 +1501,66 @@ function patternSliceGroup(pattern, radius) {
 
 var presetCounter = 1;
 var presets = [];
-var savePresetButton = document.getElementById("savePresetButton");
+var addPresetButton = document.getElementById("addPresetButton");
 var presetList = document.getElementById("presetList");
 
-savePresetButton.addEventListener('click', 
+addPresetButton.addEventListener('click', 
   function() {
-    if (presetList.childElementCount == 8) {
-      deletePreset(presetCounter, presetList.lastChild)
-    }
-    var entry = document.createElement('li');
-    var link = document.createElement('a');
-    link.href = ''
-    link.innerHTML = "Preset " + presetCounter;
-    link.dataset.presetID = presetCounter
-    entry.appendChild(link);
-    var id = 'preset' + presetCounter;
-    entry.setAttribute('id',id);
-    presets[presetCounter] = capturePreset();
-    link.addEventListener('click',
-      function(event){
-        var presetToLoad = presets[this.dataset.presetID];
-        loadPreset(presetToLoad);
-        updatePattern();
-        event.preventDefault();
-      }, false)
-    entry.appendChild(deleteButton(presetCounter));
-    entry.appendChild(sequenceButton(presetCounter));
-    presetList.appendChild(entry);
-    presetCounter += 1;
-    updatePattern();
+    addPreset(capturePreset());
   }, 
   false
 );
 
+function savePreset(id) {
+  presets[id] = capturePreset();
+}
+
+function addPreset(preset) {
+  if (presetList.childElementCount == 8) {
+    deletePreset(presetCounter, presetList.lastChild)
+  }
+  presets[presetCounter] = preset;
+
+  var entry = document.createElement('li');
+  entry.append(savePresetButton(presetCounter));
+  var link = document.createElement('a');
+  link.href = ''
+  link.innerHTML = "Preset " + presetCounter;
+  link.dataset.presetID = presetCounter
+  entry.appendChild(link);
+  link.addEventListener('click',
+    function(event){
+      var presetToLoad = presets[this.dataset.presetID];
+      loadPreset(presetToLoad);
+      updatePattern();
+      event.preventDefault();
+    }, false)
+  entry.appendChild(deleteButton(presetCounter));
+  entry.appendChild(sequenceButton(presetCounter));
+  presetList.appendChild(entry);
+  presetCounter += 1;
+  updatePattern();
+}
+
+function savePresetButton(preset) {
+  var button = document.createElement("BUTTON");
+  button.className = "savePreset";
+  button.innerHTML = saveSVG;
+  button.addEventListener('click',
+    (function(index) {
+      return function() {
+        savePreset(index);
+      }
+    })(preset),
+    false
+  );
+  return button;
+}
+
 function deleteButton(preset) {
   var deleteButton = document.createElement("BUTTON");
-  deleteButton.innerHTML = "X";
+  deleteButton.innerHTML = deleteSVG;
+  deleteButton.className = "deletePreset";
   deleteButton.addEventListener('click',
     (function(index) {
       return function() {
@@ -1642,7 +1585,8 @@ function deletePreset(index, node) {
 var sequenceDisplay = document.getElementById('sequenceDisplay');
 function sequenceButton(preset) {
   var sequenceButton = document.createElement("BUTTON");
-  sequenceButton.innerHTML = ">";
+  sequenceButton.innerHTML = addSVG;
+  sequenceButton.className = "sequencePreset";
   sequenceButton.addEventListener('click',
     (function(index) {
       return function() {
@@ -1696,6 +1640,7 @@ function loadPreset(preset) {
   loadPattern(preset.outerCustomPattern, outerCustomPattern);
   loadPattern(preset.samplerCustomPattern, samplerCustomPattern);
   patternUpdated();
+  updatePattern();
 }
 
 function patternFrom(pattern) {
@@ -1924,6 +1869,10 @@ function chop(str, size){
 }
 
 function patternUpdated() {
+  // updatePatternURL()
+}
+
+function updatePatternURL() {
   var inner = encodePreset(innerCustomPattern, innerFilter);
   var outer = encodePreset(outerCustomPattern, outerFilter);
   var sampler = encodePreset(samplerCustomPattern, scale);
@@ -1947,6 +1896,30 @@ function patternUpdated() {
   history.replaceState({}, "", '?' + str);
 }
 
+function queryString(preset) {
+  var inner = encodePreset(preset.innerCustomPattern, innerFilter);
+  var outer = encodePreset(preset.outerCustomPattern, outerFilter);
+  var sampler = encodePreset(preset.samplerCustomPattern, scale);
+  var obj = {
+    v1: inner.v,
+    a1: inner.a,
+    v2: outer.v,
+    a2: outer.a,
+    v3: sampler.v,
+    a3: sampler.a,
+    d3: sampler.d
+  }
+  var str = "";
+  for (var key in obj) {
+    if (str != "") {
+        str += "&";
+    }
+    str += key + "=" + encodeURIComponent(obj[key]);
+  }
+
+  return str
+}
+
 function loadPresetFromURL() {
   var urlParams = new URLSearchParams(window.location.search);
   var v1 = urlParams.get('v1');
@@ -1965,7 +1938,394 @@ function loadPresetFromURL() {
   updatePattern();
 }
 
-loadPresetFromURL();
+var setCounter = 1;
+var sets = [];
+var currentSetID = 0;
+var exportSetButton = document.getElementById("exportSetButton");
+var setsList = document.getElementById("setsList");
+
+function saveSet(setID) {
+  if (checkSetRange(setID)) {
+      var set = {presets: clonePresets()}; 
+      storeSet(set, setID);
+    }
+}
+
+function clonePresets() {
+  var newPresets = []
+  var filtered = presets.filter(function (el) {
+    return el != null
+  })
+  filtered.forEach( function(preset){
+    newPresets.push(clonePreset(preset))
+  })
+  return newPresets
+}
+
+function clonePreset(preset) {
+  var newPreset = {
+      innerCustomPattern: patternFrom(preset.innerCustomPattern),
+      outerCustomPattern: patternFrom(preset.outerCustomPattern),
+      samplerCustomPattern: patternFrom(preset.samplerCustomPattern)
+    }
+  return newPreset;
+}
+
+function storeSet(set, setID) {
+  sets[setID] = set;
+  storeSets();  
+}
+
+function addSet(set) {
+    if (setsList.childElementCount == 8) {
+      deleteSet(setCounter, setsList.lastChild)
+    }
+    sets[setCounter] = set;
+    addSetLink(setCounter);
+    setCounter += 1;
+}
+
+function addSetLink(setID) {
+  var entry = document.createElement('li');
+  entry.dataset.setID = setID;
+  if (setID != 0) {
+    entry.append(saveSetButton(setID))
+  }
+  var link = setLink(setID)
+  link.addEventListener('click',
+    function(event){
+      loadSetID(this.dataset.setID);
+      updatePattern();
+      event.preventDefault();
+    }, false)
+  entry.appendChild(link);  
+  setsList.appendChild(entry);
+}
+
+function setLink(setID) {
+  var button = document.createElement("BUTTON");
+  button.className = "loadSet";
+  var label = setID == 0 ? "URL" : "Set " + setID;
+  button.innerHTML = label;
+  button.dataset.setID = setID
+  return button
+}
+
+// https://icons.getbootstrap.com
+var saveSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/></svg>';
+var addSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>';
+var deleteSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square" viewBox="0 0 16 16"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>';
+var exportSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.854 8.803a.5.5 0 1 1-.708-.707L9.243 6H6.475a.5.5 0 1 1 0-1h3.975a.5.5 0 0 1 .5.5v3.975a.5.5 0 1 1-1 0V6.707l-4.096 4.096z"/></svg>';
+
+function saveSetButton(set) {
+  var button = document.createElement("BUTTON");
+  button.className = "saveSet";
+  button.innerHTML = saveSVG;
+  button.addEventListener('click',
+    (function(index) {
+      return function() {
+        saveSet(index);
+        if (currentSetID != index) {
+          loadSetID(index);
+        }
+      }
+    })(set),
+    false
+  );
+  return button;
+}
+
+function storeSets() {
+  var filtered = sets.filter(function (el, i) {
+    return (i != 0) && (el != null);
+  });
+  localStorage.setItem('sets', JSON.stringify(filtered));
+}
+
+function deleteSetButton(set) {
+  var deleteButton = document.createElement("BUTTON");
+  deleteButton.innerHTML = "X";
+  deleteButton.addEventListener('click',
+    (function(index) {
+      return function() {
+        deleteSet(index, this.parentNode);
+      }
+    })(set),
+    false
+  );
+  return deleteButton;
+}
+
+function deleteSet(index, node) {
+  node.parentNode.removeChild(node);
+  delete sets[index];
+  storeSets();
+}
+
+// var setLabel = document.getElementById("setLabel");
+
+function loadSetID(setID) {
+  currentSetID = setID;
+  activeSet();
+  // setLabel.innerText = 'Set ' + setID;
+  var set = sets[setID];
+  loadSet(set)
+}
+
+
+function activeSet() {
+  var loadSetButtons = document.getElementsByClassName("loadSet");
+  for (let i = 0; i < loadSetButtons.length; i++) {
+    var button = loadSetButtons[i];
+    if (button.dataset.setID == currentSetID) {
+      button.classList.add("currentSet")
+    } else {
+      button.classList.remove("currentSet")
+    }
+  }
+}
+
+function loadSet(set){
+  presetList.innerHTML = '';
+  presetCounter = 1;
+  presets = [];
+  
+  if (typeof set === 'object' && set.hasOwnProperty('presets') ) {
+    loadPresets(set.presets);
+  } else {
+    loadPreset(emptyPreset());
+  }
+}
+
+function loadSetsFromStorage() {
+  var localSets = JSON.parse(localStorage.getItem('sets')) ?? [];
+  localSets.forEach( function(set){
+    addSet(set);
+  })
+}
+
+function loadDefaultSets() {
+  var newSets = JSON.parse(localStorage.getItem('sets')) ?? [];
+  newSets.unshift(sets[0]);
+  sets = newSets;
+  for(var i = 1; i <= 8; i++) {
+    addSetLink(i);
+  }
+}
+
+function loadSetIDFromURL() {
+  var urlParams = new URLSearchParams(window.location.search);
+  var setID = urlParams.get("setID") ?? 0
+  if (checkSetRange(setID)) {
+    loadSetID(setID)
+  }
+  updatePattern();
+}
+
+function checkSetRange(setID){
+  return (setID > 0 && setID <= 8)
+}
+
+function loadPresets(newPresets) {
+  var filtered = newPresets.filter(function (el) {
+    return el != null;
+  });
+  filtered.forEach( function(preset){
+    addPreset(preset);
+  }) 
+  var first = filtered.shift();
+  loadPreset(first ?? emptyPreset())
+}
+
+exportSetButton.addEventListener('click', exportSetAction, false);
+
+function exportSetAction() {
+    var set = {presets: clonePresets()};
+    var exportString = exportSet(set);
+    
+    var newUrl = document.location.origin + document.location.pathname + '?set=' + exportString;
+    window.open(newUrl,'_blank');
+}
+
+function exportSet(set) {
+  var filtered = set.presets.filter(function (el) {
+    return el != null;
+  });
+
+  var encoded = filtered.map( shortEncode ) 
+  var exportString = encoded.join('|')
+  return exportString
+}
+
+// base 10 x 8 = base 62 x 5 -> 20 (x2)
+// base 22 x 8 = base 62 x 6 -> 24
+// base 6 x 8 = base 62 x 4  -> 16
+
+function shortEncode(preset) {
+  var inner = encodeValueAmplitudePattern(preset.innerCustomPattern, innerFilter);
+  var inner62 = base62(inner, 5) 
+
+  var outer = encodeValueAmplitudePattern(preset.outerCustomPattern, outerFilter);
+  var outer62 = base62(outer, 5)
+
+  var sampler = encodeValueAmplitudePattern(preset.samplerCustomPattern, scale).map(function(value){ return value.toString(22) });
+  var sampler62 = base62(sampler, 6, 22)
+
+  var samplerDuration = encodeDurationPattern(preset.samplerCustomPattern);
+  var samplerDuration62 = base62(samplerDuration, 4)
+
+  var exportString = [inner62,outer62,sampler62,samplerDuration62].join(",")
+  return exportString
+}
+
+function encodeValueAmplitudePattern(pattern, filter) {
+  var encoded = []
+  for(var i = 0; i < 32; i++){
+    var note = pattern.value[i]
+    var amplitude = pattern.amplitude[i]
+    var index = filter.indexOf(note)
+    var value = 0
+    if (index != -1) {
+      var value = index * 3 + amplitude
+    }
+    encoded.push(value)
+  }
+  return encoded
+}
+
+function encodeDurationPattern(pattern) {
+  var encoded = []
+  for(var i = 0; i < 32; i++){
+    var duration = pattern.duration[i]
+    encoded.push(duration)
+  }
+  return encoded
+}
+
+function base62(values, targetLength, base=10) {
+  var chunks = chunk(values, 8);
+  var encoded = chunks.map(function(chunk) { 
+    var a = toBase62(parseInt(chunk.join(''), base))
+    return a.padStart(targetLength, 0);
+  });
+  return encoded.join('')
+}
+
+function toBase62(n) {
+  if (n === 0) {
+    return '0';
+  }
+  var digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  var result = ''; 
+  while (n > 0) {
+    result = digits[n % digits.length] + result;
+    n = parseInt(n / digits.length, 10);
+  }
+  
+  return result;
+}
+
+function importSetFromURL() {
+  var urlParams = new URLSearchParams(window.location.search);
+  var importString = urlParams.get("set") ?? ''
+  if (importString.length > 0) {
+    importSet(importString);
+  }
+}
+
+function shouldImportSet() {
+  var urlParams = new URLSearchParams(window.location.search);
+  var importString = urlParams.get("set") ?? ''
+  return importString.length > 0
+}
+
+
+function importSet(setString) {
+  var importString = setString.replace(/\s/g,'')
+  var presetStrings = importString.split("|")
+  var newPresets = presetStrings.map(function(presetString){
+    var patterns = presetString.split(",")
+    
+    var innerValues = parseBase62(patterns[0].split(''), 5);
+    var innerPattern = decodeValueAmplitudePattern(innerValues, innerFilter);
+
+    var outerValues = parseBase62(patterns[1].split(''), 5);
+    var outerPattern = decodeValueAmplitudePattern(outerValues, outerFilter);
+
+    var samplerValues = parseBase62(patterns[2].split(''), 6, 22).map(function(value){ return parseInt(value, 22).toString(10) });
+    var samplerPattern = decodeValueAmplitudePattern(samplerValues, samplerFilter);
+    var durationValues = parseBase62(patterns[3].split(''), 4);
+    samplerPattern.duration = durationValues;
+
+    return {innerCustomPattern: innerPattern,
+      outerCustomPattern: outerPattern,
+      samplerCustomPattern: samplerPattern}
+  });
+
+  currentSetID = 0;
+  addSetLink(0);
+
+  var set = {presets: newPresets};
+  sets[0] = set;
+  loadSet(set);
+  updatePattern();
+}
+
+function parseBase62(string, originLength, base=10) {
+  var chunks = chunk(string, originLength)
+  var decoded = chunks.reduce(function(accumulator, chunk){
+    var base62Values = fromBase62(chunk.join(''))
+    var values = base62Values.toString(base).padStart(8, 0).split('')
+    return accumulator.concat(values)
+  }, [])
+  return decoded
+}
+
+function fromBase62(s) {
+  var digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  var result = 0;
+  for (var i=0 ; i<s.length ; i++) {
+    var p = digits.indexOf(s[i]);
+    if (p < 0) {
+      return NaN;
+    }
+    result += p * Math.pow(digits.length, s.length - i - 1);
+  }
+  return result;
+}
+
+
+function decodeValueAmplitudePattern(values, filter) {
+  var pattern = emptyPattern();
+  var amplitudeMax = 3
+  for(var i = 0; i < 32; i++){
+    var value = values[i];
+    var noteValue = Math.floor((value-1)/amplitudeMax)
+    var note = '-'
+    var amplitude = 0
+    if (value > 0) {
+      note = filter[noteValue];
+      amplitude = (value - 1) % amplitudeMax + 1;
+    }
+    pattern.value[i] = note;
+    pattern.amplitude[i] = amplitude;
+    // console.log(i,value,noteValue,note,amplitude)
+  }
+  return pattern
+}
+
+// loadSetsFromStorage();
+// loadDefaultSets();
+// loadSetIDFromURL();
+
+importSetFromURL();
+loadDefaultSets();
+if (!shouldImportSet()) {
+  loadSetID(1);
+} else {
+  activeSet();
+}
+
 
 </script>
 </body>
