@@ -2172,7 +2172,7 @@ function shortEncode(preset) {
   var sampler62 = base62(sampler, 6, 22)
 
   var samplerDuration = encodeDurationPattern(preset.samplerCustomPattern);
-  var samplerDuration62 = base62(samplerDuration, 4)
+  var samplerDuration62 = base62(samplerDuration, 4, 6)
 
   var exportString = [inner62,outer62,sampler62,samplerDuration62].join(",")
   return exportString
@@ -2254,7 +2254,7 @@ function importSet(setString) {
 
     var samplerValues = parseBase62(patterns[2].split(''), 6, 22).map(function(value){ return parseInt(value, 22).toString(10) });
     var samplerPattern = decodeValueAmplitudePattern(samplerValues, samplerFilter);
-    var durationValues = parseBase62(patterns[3].split(''), 4).map(parseInt);
+    var durationValues = parseBase62(patterns[3].split(''), 4, 6).map(function(value) { return parseInt(value, 6); });
     samplerPattern.duration = durationValues;
 
     return {innerCustomPattern: innerPattern,
