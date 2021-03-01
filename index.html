@@ -248,6 +248,32 @@ function createChords() {
   return sampler;
 }
 
+var chordHighlights = {
+  'A1' : [1,2,4,6],
+  'B1' : [0,1,3,5,6],
+  'D2' : [1,3,4,6],
+  'E2' : [0,2,5],
+  'G2' : [0,1,5,6]
+}
+
+var options = document.getElementsByName("chord")
+for (var i=0; i < options.length; i++) {
+  options[i].addEventListener('change', function() {
+    selectNoteRings(this.value);
+    layer.batchDraw();
+  });
+}
+
+function selectNoteRings(chord) {
+  var children = noteRings.getChildren()
+  var highlights = chordHighlights[chord] ?? [];
+  for (var i=0; i < children.length; i++) {
+    var child = children[i];
+    var isVisible = highlights.indexOf(i) >= 0;
+    child.visible(isVisible);
+  }
+}
+
 var allSteps = new Array(32);
 for (var i = 0; i < allSteps.length; i++) {
   allSteps[i] = i;
@@ -471,6 +497,9 @@ layer.add(innerPatternRing);
 var slices = createSlices();
 layer.add(slices);
 
+var noteRings = createNoteRings();
+layer.add(noteRings);
+
 layer.add(innerPatternNotes);
 layer.add(outerPatternNotes);
 layer.add(samplerPatternNotes);
@@ -478,6 +507,43 @@ layer.add(samplerPatternNotes);
 layer.add(innerPatternControls);
 layer.add(outerPatternControls);
 layer.add(samplerPatternControls);
+
+
+
+function createNoteRings() {
+  // var color = '#F5F1F0';
+  // var color = '#FFF2C6';
+  // var color = '#B5B5B5';
+  var color = 'white';
+  var group = new Konva.Group();
+  for (var i=0; i < scale.length; i++) {
+    var noteRing = createNoteRing(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 2 + samplerWidth, color, i);
+    group.add(noteRing)
+  }
+  return group
+}
+
+function createNoteRing(originX, originY, innerRadius, outerRadius, fill, index) {
+  var innerLineRadius = index == 0 ? innerRadius : innerRadius + sizeFor(index-1);
+  var outerLineRadius = innerLineRadius + incrementalSizeFor(index);
+
+  var padding = 3;
+
+  var ring = new Konva.Ring({
+        x: originX,
+        y: originY,
+        innerRadius: innerLineRadius + padding,
+        outerRadius: outerLineRadius - padding,
+        fill: fill,
+        opacity: 0.75,
+        stroke: 'white',
+        strokeWidth: 2,
+        listening: false,
+        visible: false
+      });
+
+  return ring;
+}
 
 var numbers = createNumbers(outerRadius + outerPadding * 0.5);
 layer.add(numbers);
