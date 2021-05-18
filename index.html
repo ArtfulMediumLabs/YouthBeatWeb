@@ -2012,6 +2012,7 @@ var enableAll = false
 
 function toggleAll() {
     enableAll = !enableAll
+    enableAllButton.innerText = enableAll ? "Disable Features" : "Enable All Features";
     var controls = document.querySelectorAll(".liteMode")
     for (var i = 0; i < controls.length; i++) {
         controls[i].style.visibility = enableAll ? 'visible' : 'hidden';
