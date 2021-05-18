@@ -106,6 +106,12 @@ button.rhythm, button.note {
     top: 0px;
 }
 
+#notes fieldset {
+    margin: 0;  
+    padding: 0;
+    border: none;
+}
+
 #muteGroup, #rotateGroup {
     margin-top: 20px;
 }
@@ -148,6 +154,15 @@ ul {
     margin: 5px auto;
     padding: 5px;
     position: relative;
+}
+
+#enableAll {
+    display: inline;
+    text-align: center;
+    width: auto;
+    height: 20px;
+    margin: 2px;
+    display: inline-block;
 }
 
 .exportSet {
