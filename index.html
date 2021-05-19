@@ -116,9 +116,10 @@
           Enter Pitch
         </button>
         <fieldset>
+          <legend>Chords</legend>
           <input type="radio" id="none" name="chord" value="" checked>
           <label for="none">None</label><br/>
-          <span class="level3">
+          <span class="level2">
             <input type="radio" id="Asus" name="chord" value="A1">
             <label for="Asus">Asus</label><br/>
           </span>
@@ -136,7 +137,7 @@
     </div>
 </div>
 <div id="sets"">
-  <button id="enableAll">Level 1</button>
+  <button id="enableAll">Note Entry</button>
   <div id="setsList" class="level2">
     <button id="saveSetButton">Save Set</button>
     <select id="saveSetList" name="saveSetID">
@@ -2039,7 +2040,7 @@ var level = 0
 
 function toggleAll() {
     level = ++level % 3
-    enableAllButton.innerText = ["Level 1", "Level 2", "Level 3"][level]
+    enableAllButton.innerText = ["Note Entry", "Sequencing", "Modifying Patterns"][level]
     var controls = document.querySelectorAll(".level2")
     for (var i = 0; i < controls.length; i++) {
         controls[i].style.visibility = level >= 1 ? 'visible' : 'hidden';

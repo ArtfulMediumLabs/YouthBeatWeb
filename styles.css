@@ -107,7 +107,7 @@ button.rhythm, button.note {
 }
 
 #notes fieldset {
-    margin: 0;  
+    margin: 10px 0;  
     padding: 0;
     border: none;
 }
@@ -156,10 +156,16 @@ ul {
     position: relative;
 }
 
+#sets div {
+    display: inline;
+    padding: 5px;
+    margin: 0px;
+}
+
 #enableAll {
     display: inline;
     text-align: center;
-    width: auto;
+    width: 150px;
     height: 20px;
     margin: 2px;
     display: inline-block;
@@ -176,11 +182,15 @@ ul {
     margin: 0px;
 }
 
-.loadSet, .currentSet {
+.loadSet, .currentSet, #saveSetButton, #loadSetButton {
     width: auto;
     height: 20px;
     margin: 2px;
     display: inline-block;
+}
+
+#saveSetButton, #loadSetButton {
+    margin-left: 10px;
 }
 
 .currentSet {
