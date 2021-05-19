@@ -137,7 +137,30 @@
 </div>
 <div id="sets"">
   <button id="enableAll">Level 1</button>
-  <ul id="setsList"></ul>
+  <div id="setsList" class="level2">
+    <button id="saveSetButton">Save Set</button>
+    <select id="saveSetList" name="saveSetID">
+      <option value="1">Set 1</option>
+      <option value="2">Set 2</option>
+      <option value="3">Set 3</option>
+      <option value="4">Set 4</option>
+      <option value="5">Set 5</option>
+      <option value="6">Set 6</option>
+      <option value="7">Set 7</option>
+      <option value="8">Set 8</option>
+    </select>
+    <button id="loadSetButton">Load Set</button>
+    <select id="loadSetList" name="loadSetID">
+      <option value="1">Set 1</option>
+      <option value="2">Set 2</option>
+      <option value="3">Set 3</option>
+      <option value="4">Set 4</option>
+      <option value="5">Set 5</option>
+      <option value="6">Set 6</option>
+      <option value="7">Set 7</option>
+      <option value="8">Set 8</option>
+    </select>
+  </div>
   <button id="exportSetButton" class="exportSet level3">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.854 8.803a.5.5 0 1 1-.708-.707L9.243 6H6.475a.5.5 0 1 1 0-1h3.975a.5.5 0 0 1 .5.5v3.975a.5.5 0 1 1-1 0V6.707l-4.096 4.096z"/></svg>
   </button>
@@ -2033,7 +2056,24 @@ var setCounter = 1;
 var sets = [];
 var currentSetID = 0;
 var exportSetButton = document.getElementById("exportSetButton");
-var setsList = document.getElementById("setsList");
+
+var saveSetButton = document.getElementById("saveSetButton");
+var saveSetsList = document.getElementById("saveSetList");
+
+function selectSaveSet(setID) {
+  var options = saveSetsList.options
+  for (var i=0; i<options.length; i++) {
+    if (options[i].value == setID) {
+      saveSetsList.selectedIndex = i
+    }
+  }
+}
+
+saveSetButton.onclick = function(){
+  var setID = saveSetsList.options[saveSetsList.selectedIndex].value
+  saveSet(setID)
+  selectLoadSet(setID)
+}
 
 function saveSet(setID) {
   if (checkSetRange(setID)) {
@@ -2067,40 +2107,11 @@ function storeSet(set, setID) {
   storeSets();  
 }
 
-function addSet(set) {
-    if (setsList.childElementCount == 8) {
-      deleteSet(setCounter, setsList.lastChild)
-    }
-    sets[setCounter] = set;
-    addSetLink(setCounter);
-    setCounter += 1;
-}
-
-function addSetLink(setID) {
-  var entry = document.createElement('li');
-  entry.className = 'level2'
-  entry.dataset.setID = setID;
-  if (setID != 0) {
-    entry.append(saveSetButton(setID))
-  }
-  var link = setLink(setID)
-  link.addEventListener('click',
-    function(event){
-      loadSetID(this.dataset.setID);
-      updatePattern();
-      event.preventDefault();
-    }, false)
-  entry.appendChild(link);  
-  setsList.appendChild(entry);
-}
-
-function setLink(setID) {
-  var button = document.createElement("BUTTON");
-  button.className = "loadSet";
-  var label = setID == 0 ? "URL" : "Set " + setID;
-  button.innerHTML = label;
-  button.dataset.setID = setID
-  return button
+function storeSets() {
+  var filtered = sets.filter(function (el, i) {
+    return (i != 0) && (el != null);
+  });
+  localStorage.setItem('sets', JSON.stringify(filtered));
 }
 
 // https://icons.getbootstrap.com
@@ -2109,72 +2120,40 @@ var addSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fil
 var deleteSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square" viewBox="0 0 16 16"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>';
 var exportSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.854 8.803a.5.5 0 1 1-.708-.707L9.243 6H6.475a.5.5 0 1 1 0-1h3.975a.5.5 0 0 1 .5.5v3.975a.5.5 0 1 1-1 0V6.707l-4.096 4.096z"/></svg>';
 
-function saveSetButton(set) {
-  var button = document.createElement("BUTTON");
-  button.className = "saveSet";
-  button.innerHTML = saveSVG;
-  button.addEventListener('click',
-    (function(index) {
-      return function() {
-        saveSet(index);
-        if (currentSetID != index) {
-          loadSetID(index);
-        }
-      }
-    })(set),
-    false
-  );
-  return button;
+var loadSetButton = document.getElementById("loadSetButton");
+var loadSetsList = document.getElementById("loadSetList");
+
+function selectLoadSet(setID) {
+  var options = loadSetsList.options
+  for (var i=0; i<options.length; i++) {
+    if (options[i].value == setID) {
+      loadSetsList.selectedIndex = i
+    }
+  }
 }
 
-function storeSets() {
-  var filtered = sets.filter(function (el, i) {
-    return (i != 0) && (el != null);
-  });
-  localStorage.setItem('sets', JSON.stringify(filtered));
+loadSetButton.onclick = function(){
+  var setID = loadSetsList.options[loadSetsList.selectedIndex].value
+  loadSetID(setID);
+  updatePattern();
 }
 
-function deleteSetButton(set) {
-  var deleteButton = document.createElement("BUTTON");
-  deleteButton.innerHTML = "X";
-  deleteButton.addEventListener('click',
-    (function(index) {
-      return function() {
-        deleteSet(index, this.parentNode);
-      }
-    })(set),
-    false
-  );
-  return deleteButton;
+function loadFirstEmptySet() {
+  console.log(sets);
+  for (var i=1; i <= 8; i++) {
+    if ( typeof sets[i] === 'undefined' || sets[i].presets.length == 0) {
+      selectSaveSet(i);
+      selectLoadSet(i);
+      break;
+    }
+  }
 }
 
-function deleteSet(index, node) {
-  node.parentNode.removeChild(node);
-  delete sets[index];
-  storeSets();
-}
-
-// var setLabel = document.getElementById("setLabel");
 
 function loadSetID(setID) {
   currentSetID = setID;
-  activeSet();
-  // setLabel.innerText = 'Set ' + setID;
   var set = sets[setID];
   loadSet(set)
-}
-
-
-function activeSet() {
-  var loadSetButtons = document.getElementsByClassName("loadSet");
-  for (let i = 0; i < loadSetButtons.length; i++) {
-    var button = loadSetButtons[i];
-    if (button.dataset.setID == currentSetID) {
-      button.classList.add("currentSet")
-    } else {
-      button.classList.remove("currentSet")
-    }
-  }
 }
 
 function loadSet(set){
@@ -2189,29 +2168,10 @@ function loadSet(set){
   }
 }
 
-function loadSetsFromStorage() {
-  var localSets = JSON.parse(localStorage.getItem('sets')) ?? [];
-  localSets.forEach( function(set){
-    addSet(set);
-  })
-}
-
 function loadDefaultSets() {
   var newSets = JSON.parse(localStorage.getItem('sets')) ?? [];
   newSets.unshift(sets[0]);
   sets = newSets;
-  for(var i = 1; i <= 8; i++) {
-    addSetLink(i);
-  }
-}
-
-function loadSetIDFromURL() {
-  var urlParams = new URLSearchParams(window.location.search);
-  var setID = urlParams.get("setID") ?? 0
-  if (checkSetRange(setID)) {
-    loadSetID(setID)
-  }
-  updatePattern();
 }
 
 function checkSetRange(setID){
@@ -2322,6 +2282,11 @@ function importSetFromURL() {
   var importString = urlParams.get("set") ?? ''
   if (importString.length > 0) {
     importSet(importString);
+
+    var option = document.createElement("option");
+    option.value = "0";
+    option.text = "URL";
+    loadSetsList.insertBefore(option, loadSetsList.firstChild)
   }
 }
 
@@ -2355,7 +2320,6 @@ function importSet(setString) {
   });
 
   currentSetID = 0;
-  addSetLink(0);
 
   var set = {presets: newPresets};
   sets[0] = set;
@@ -2406,16 +2370,11 @@ function decodeValueAmplitudePattern(values, filter) {
   return pattern
 }
 
-// loadSetsFromStorage();
-// loadDefaultSets();
-// loadSetIDFromURL();
-
 importSetFromURL();
 loadDefaultSets();
-if (!shouldImportSet()) {
-  loadSetID(1);
-} else {
-  activeSet();
+loadFirstEmptySet();
+if (shouldImportSet()) {
+  selectLoadSet(0)
 }
 
 
