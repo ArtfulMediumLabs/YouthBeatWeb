@@ -21,11 +21,11 @@
   <div id="content">
     <div id="container" class="center"></div>
     <div id="controlA">
-      <div class="liteMode">
+      <div class="level3">
           <input type="checkbox" id="rhythmPolygon" name="rhythmPolygon">
           <label for="rhythmPolygon">Rhythm Polygon</label>
       </div>
-      <div id="muteGroup" class="liteMode">
+      <div id="muteGroup" class="level2">
         <div>
           <input type="checkbox" id="bassSnareCheck" name="bassSnareCheck" checked>
           <label for="bassSnareCheck">Bass / Snare</label>
@@ -39,7 +39,7 @@
           <label for="melodyCheck">Melody</label>
         </div>
       </div>
-      <div id="rotateGroup" class="liteMode">
+      <div id="rotateGroup" class="level3">
         <button id="bass90">
           Bass / Snare +90
         </button>
@@ -57,12 +57,12 @@
       <label for="volume" id="volumeLabel">Volume: </label><br>
       <input type="range" name="volume" id="volume" min="0" max="100" value="60" class="slider">
     </div>
-    <div id="mirrorControl" class="liteMode">
-      <div>
+    <div id="mirrorControl">
+      <div class="level3">
         <input type="checkbox" id="mirrorVertical" name="mirrorVertical">
         <label for="mirrorVertical">Mirror Vertical</label>
       </div>
-      <div>
+      <div class="level3">
         <input type="checkbox" id="mirrorHorizontal" name="mirrorHorizontal">
         <label for="mirrorHorizontal">Mirror Horizontal</label>
       </div>
@@ -79,7 +79,7 @@
       
         </ul>
       </div>
-      <div id="sequence" class="liteMode">
+      <div id="sequence" class="level2">
         <button id="sequenceControl" class="controlB">
           Start
         </button>
@@ -115,26 +115,30 @@
         <button id="enterPitch">
           Enter Pitch
         </button>
-        <fieldset class="liteMode">
+        <fieldset>
           <input type="radio" id="none" name="chord" value="" checked>
           <label for="none">None</label><br/>
-          <input type="radio" id="Asus" name="chord" value="A1">
-          <label for="Asus">Asus</label><br/>
+          <span class="level3">
+            <input type="radio" id="Asus" name="chord" value="A1">
+            <label for="Asus">Asus</label><br/>
+          </span>
           <input type="radio" id="Bm" name="chord" value="B1">
           <label for="Bm">Bm</label><br/>
           <input type="radio" id="D" name="chord" value="D2">
           <label for="D">D</label><br/>
-          <input type="radio" id="Em" name="chord" value="E2">
-          <label for="Em">Em</label><br/>
-          <input type="radio" id="G" name="chord" value="G2">
-          <label for="G">G</label><br/>
+          <span class="level2">
+            <input type="radio" id="Em" name="chord" value="E2">
+            <label for="Em">Em</label><br/>
+            <input type="radio" id="G" name="chord" value="G2">
+            <label for="G">G</label><br/>
+          </span>
         </fieldset>
     </div>
 </div>
 <div id="sets"">
-  <button id="enableAll">Enable All Features</button>
+  <button id="enableAll">Level 1</button>
   <ul id="setsList"></ul>
-  <button id="exportSetButton" class="exportSet liteMode">
+  <button id="exportSetButton" class="exportSet level3">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.854 8.803a.5.5 0 1 1-.708-.707L9.243 6H6.475a.5.5 0 1 1 0-1h3.975a.5.5 0 0 1 .5.5v3.975a.5.5 0 1 1-1 0V6.707l-4.096 4.096z"/></svg>
   </button>
 </div>
@@ -2008,14 +2012,18 @@ function loadPresetFromURL() {
 
 var enableAllButton = document.getElementById("enableAll");
 enableAllButton.addEventListener('click', toggleAll, false);
-var enableAll = false
+var level = 0
 
 function toggleAll() {
-    enableAll = !enableAll
-    enableAllButton.innerText = enableAll ? "Disable Features" : "Enable All Features";
-    var controls = document.querySelectorAll(".liteMode")
+    level = ++level % 3
+    enableAllButton.innerText = ["Level 1", "Level 2", "Level 3"][level]
+    var controls = document.querySelectorAll(".level2")
     for (var i = 0; i < controls.length; i++) {
-        controls[i].style.visibility = enableAll ? 'visible' : 'hidden';
+        controls[i].style.visibility = level >= 1 ? 'visible' : 'hidden';
+    }
+    controls = document.querySelectorAll(".level3")
+    for (var i = 0; i < controls.length; i++) {
+        controls[i].style.visibility = level >= 2 ? 'visible' : 'hidden';
     }
 }
 
@@ -2070,7 +2078,7 @@ function addSet(set) {
 
 function addSetLink(setID) {
   var entry = document.createElement('li');
-  entry.className = setID > 2 ? 'liteMode' : ''
+  entry.className = 'level2'
   entry.dataset.setID = setID;
   if (setID != 0) {
     entry.append(saveSetButton(setID))

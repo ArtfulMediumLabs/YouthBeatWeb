@@ -187,6 +187,6 @@ ul {
     background-color: #DB3352;
 }
 
-.liteMode {
+.level2, .level3 {
     visibility: hidden;
 }
