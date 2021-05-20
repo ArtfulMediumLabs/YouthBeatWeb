@@ -200,3 +200,7 @@ ul {
 .level2, .level3 {
     visibility: hidden;
 }
+
+#setsFull {
+    visibility: hidden;
+}
