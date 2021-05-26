@@ -2049,7 +2049,7 @@ function toggleAll() {
 }
 
 function updateVisibility() {
-  enableAllButton.innerText = ["Note Entry", "Sequencing", "Modifying Patterns"][level]
+  enableAllButton.innerText = ["Note Entry", "Sequencing", "Special Tools"][level]
     var controls = document.querySelectorAll(".level2")
     for (var i = 0; i < controls.length; i++) {
         controls[i].style.visibility = level >= 1 ? 'visible' : 'hidden';
