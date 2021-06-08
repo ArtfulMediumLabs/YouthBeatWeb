@@ -368,13 +368,13 @@ function amplitudeFor(pattern, step) {
 
   switch (amplitude) {
     case 1:
-      return -4;
+      return max;
       break;
     case 2:
-      return 'H' ? 2 : -2;
+      return mid;
       break;
     case 3:
-      return 'H' ? 8 : 0;
+      return min;
       break;
     case 0:
     default:
