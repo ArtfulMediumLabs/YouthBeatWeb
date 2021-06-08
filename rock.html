@@ -265,6 +265,7 @@ function createSampler() {
     config[note] = baseDir + baseVoice + encodeURIComponent(note) + extension;
   })
   var sampler = new Tone.Sampler(config).toDestination();
+  sampler.volume.value = -2;
   return sampler;
 }
 
@@ -278,7 +279,7 @@ function createChords() {
     config[note] = baseDir + encodeURIComponent(files[index]) + extension;
   })
   var sampler = new Tone.Sampler(config).toDestination();
-  sampler.volume.value = -12;
+  sampler.volume.value = +2;
   return sampler;
 }
 
