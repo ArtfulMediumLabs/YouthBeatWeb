@@ -193,6 +193,10 @@ ul {
     margin-left: 10px;
 }
 
+#saveSetButton:active, #loadSetButton:active {
+    background-color: #DB3352;
+}
+
 .currentSet {
     background-color: #DB3352;
 }
