@@ -165,6 +165,9 @@
   <div id="setsFull">
     Warning: All sets currently full. Save will overwrite sets.
   </div>
+  <div id="voice">
+    <a href="index.html">Synth</a> | Rock
+  </div>
   <button id="exportSetButton" class="exportSet level3">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.854 8.803a.5.5 0 1 1-.708-.707L9.243 6H6.475a.5.5 0 1 1 0-1h3.975a.5.5 0 0 1 .5.5v3.975a.5.5 0 1 1-1 0V6.707l-4.096 4.096z"/></svg>
   </button>
@@ -249,7 +252,6 @@ function createSequence() {
 }
 
 var scale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'];
-//var notes = ['A3', 'B3', 'C#4', 'D3', 'D4', 'E3', 'E4', 'F#3', 'F#4', 'G3'];
 var semitones = [2,3,2,2,3,2,3];
 // https://mycolor.space/?hex=%23845EC2&sub=1
 // var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#FFC75F'];
@@ -370,13 +372,13 @@ function amplitudeFor(pattern, step) {
 
   switch (amplitude) {
     case 1:
-      return max;
+      return min;
       break;
     case 2:
       return mid;
       break;
     case 3:
-      return min;
+      return max;
       break;
     case 0:
     default:
