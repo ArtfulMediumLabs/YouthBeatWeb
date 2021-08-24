@@ -205,6 +205,13 @@ var chords = createChords();
 var sequence = [];
 var currentSequence = -1;
 
+function emptyPreset() {
+  return {meta: patternMeta(),
+          innerCustomPattern: emptyPattern(),
+          outerCustomPattern: emptyPattern(),
+          samplerCustomPattern: emptyPattern()}
+}
+
 function emptyPattern() {
   return {
     value: Array(32).fill('-'), 
@@ -213,10 +220,14 @@ function emptyPattern() {
   }
 }
 
-function emptyPreset() {
-  return {innerCustomPattern: emptyPattern(),
-          outerCustomPattern: emptyPattern(),
-          samplerCustomPattern: emptyPattern()}
+function patternMeta() {
+  return {
+    tempo: 90,
+    volume: 60,
+    mute: {bassSnare: false, hiHat: false, melody: false},
+    chord: "",
+    voice: 0
+  }
 }
 
 
@@ -311,6 +322,11 @@ function selectNoteRings(chord) {
   }
 }
 
+function updateChordDisplay(chord) {
+  document.querySelector('input[name="chord"][value="' + chord + '"').checked = true;
+  selectNoteRings(chord);
+}
+
 var allSteps = new Array(32);
 for (var i = 0; i < allSteps.length; i++) {
   allSteps[i] = i;
@@ -319,6 +335,12 @@ for (var i = 0; i < allSteps.length; i++) {
 var bassSnare = document.getElementById('bassSnareCheck');
 var hiHat = document.getElementById('hiHatCheck');
 var melody = document.getElementById('melodyCheck');
+
+function updateMuteGroupDisplay(muteGroup) {
+  bassSnare.checked = muteGroup.bassSnare;
+  hiHat.checked = muteGroup.hiHat;
+  melody.checked = muteGroup.melody;
+}
 
 var loop = new Tone.Sequence(function(time, step){
   var chordNote = document.querySelector('input[name="chord"]:checked').value
@@ -1431,21 +1453,46 @@ function someHHLoop() {
 stage.add(layer);
 
 var slider = document.getElementById("tempo");
-var output = document.getElementById("tempoLabel");
-output.innerHTML = "Tempo: " + slider.value;
+var tempoLabel = document.getElementById("tempoLabel");
+setTempo(90);
+updateTempoDisplay(90);
+
+function updateTempoDisplay(value) {
+  slider.value = value
+  tempoLabel.innerHTML = "Tempo: " + value;
+}
       
 slider.oninput = function() {
-  output.innerHTML = "Tempo: " + this.value;
-  Tone.Transport.bpm.value = this.value;
+  tempoLabel.innerHTML = "Tempo: " + this.value;
+  setTempo(this.value);
+}
+
+function setTempo(value) {
+  Tone.Transport.bpm.value = value;
 }
 
 var volumeSlider = document.getElementById("volume");
 var volumeLabel = document.getElementById("volumeLabel");
-volumeLabel.innerHTML = "Volume: " + volumeSlider.value;
+setVolume(60);
+updateVolumeDisplay(60);
       
 volumeSlider.oninput = function() {
   volumeLabel.innerHTML = "Volume: " + this.value;
-  Tone.Master.volume.value = scaleMap(this.value, 0, 100, -32, 6);
+  setVolume(this.value);
+}
+
+function setVolume(value) {
+  Tone.Master.volume.value = scaleMap(value, 0, 100, -32, 6);
+}
+
+function getVolume() {
+  var value = Tone.Master.volume.value;
+  return Math.round(scaleMap(value, -32, 6, 0, 100));
+}
+
+function updateVolumeDisplay(value) {
+  volumeSlider.value = value;
+  volumeLabel.innerHTML = "Volume: " + value;
 }
 
 function scaleMap(num, in_min, in_max, out_min, out_max) {
@@ -1732,17 +1779,33 @@ sequenceControl.addEventListener('click',
 
 function capturePreset() {
   var preset = {
+      meta: captureMeta(),
       innerCustomPattern: patternFrom(innerCustomPattern),
       outerCustomPattern: patternFrom(outerCustomPattern),
       samplerCustomPattern: patternFrom(samplerCustomPattern)
   }
   return preset;
-}     
+}
+
+function captureMeta() {
+  var chordNote = document.querySelector('input[name="chord"]:checked').value ?? "";
+  return {
+    tempo: Tone.Transport.bpm.value,
+    volume: getVolume(),
+    mute: {
+      bassSnare: bassSnare.checked, 
+      hiHat: hiHat.checked, 
+      melody: melody.checked},
+    chord: chordNote,
+    voice: 0
+  }
+}
 
 function loadPreset(preset) {
   loadPattern(preset.innerCustomPattern, innerCustomPattern);
   loadPattern(preset.outerCustomPattern, outerCustomPattern);
   loadPattern(preset.samplerCustomPattern, samplerCustomPattern);
+  loadMeta(preset.meta);
   patternUpdated();
   updatePattern();
 }
@@ -1760,6 +1823,19 @@ function loadPattern(pattern, target) {
   target.value = pattern.value.slice();
   target.amplitude = pattern.amplitude.slice();
   target.duration = pattern.duration.slice();
+}
+
+function loadMeta(meta) {
+  setTempo(Math.round(meta.tempo));
+  updateTempoDisplay(Math.round(meta.tempo));
+
+  setVolume(meta.volume);
+  updateVolumeDisplay(meta.volume);
+
+  updateMuteGroupDisplay(meta.mute);
+
+  updateChordDisplay(meta.chord);
+  // updateVoice();
 }
 
 
