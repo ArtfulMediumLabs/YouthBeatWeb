@@ -1901,6 +1901,19 @@ function patternFrom(pattern) {
   return clone
 }
 
+function metaFrom(meta) {
+  return {
+    tempo: meta.tempo,
+    volume: meta.volume,
+    mute: {
+      bassSnare: meta.mute.bassSnare, 
+      hiHat: meta.mute.hiHat, 
+      melody: meta.mute.melody},
+    chord: meta.chord,
+    voice: meta.voice
+  }  
+}
+
 function loadPattern(pattern, target) {
   target.value = pattern.value.slice();
   target.amplitude = pattern.amplitude.slice();
@@ -2270,6 +2283,7 @@ function clonePresets() {
 
 function clonePreset(preset) {
   var newPreset = {
+      meta: metaFrom(preset.meta),
       innerCustomPattern: patternFrom(preset.innerCustomPattern),
       outerCustomPattern: patternFrom(preset.outerCustomPattern),
       samplerCustomPattern: patternFrom(preset.samplerCustomPattern)
