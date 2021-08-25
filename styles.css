@@ -182,7 +182,7 @@ ul {
     margin: 0px;
 }
 
-.loadSet, .currentSet, #saveSetButton, #loadSetButton {
+#saveSetButton, #loadSetButton, .voice {
     width: auto;
     height: 20px;
     margin: 2px;
@@ -197,7 +197,7 @@ ul {
     background-color: #DB3352;
 }
 
-.currentSet {
+.voice.selected {
     background-color: #DB3352;
 }
 

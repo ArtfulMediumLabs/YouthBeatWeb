@@ -163,14 +163,21 @@
     </select>
   </div>
   <div id="setsFull">
-    Warning: All sets currently full. Save will overwrite sets.
+    Warning: All sets are full. Save will overwrite sets.
   </div>
-  <button id="exportSetButton" class="exportSet level3">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.854 8.803a.5.5 0 1 1-.708-.707L9.243 6H6.475a.5.5 0 1 1 0-1h3.975a.5.5 0 0 1 .5.5v3.975a.5.5 0 1 1-1 0V6.707l-4.096 4.096z"/></svg>
-  </button>
-  <div class="voice level2">
-    Synth | <a href="rock.html">Rock</a> | <a href="rnb.html">RnB</a>
+
+  <div> 
+    <button id="exportSetButton" class="exportSet level3">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.854 8.803a.5.5 0 1 1-.708-.707L9.243 6H6.475a.5.5 0 1 1 0-1h3.975a.5.5 0 0 1 .5.5v3.975a.5.5 0 1 1-1 0V6.707l-4.096 4.096z"/></svg>
+    </button>
+    <div class="level2">
+      <button class="voice" data-voice="rnb">RnB</button>
+      <button class="voice" data-voice="rock">Rock</button>
+      <button class="voice" data-voice="synth">Synth</button>
+    </div>
   </div>
+
+
 </div>
 
   <script type="text/javascript">
@@ -198,9 +205,62 @@ var innerCustomPattern = emptyPattern();
 var keys = createSequence();
 
 var samplerCustomPattern = emptyPattern();
-var sampler = createSampler();
 
-var chords = createChords();
+var samplerVoices = {
+  synth: {
+    name: "synth",
+    notes: ['D3', 'E3', 'G3', 'F#3', 'A3', 'B3', 'C#4', 'D4',  'E4', 'F#4'],
+    baseDir: "Sounds/ElectroSynths/",
+    baseVoice: "NKnee "
+  },
+  rock: {
+    name: "rock",
+    notes: ['D4', 'E4', 'F#4', 'G4', 'A4', 'B4', 'C#5', 'D5', 'E5', 'F#5'],
+    baseDir: "Sounds/RockGuitars/",
+    baseVoice: "Electric Guitar Pitch "
+  },
+  rnb: {
+    name: "rnb",
+    notes: ['D4', 'E4', 'F#4', 'G4', 'A4', 'B4', 'C#5', 'D5', 'E5', 'F#5'],
+    baseDir: "Sounds/RnB/",
+    baseVoice: "RnB Shorter Note "
+  }
+
+}
+
+var chordVoices = {
+  synth: {
+    notes: ['A1', 'B1', 'D2', 'E2', 'G2'],
+    files: ['Mystical Asus-A1', 'Mystical Bm-B1', 'Mystical D-D2', 'Mystical Em-E2', 'Mystical G_D-G2'],
+    baseDir: "Sounds/ElectroSynths/"
+  },
+  rock: {
+    notes: ['A1', 'B1', 'D2', 'E2', 'G2'],
+    files: ['Electric Guitar Chord A1', 'Electric Guitar Chord B1', 'Electric Guitar Chord D2', 'Electric Guitar Chord E2','Electric Guitar Chord G2'],
+    baseDir: "Sounds/RockGuitars/"
+  },
+  rnb: {
+    notes: ['A1', 'B1', 'D2', 'E2', 'G2'],
+    files: ['RnB A Chord A1', 'RnB Bm Chord B1', 'RnB D Chord D2', 'RnB Em Chord E2', 'RnB G Chord G2'],
+    baseDir: "Sounds/RnB/"
+  }
+}
+
+var samplerLibrary = {
+  synth: createSampler(samplerVoices.synth),
+  rock: createSampler(samplerVoices.rock),
+  rnb: createSampler(samplerVoices.rnb)
+}
+
+var chordsLibrary = {
+  synth: createChords(chordVoices.synth),
+  rock: createChords(chordVoices.rock),
+  rnb: createChords(chordVoices.rnb)
+}
+
+var sampler, chords;
+
+setVoice("synth");
 
 var sequence = [];
 var currentSequence = -1;
@@ -224,9 +284,9 @@ function patternMeta() {
   return {
     tempo: 90,
     volume: 60,
-    mute: {bassSnare: false, hiHat: false, melody: false},
+    mute: {bassSnare: true, hiHat: true, melody: true},
     chord: "",
-    voice: 0
+    voice: "synth"
   }
 }
 
@@ -268,28 +328,49 @@ var semitones = [2,3,2,2,3,2,3];
 // var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#FFC75F'];
 var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#0089BA','#2C73D2'];
 
-function createSampler() {
-  var notes = ['A3', 'B3', 'C#4', 'D3', 'D4', 'E3', 'E4', 'F#3', 'F#4', 'G3'];
-  var baseDir = "Sounds/ElectroSynths/";
-  var baseVoice = "NKnee ";
+function createSampler(voice) {
   var extension = ".wav";
   var config = {}
-  notes.forEach(function(note){
-    config[note] = baseDir + baseVoice + encodeURIComponent(note) + extension;
+  voice.notes.forEach(function(note){
+    config[note] = voice.baseDir + voice.baseVoice + encodeURIComponent(note) + extension;
   })
   var sampler = new Tone.Sampler(config).toDestination();
   sampler.volume.value = -2;
+  sampler.name = voice.name;
   return sampler;
 }
 
-function createChords() {
-  var notes = ['A1','B1', 'D2', 'E2', 'G2']
-  var files = ['Mystical Asus-A1', 'Mystical Bm-B1', 'Mystical D-D2', 'Mystical Em-E2', 'Mystical G_D-G2'];
-  var baseDir = "Sounds/ElectroSynths/";
+var voiceButtons = document.getElementsByClassName("voice");
+for (var i=0; i < voiceButtons.length; i++) {
+  voiceButtons[i].addEventListener('click', function() {
+    setVoice(this.dataset.voice);
+    updateVoiceDisplay(this.dataset.voice);
+  });
+}
+
+function setVoice(voice) {
+  sampler = samplerLibrary[voice];
+  chords = chordsLibrary[voice];
+}
+
+function updateVoiceDisplay(voice) {
+  for (var i=0; i < voiceButtons.length; i++) {
+    var button = voiceButtons[i];
+    if (button.dataset.voice == voice) {
+      button.classList.add("selected")
+    } else {
+      button.classList.remove("selected")
+    }
+  };
+}
+
+updateVoiceDisplay("synth");
+
+function createChords(voice) {
   var extension = ".wav";
   var config = {}
-  notes.forEach(function(note, index){
-    config[note] = baseDir + encodeURIComponent(files[index]) + extension;
+  voice.notes.forEach(function(note, index){
+    config[note] = voice.baseDir + encodeURIComponent(voice.files[index]) + extension;
   })
   var sampler = new Tone.Sampler(config).toDestination();
   sampler.volume.value = +2;
@@ -1797,7 +1878,7 @@ function captureMeta() {
       hiHat: hiHat.checked, 
       melody: melody.checked},
     chord: chordNote,
-    voice: 0
+    voice: sampler.name
   }
 }
 
@@ -1805,7 +1886,8 @@ function loadPreset(preset) {
   loadPattern(preset.innerCustomPattern, innerCustomPattern);
   loadPattern(preset.outerCustomPattern, outerCustomPattern);
   loadPattern(preset.samplerCustomPattern, samplerCustomPattern);
-  loadMeta(preset.meta);
+  var meta = preset.meta ?? patternMeta();
+  loadMeta(meta);
   patternUpdated();
   updatePattern();
 }
@@ -1835,7 +1917,9 @@ function loadMeta(meta) {
   updateMuteGroupDisplay(meta.mute);
 
   updateChordDisplay(meta.chord);
-  // updateVoice();
+
+  setVoice(meta.voice);
+  updateVoiceDisplay(meta.voice);
 }
 
 
