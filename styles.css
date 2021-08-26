@@ -100,6 +100,21 @@ button.rhythm, button.note {
     margin-top: 20px
 }
 
+#voices {
+    position: absolute;
+    top: 0px;
+    right: 110px;
+}
+
+#voices button {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+#voices button.selected {
+    background-color: #DB3352;
+}
+
 #notes {
     position: absolute;
     right: 10px;
@@ -171,7 +186,7 @@ ul {
     display: inline-block;
 }
 
-.exportSet, .voice {
+.exportSet {
     float: right;
 }
 
@@ -182,7 +197,7 @@ ul {
     margin: 0px;
 }
 
-#saveSetButton, #loadSetButton, .voice {
+#saveSetButton, #loadSetButton {
     width: auto;
     height: 20px;
     margin: 2px;
@@ -194,10 +209,6 @@ ul {
 }
 
 #saveSetButton:active, #loadSetButton:active {
-    background-color: #DB3352;
-}
-
-.voice.selected {
     background-color: #DB3352;
 }
 
