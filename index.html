@@ -2422,18 +2422,21 @@ function exportSet(set) {
 
 function shortEncode(preset) {
   var inner = encodeValueAmplitudePattern(preset.innerCustomPattern, innerFilter);
-  var inner62 = base62(inner, 5) 
+  var inner62 = base62(inner, 5);
 
   var outer = encodeValueAmplitudePattern(preset.outerCustomPattern, outerFilter);
-  var outer62 = base62(outer, 5)
+  var outer62 = base62(outer, 5);
 
   var sampler = encodeValueAmplitudePattern(preset.samplerCustomPattern, scale).map(function(value){ return value.toString(22) });
-  var sampler62 = base62(sampler, 6, 22)
+  var sampler62 = base62(sampler, 6, 22);
 
   var samplerDuration = encodeDurationPattern(preset.samplerCustomPattern);
-  var samplerDuration62 = base62(samplerDuration, 4, 6)
+  var samplerDuration62 = base62(samplerDuration, 4, 6);
 
-  var exportString = [inner62,outer62,sampler62,samplerDuration62].join(",")
+  var meta = encodeMeta(preset);
+  var meta62 = base62Meta(meta);
+
+  var exportString = [inner62,outer62,sampler62,samplerDuration62,meta62].join(",");
   return exportString
 }
 
@@ -2459,6 +2462,40 @@ function encodeDurationPattern(pattern) {
     encoded.push(duration)
   }
   return encoded
+}
+
+/*
+meta {
+    tempo: 90, // 20-180 -> oct x 3
+    volume: 60, // 0-100 -> oct x 3
+    mute: {bassSnare: true, hiHat: true, melody: true}, // 3 bits -> oct
+    chord: "", // 5 values -> oct
+    voice: "synth" // 3 values -> oct
+  }
+*/
+
+var chordFilter = ['', 'A1', 'B1', 'D2', 'E2', 'G2'];
+var voiceFilter = ['synth', 'rock', 'rnb'];
+
+function encodeMeta(pattern) {
+  var meta = pattern.meta ?? patternMeta();
+  var encoded = [];
+  encoded.push(meta.tempo.toString(8));
+  encoded.push(meta.volume.toString(8));
+  encoded.push(Number(meta.mute.bassSnare) << 0 | Number(meta.mute.hiHat) << 1 | Number(meta.mute.melody) << 2);
+  encoded.push(chordFilter.indexOf(meta.chord));
+  encoded.push(voiceFilter.indexOf(meta.voice));
+
+  return encoded
+}
+
+function base62Meta(encoded) {
+  base62Encoded = [];
+  base62Encoded.push(toBase62(parseInt(encoded[0], 8)).padStart(2, 0));
+  base62Encoded.push(toBase62(parseInt(encoded[1], 8)).padStart(2, 0));
+  base62Encoded.push(toBase62(parseInt(encoded.slice(2).join(''), 8)).padStart(2, 0));
+
+  return base62Encoded.join('')
 }
 
 function base62(values, targetLength, base=10) {
@@ -2521,7 +2558,12 @@ function importSet(setString) {
     var durationValues = parseBase62(patterns[3].split(''), 4, 6).map(function(value) { return parseInt(value, 6); });
     samplerPattern.duration = durationValues;
 
-    return {innerCustomPattern: innerPattern,
+    var metaValues = parseBase62Meta(patterns[4].split(''));
+    var meta = decodeMeta(metaValues);
+
+    return {
+      meta: meta,
+      innerCustomPattern: innerPattern,
       outerCustomPattern: outerPattern,
       samplerCustomPattern: samplerPattern}
   });
@@ -2542,6 +2584,17 @@ function parseBase62(string, originLength, base=10) {
     return accumulator.concat(values)
   }, [])
   return decoded
+}
+
+function parseBase62Meta(values) {
+  var chunks = chunk(values, 2);
+  var decoded = [];
+  decoded.push(parseInt(fromBase62(chunks[0].join(''), 10)));
+  decoded.push(parseInt(fromBase62(chunks[1].join(''), 10)));
+
+  var octalValues = fromBase62(chunks[2].join('')).toString(8).padStart(3,0).split('');
+
+  return decoded.concat(octalValues);
 }
 
 function fromBase62(s) {
@@ -2575,6 +2628,17 @@ function decodeValueAmplitudePattern(values, filter) {
     // console.log(i,value,noteValue,note,amplitude)
   }
   return pattern
+}
+
+function decodeMeta(values) {
+  return {
+    tempo: values[0], // 20-180 -> oct x 3
+    volume: values[1], // 0-100 -> oct x 3
+    mute: {bassSnare: Boolean(values[2] & (1 << 0)), hiHat: Boolean(values[2] & (1 << 1)), melody: Boolean(values[2] & (1 << 2))}, // 3 bits -> oct
+    chord: chordFilter[values[3]], // 5 values -> oct
+    voice: voiceFilter[values[4]] // 3 values -> oct
+  }
+
 }
 
 importSetFromURL();
