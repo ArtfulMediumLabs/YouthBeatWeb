@@ -2270,7 +2270,7 @@ saveSetButton.onclick = function(){
 
 function saveSet(setID) {
   if (checkSetRange(setID)) {
-      var set = {presets: clonePresets()}; 
+      var set = {presets: clonePresets(), sequence: sequence.slice()}; 
       storeSet(set, setID);
     }
 }
@@ -2330,6 +2330,7 @@ loadSetButton.onclick = function(){
   var setID = loadSetsList.options[loadSetsList.selectedIndex].value
   loadSetID(setID);
   updatePattern();
+  updateSequenceDisplay();
   updateVisibility();
 }
 
@@ -2378,6 +2379,12 @@ function loadSet(set){
   } else {
     loadPreset(emptyPreset());
   }
+
+  if (typeof set === 'object' && set.hasOwnProperty('sequence') ) {
+    sequence = set.sequence;
+  } else {
+    sequence = [];
+  }
 }
 
 function loadDefaultSets() {
@@ -2404,10 +2411,11 @@ function loadPresets(newPresets) {
 exportSetButton.addEventListener('click', exportSetAction, false);
 
 function exportSetAction() {
-    var set = {presets: clonePresets()};
-    var exportString = exportSet(set);
+    var set = {presets: clonePresets(), sequence: sequence.slice()};
+    var setString = exportSet(set);
+    var sequenceString = exportSequence(set);
     
-    var newUrl = document.location.origin + document.location.pathname + '?set=' + exportString;
+    var newUrl = document.location.origin + document.location.pathname + '?set=' + setString + '&seq=' + sequenceString;
     window.open(newUrl,'_blank');
 }
 
@@ -2419,6 +2427,10 @@ function exportSet(set) {
   var encoded = filtered.map( shortEncode ) 
   var exportString = encoded.join('|')
   return exportString
+}
+
+function exportSequence(set) {
+  return encodeURIComponent(JSON.stringify(set.sequence))
 }
 
 // base 10 x 8 = base 62 x 5 -> 20 (x2)
@@ -2536,6 +2548,11 @@ function importSetFromURL() {
     option.value = "0";
     option.text = "URL";
     loadSetsList.insertBefore(option, loadSetsList.firstChild)
+  }
+  var importSequenceString = urlParams.get("seq") ?? '';
+  if (importSequenceString.length > 0) {
+    sequence = JSON.parse(decodeURIComponent(importSequenceString)) ?? [];
+    updateSequenceDisplay();
   }
 }
 
