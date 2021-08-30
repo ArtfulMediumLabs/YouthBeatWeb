@@ -103,22 +103,28 @@ button.rhythm, button.note {
 #voices {
     position: absolute;
     top: 0px;
-    right: 110px;
+    right: 10px;
 }
 
 #voices button {
     display: inline-block;
     margin-right: 10px;
+    padding: 0;
 }
 
 #voices button.selected {
+    background-color: #eeb8bd;
+}
+
+#voices button.selected.activeInstrument {
     background-color: #DB3352;
 }
 
 #notes {
     position: absolute;
     right: 10px;
-    top: 0px;
+    top: 40px;
+    width: 100px;
 }
 
 #notes fieldset {

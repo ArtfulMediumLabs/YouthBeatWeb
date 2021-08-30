@@ -118,9 +118,6 @@
     </div>
 
     <div id="notes">
-        <button id="enterPitch">
-          Enter Pitch
-        </button>
         <fieldset>
           <legend>Chords</legend>
           <input type="radio" id="none" name="chord" value="" checked>
@@ -345,6 +342,10 @@ var voiceButtons = document.getElementById("voices").children;
 
 for (var i=0; i < voiceButtons.length; i++) {
   voiceButtons[i].addEventListener('click', function() {
+    activeInstrument = scale[0];
+    showSelectedButton();
+    selectRing();
+
     setVoice(this.dataset.voice);
     updateVoiceDisplay(this.dataset.voice);
   });
@@ -359,11 +360,20 @@ function updateVoiceDisplay(voice) {
   for (var i=0; i < voiceButtons.length; i++) {
     var button = voiceButtons[i];
     if (button.dataset.voice == voice) {
-      button.classList.add("selected")
+      button.classList.add("selected");
     } else {
-      button.classList.remove("selected")
+      button.classList.remove("selected");
+    }
+    if (button.dataset.voice == voice && activeInstrument == scale[0]) {
+      button.classList.add("activeInstrument");
+    } else {
+      button.classList.remove("activeInstrument");
     }
   };
+}
+
+function getVoice() {
+  return sampler.name;
 }
 
 updateVoiceDisplay("synth");
@@ -1582,13 +1592,6 @@ function scaleMap(num, in_min, in_max, out_min, out_max) {
   return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-var enterPitch = document.getElementById("enterPitch");
-enterPitch.onmousedown = function() {
-  activeInstrument = scale[0];
-  showSelectedButton();
-  selectRing();
-}
-
 var rhythmButtons = document.getElementsByClassName("rhythm");
 Array.prototype.forEach.call(rhythmButtons, function(button){
   var instrument = button.dataset.instrument;
@@ -1596,6 +1599,7 @@ Array.prototype.forEach.call(rhythmButtons, function(button){
     function() { 
       activeInstrument = instrument;
       showSelectedButton();
+      updateVoiceDisplay(getVoice());
       selectRing();
     }, 
     false
@@ -1603,7 +1607,6 @@ Array.prototype.forEach.call(rhythmButtons, function(button){
 })
 
 function showSelectedButton() {
-  var rhythmButtons = document.getElementsByClassName("rhythm");
   Array.prototype.forEach.call(rhythmButtons, function(button){
     var instrument = button.dataset.instrument;
     button.style.backgroundColor = activeInstrument.toUpperCase() == instrument.toUpperCase() ? noteColors[activeInstrument] : noteColors["_"];
@@ -1880,7 +1883,7 @@ function captureMeta() {
       hiHat: hiHat.checked, 
       melody: melody.checked},
     chord: chordNote,
-    voice: sampler.name
+    voice: getVoice()
   }
 }
 
