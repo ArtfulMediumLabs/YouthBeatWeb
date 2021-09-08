@@ -89,7 +89,7 @@
         <label for="mirrorHorizontal" lang="en">Mirror Horizontal</label>
       </div>
       <div>
-        <button id="reset" lang="en">RESET</button>
+        <button id="reset" lang="en">Reset</button>
       </div>
     </div>
     <div id="controlB">
@@ -2245,8 +2245,10 @@ function toggleAll() {
     displaySetsFull()
 }
 
+
 function updateVisibility() {
-  enableAllButton.innerText = ["Note Entry", "Sequencing", "Special Tools"][level]
+  const levelText = ["Note Entry", "Sequencing", "Special Tools"][level]
+  enableAllButton.innerText = localizedString(levelText);
     var controls = document.querySelectorAll(".level2")
     for (var i = 0; i < controls.length; i++) {
         controls[i].style.visibility = level >= 1 ? 'visible' : 'hidden';
