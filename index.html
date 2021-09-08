@@ -23,56 +23,56 @@
     <div id="controlA">
       <div class="level3">
           <input type="checkbox" id="rhythmPolygon" name="rhythmPolygon">
-          <label for="rhythmPolygon">Rhythm Polygon</label>
+          <label for="rhythmPolygon" lang="en">Rhythm Polygon</label>
       </div>
       <div id="muteGroup" class="level2">
         <div>
           <input type="checkbox" id="bassSnareCheck" name="bassSnareCheck" checked>
-          <label for="bassSnareCheck">Bass / Snare</label>
+          <label for="bassSnareCheck" lang="en">Bass / Snare</label>
         </div>
         <div>
           <input type="checkbox" id="hiHatCheck" name="hiHatCheck" checked>
-          <label for="hiHatCheck">Hi-hat</label>
+          <label for="hiHatCheck" lang="en">Hi-hat</label>
         </div>
         <div>
           <input type="checkbox" id="melodyCheck" name="melodyCheck" checked>
-          <label for="melodyCheck">Melody</label>
+          <label for="melodyCheck" lang="en">Melody</label>
         </div>
       </div>
       <div id="rotateGroup" class="level3">
-        <button id="bass90">
+        <button id="bass90" lang="en">
           Bass / Snare +90
         </button>
-        <button id="hihat90">
+        <button id="hihat90" lang="en">
           Hi-hat +90
         </button>
-        <button id="melody90">
+        <button id="melody90" lang="en">
           Melody +90
         </button>
       </div>
-      <label for="tempo" id="tempoLabel">Tempo: </label><br>
+      <label for="tempo" id="tempoLabel" lang="en">Tempo: </label><br>
       <input type="range" name="tempo" id="tempo" min="20" max="180" value="90" class="slider">
     </div>
     <div id="volumeControl">
-      <label for="volume" id="volumeLabel">Volume: </label><br>
+      <label for="volume" id="volumeLabel" lang="en">Volume: </label><br>
       <input type="range" name="volume" id="volume" min="0" max="100" value="60" class="slider">
     </div>
     <div id="mirrorControl">
       <div class="level3">
         <input type="checkbox" id="mirrorVertical" name="mirrorVertical">
-        <label for="mirrorVertical">Mirror Vertical</label>
+        <label for="mirrorVertical" lang="en">Mirror Vertical</label>
       </div>
       <div class="level3">
         <input type="checkbox" id="mirrorHorizontal" name="mirrorHorizontal">
-        <label for="mirrorHorizontal">Mirror Horizontal</label>
+        <label for="mirrorHorizontal" lang="en">Mirror Horizontal</label>
       </div>
       <div>
-        <button id="reset">RESET</button>
+        <button id="reset" lang="en">RESET</button>
       </div>
     </div>
     <div id="controlB">
       <div id="presets">
-        <button id="addPresetButton" class="controlB">
+        <button id="addPresetButton" class="controlB" lang="en">
           Save Pattern
         </button>
         <ul id="presetList">
@@ -80,70 +80,70 @@
         </ul>
       </div>
       <div id="sequence" class="level2">
-        <button id="sequenceControl" class="controlB">
+        <button id="sequenceControl" class="controlB" lang="en">
           Start
         </button>
         <div id="sequenceDisplay">
         </div>
-        <button id="sequenceClear" class="controlB">
+        <button id="sequenceClear" class="controlB" lang="en">
           Clear
         </button>
       </div>
     </div>
     <div id="rhythmButtons">
-      <button id="bassDrum" class="rhythm" data-instrument="B">
+      <button id="bassDrum" class="rhythm" data-instrument="B" lang="en">
         Bass Drum
       </button>
-      <button id="snareDrum" class="rhythm" data-instrument="S">
+      <button id="snareDrum" class="rhythm" data-instrument="S" lang="en">
         Snare Drum
       </button>
-      <button id="rimshot" class="rhythm" data-instrument="R">
+      <button id="rimshot" class="rhythm" data-instrument="R" lang="en">
         Rim Shot
       </button>
-      <button id="hihat" class="rhythm" data-instrument="H">
+      <button id="hihat" class="rhythm" data-instrument="H" lang="en">
         Hi-hat
       </button>
-      <button id="openHihat" class="rhythm" data-instrument="O">
+      <button id="openHihat" class="rhythm" data-instrument="O" lang="en">
         Open Hi-hat
       </button>
-      <button id="rideCymbal" class="rhythm" data-instrument="C">
+      <button id="rideCymbal" class="rhythm" data-instrument="C" lang="en">
         Ride Cymbal
       </button>
     </div>
 
     <div id="voices">
-      <button data-voice="synth">Synth</button>
-      <button data-voice="rock">Rock</button>
-      <button data-voice="rnb">RnB</button>
+      <button data-voice="synth" lang="en">Synth</button>
+      <button data-voice="rock" lang="en">Rock</button>
+      <button data-voice="rnb" lang="en">RnB</button>
     </div>
 
     <div id="notes">
         <fieldset>
-          <legend>Chords</legend>
+          <legend lang="en">Chords</legend>
           <input type="radio" id="none" name="chord" value="" checked>
-          <label for="none">None</label><br/>
+          <label for="none" lang="en">None</label><br/>
           <span class="level2">
             <input type="radio" id="Asus" name="chord" value="A1">
-            <label for="Asus">Asus</label><br/>
+            <label for="Asus" lang="en">Asus</label><br/>
           </span>
           <input type="radio" id="Bm" name="chord" value="B1">
-          <label for="Bm">Bm</label><br/>
+          <label for="Bm" lang="en">Bm</label><br/>
           <input type="radio" id="D" name="chord" value="D2">
-          <label for="D">D</label><br/>
+          <label for="D" lang="en">D</label><br/>
           <span class="level2">
             <input type="radio" id="Em" name="chord" value="E2">
-            <label for="Em">Em</label><br/>
+            <label for="Em" lang="en">Em</label><br/>
             <input type="radio" id="G" name="chord" value="G2">
-            <label for="G">G</label><br/>
+            <label for="G" lang="en">G</label><br/>
           </span>
         </fieldset>
     </div>
 </div>
 
 <div id="sets"">
-  <button id="enableAll">Note Entry</button>
+  <button id="enableAll" lang="en">Note Entry</button>
   <div id="setsList" class="level2">
-    <button id="saveSetButton">Save Set</button>
+    <button id="saveSetButton" lang="en">Save Set</button>
     <select id="saveSetList" name="saveSetID">
       <option value="1">Set 1</option>
       <option value="2">Set 2</option>
@@ -154,7 +154,7 @@
       <option value="7">Set 7</option>
       <option value="8">Set 8</option>
     </select>
-    <button id="loadSetButton">Load Set</button>
+    <button id="loadSetButton" lang="en">Load Set</button>
     <select id="loadSetList" name="loadSetID">
       <option value="1">Set 1</option>
       <option value="2">Set 2</option>
@@ -166,7 +166,7 @@
       <option value="8">Set 8</option>
     </select>
   </div>
-  <div id="setsFull">
+  <div id="setsFull" lang="en">
     Warning: All sets are full. Save will overwrite sets.
   </div>
 
@@ -178,6 +178,11 @@
 
 </div>
 
+<div id="lang">
+  Language: English : <a href="#">Français</a>
+</div>
+
+  <script src="strings.js"></script>
   <script type="text/javascript">
 
 var offset = 0
@@ -832,7 +837,7 @@ function updatePosition(group, beat) {
 var loadingText = new Konva.Text({
         x: stage.width() / 2 - 150,
         y: stage.height() / 2 - 100,
-        text: 'Loading...',
+        text: localizedString('Loading') + '...',
         fontSize: 30,
         fill: 'black',
         width: 300,
