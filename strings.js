@@ -17,7 +17,11 @@ const strings = {
     "Tempo": "tempo / rythme",
     "Volume": "Volume",
     "Reset": "Réinitialiser",
+    "Bass / Snare": "Grosse caisse / Caisse claire",
     "Melody": "Mélodie",
+    "Bass / Snare +90": "Grosse caisse / Caisse claire +90",
+    "Hi-hat +90": "Hi-hat +90",
+    "Melody +90": "Mélodie +90",
     "Playlist": "Liste de lecture",
     "Save Set": "Enregistrer / Sauvegarder l’Ensemble",
     "Load Set": "Charger l’Ensemble",
@@ -38,6 +42,7 @@ function localizedString(key) {
   if (lang == 'en') {
     return key;
   }
+
   const string = strings[key] ?? '';
   if (string.length == 0) {
     console.log("missing:" + key);
