@@ -14,7 +14,7 @@ const strings = {
     "G": "Sol",
     "Save Pattern": "Sauvegarder le motif / Enregistrer le motif",
     "Note Entry": "Entrée de note",
-    "Tempo": "tempo / rythme",
+    "Tempo": "Tempo",
     "Volume": "Volume",
     "Reset": "Réinitialiser",
     "Bass / Snare": "Grosse caisse / Caisse claire",

@@ -20,7 +20,7 @@
 <body>
   <div id="content">
     <div id="container" class="center"></div>
-    
+
     <div id="rhythmButtons">
       <button id="bassDrum" class="rhythm" data-instrument="B" lang="en">
         Bass Drum
@@ -72,11 +72,11 @@
           Melody +90
         </button>
       </div>
-      <label for="tempo" id="tempoLabel" lang="en">Tempo: </label><br>
+      <label for="tempo" id="tempoLabel" lang="en">Tempo</label><br>
       <input type="range" name="tempo" id="tempo" min="20" max="180" value="90" class="slider">
     </div>
     <div id="volumeControl">
-      <label for="volume" id="volumeLabel" lang="en">Volume: </label><br>
+      <label for="volume" id="volumeLabel" lang="en">Volume</label><br>
       <input type="range" name="volume" id="volume" min="0" max="100" value="60" class="slider">
     </div>
     <div id="mirrorControl">
@@ -1558,13 +1558,17 @@ setTempo(90);
 updateTempoDisplay(90);
 
 function updateTempoDisplay(value) {
-  slider.value = value
-  tempoLabel.innerHTML = "Tempo: " + value;
+  slider.value = value;
+  updateTempoLabel(value);
 }
       
 slider.oninput = function() {
-  tempoLabel.innerHTML = "Tempo: " + this.value;
+  updateTempoLabel(this.value);
   setTempo(this.value);
+}
+
+function updateTempoLabel(value) {
+  tempoLabel.innerHTML = localizedString("Tempo") + ": " + value;
 }
 
 function setTempo(value) {
@@ -1577,7 +1581,7 @@ setVolume(60);
 updateVolumeDisplay(60);
       
 volumeSlider.oninput = function() {
-  volumeLabel.innerHTML = "Volume: " + this.value;
+  updateVolumeLabel(this.value);
   setVolume(this.value);
 }
 
@@ -1592,7 +1596,11 @@ function getVolume() {
 
 function updateVolumeDisplay(value) {
   volumeSlider.value = value;
-  volumeLabel.innerHTML = "Volume: " + value;
+  updateVolumeLabel(value);
+}
+
+function updateVolumeLabel(value) {
+  volumeLabel.innerHTML = localizedString("Volume") + ": " + value;
 }
 
 function scaleMap(num, in_min, in_max, out_min, out_max) {
