@@ -41,9 +41,10 @@ function localizedString(key) {
   if (lang == 'en') {
     return key;
   }
-  const string = strings[key] ?? ''
+  const string = strings[key] ?? '';
   if (string.length == 0) {
-      console.log("missing:" + key);
+    console.log("missing:" + key);
+    return (key + '*');
   }
   return string
 }
