@@ -1777,7 +1777,7 @@ function addPreset(preset) {
   entry.append(savePresetButton(presetCounter));
   var link = document.createElement('a');
   link.href = ''
-  link.innerHTML = "Pattern " + presetCounter;
+  link.innerHTML = localizedString("Pattern") + " " + presetCounter;
   link.dataset.presetID = presetCounter
   entry.appendChild(link);
   link.addEventListener('click',
@@ -1867,12 +1867,12 @@ sequenceControl.addEventListener('click',
   function() {
     if (currentSequence >= 0) {
       currentSequence = -1;
-      this.innerHTML = "start";
+      this.innerHTML = localizedString("start");
     } else {
       currentSequence = 0;
       loadPreset(presets[sequence[currentSequence]]);
       updateSequenceDisplay();
-      this.innerHTML = "stop";
+      this.innerHTML = localizedString("stop");
     }
   }, 
   false

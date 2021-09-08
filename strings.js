@@ -12,7 +12,7 @@ const strings = {
     "D": "Ré",
     "Em": "Mi mineur",
     "G": "Sol",
-    "Save Pattern": "Sauvegarder le motif / Enregistrer le motif",
+    "Save Pattern": "Sauvegarder le motif",
     "Tempo": "Tempo",
     "Volume": "Volume",
     "Reset": "Réinitialiser",
@@ -22,16 +22,15 @@ const strings = {
     "Hi-hat +90": "Hi-hat +90",
     "Melody +90": "Mélodie +90",
     "Playlist": "Liste de lecture",
-    "Save Set": "Enregistrer / Sauvegarder l’Ensemble",
+    "Save Set": "Sauvegarder l’Ensemble",
     "Load Set": "Charger l’Ensemble",
-    "Start": "Commencer / Jouer",
+    "Start": "Commencer",
     "Clear": "Effacer",
     "Note Entry": "Entrée de note",
     "Sequencing": "Séquence",
     "Rhythm Polygon": "Polygone rythmique",
     "Mirror Vertical": "Miroir vertical",
-    "Mirror Horizontal": "Miroir horizontal",
-    "Modifying Patterns": "Modifier les motifs / modification de motifs"
+    "Mirror Horizontal": "Miroir horizontal"
 }
 
 var urlParams = new URLSearchParams(window.location.search);
