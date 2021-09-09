@@ -13,6 +13,7 @@ const strings = {
     "Em": "Mi mineur",
     "G": "Sol",
     "Save Pattern": "Sauvegarder le motif",
+    "Pattern": "Motif",
     "Tempo": "Tempo",
     "Volume": "Volume",
     "Reset": "Réinitialiser",
@@ -24,13 +25,22 @@ const strings = {
     "Playlist": "Liste de lecture",
     "Save Set": "Sauvegarder l’Ensemble",
     "Load Set": "Charger l’Ensemble",
+    "Set 1": "Ensemble 1",
+    "Set 2": "Ensemble 2",
+    "Set 3": "Ensemble 3",
+    "Set 4": "Ensemble 4",
+    "Set 5": "Ensemble 5",
+    "Set 6": "Ensemble 6",
+    "Set 7": "Ensemble 7",
+    "Set 8": "Ensemble 8",
     "Start": "Commencer",
     "Clear": "Effacer",
     "Note Entry": "Entrée de note",
     "Sequencing": "Séquence",
     "Rhythm Polygon": "Polygone rythmique",
     "Mirror Vertical": "Miroir vertical",
-    "Mirror Horizontal": "Miroir horizontal"
+    "Mirror Horizontal": "Miroir horizontal",
+    "Warning: All sets are full. Save will overwrite sets." : "Warning: All sets are full.*"
 }
 
 var urlParams = new URLSearchParams(window.location.search);
