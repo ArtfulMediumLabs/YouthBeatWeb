@@ -1895,12 +1895,12 @@ sequenceControl.addEventListener('click',
   function() {
     if (currentSequence >= 0) {
       currentSequence = -1;
-      this.innerHTML = localizedString("start");
+      this.innerHTML = localizedString("Start");
     } else {
       currentSequence = 0;
       loadPreset(presets[sequence[currentSequence]]);
       updateSequenceDisplay();
-      this.innerHTML = localizedString("stop");
+      this.innerHTML = localizedString("Stop");
     }
   }, 
   false

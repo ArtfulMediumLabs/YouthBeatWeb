@@ -7,6 +7,7 @@ const strings = {
     "Open Hi-hat": "Hi-hat ouvert",
     "Ride Cymbal": "Cymbale ride",
     "Chords": "Accord",
+    "None": "Aucun",
     "Asus": "La sus", 
     "Bm": "Si mineur",
     "D": "Ré",
@@ -22,6 +23,9 @@ const strings = {
     "Bass / Snare +90": "Grosse C. / C. Claire +90",
     "Hi-hat +90": "Hi-hat +90",
     "Melody +90": "Mélodie +90",
+    "Synth" : "Synthé",
+    "Rock" : "Rock",
+    "RnB" : "RnB",
     "Playlist": "Liste de lecture",
     "Save Set": "Sauvegarder l’Ensemble",
     "Load Set": "Charger l’Ensemble",
@@ -34,13 +38,15 @@ const strings = {
     "Set 7": "Ensemble 7",
     "Set 8": "Ensemble 8",
     "Start": "Commencer",
+    "Stop": "Commencer",
     "Clear": "Effacer",
     "Note Entry": "Entrée de note",
     "Sequencing": "Séquence",
+    "Special Tools": "Outils",
     "Rhythm Polygon": "Polygone rythmique",
     "Mirror Vertical": "Miroir vertical",
     "Mirror Horizontal": "Miroir horizontal",
-    "Warning: All sets are full. Save will overwrite sets." : "Warning: All sets are full.*"
+    "Warning: All sets are full. Save will overwrite sets." : "Attention; mémoire pleine"
 }
 
 var urlParams = new URLSearchParams(window.location.search);
