@@ -38,7 +38,7 @@ const strings = {
     "Set 7": "Ensemble 7",
     "Set 8": "Ensemble 8",
     "Start": "Commencer",
-    "Stop": "Commencer",
+    "Stop": "Arrêter",
     "Clear": "Effacer",
     "Note Entry": "Entrée de note",
     "Sequencing": "Séquence",
