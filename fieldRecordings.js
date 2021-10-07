@@ -3,7 +3,8 @@ const fieldRecordings = {
     "Footsteps" : src + "347850__inspectorj__footsteps-dry-leaves-g.wav",
     "Wind": src + "457318__stek59__autumn-wind-and-dry-leaves.wav",
     "Rain": src + "531947__straget__the-rain-falls-against-the-parasol.wav",
-    "River": src + "584595__tosha73__mountain-river.wav"
+    "River": src + "584595__tosha73__mountain-river.wav",
+    "Waves": src + "437204__straget__waves-at-shetland-islands-2.wav"
 }
 const fieldKeys = Object.keys(fieldRecordings);
 
