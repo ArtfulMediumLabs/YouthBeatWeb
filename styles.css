@@ -169,7 +169,7 @@ ul {
     list-style: outside none none;
 }
 
-#sets {
+#sets, #fieldRecordings {
     background-color: white;
     width: 1018px;
     margin: 5px auto;
@@ -210,6 +210,39 @@ ul {
     text-align: center;
     padding: 5px;
     margin: 0px;
+}
+
+#fieldRecordings div {
+    display: inline-block;
+    text-align: left;
+    padding: 5px;
+    margin: 0px;
+}
+
+#fieldRecordings button {
+    width: auto;
+    height: 20px;
+    width: 20px;
+    margin: 2px;
+    padding: 2px;
+    display: inline-block;
+    vertical-align: baseline;
+}
+
+#fieldRecordings button.play {
+    background: url('img/play-fill.svg') no-repeat center;
+}
+
+#fieldRecordings button.stop {
+    background: url('img/stop-fill.svg') no-repeat center;
+}
+
+#fieldRecordings div div {
+    width: 100px;
+    height: 16px;
+    margin: 2px;
+    padding: 2px;
+    vertical-align: bottom;
 }
 
 #saveSetButton, #loadSetButton {
