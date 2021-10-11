@@ -25,6 +25,9 @@ document.addEventListener("DOMContentLoaded", function() {
         button.addEventListener('click', 
             (function(key, button) {
                 return function() {
+                    if (!buffersLoaded) {
+                        return false;
+                    }
                     const player = fieldPlayers.player(key);
                     if (player.state == "started") {
                         player.stop();
