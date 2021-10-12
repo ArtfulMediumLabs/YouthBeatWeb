@@ -3,10 +3,9 @@ const fieldRecordings = {
     "Footsteps" : src + "347850__inspectorj__footsteps-dry-leaves-g.mp3",
     "Wind": src + "457318__stek59__autumn-wind-and-dry-leaves.mp3",
     "Rain": src + "531947__straget__the-rain-falls-against-the-parasol.mp3",
-    "River": src + "584595__tosha73__mountain-river.mp3",
     "Waves": src + "437204__straget__waves-at-shetland-islands-2.mp3"
 }
-const fieldLevels = [6,6,9,0,0];
+const fieldLevels = [6,6,9,0];
 const fieldKeys = Object.keys(fieldRecordings);
 
 const fieldPlayers = new Tone.Players(fieldRecordings).toDestination();
