@@ -46,7 +46,11 @@ const strings = {
     "Rhythm Polygon": "Polygone rythmique",
     "Mirror Vertical": "Miroir vertical",
     "Mirror Horizontal": "Miroir horizontal",
-    "Warning: All sets are full. Save will overwrite sets." : "Attention; mémoire pleine"
+    "Warning: All sets are full. Save will overwrite sets." : "Attention; mémoire pleine",
+    "Footsteps" : "Pas",
+    "Wind" : "Vent",
+    "Rain" : "Pluie",
+    "Waves" : "Vagues"
 }
 
 var urlParams = new URLSearchParams(window.location.search);

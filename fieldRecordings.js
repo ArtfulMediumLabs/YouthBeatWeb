@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function() {
         element.appendChild(button);
 
         const label = document.createElement("DIV");
-        label.innerHTML = key;
+        label.innerHTML = localizedString(key);
         element.appendChild(label);
 
         fieldElement.appendChild(element);
