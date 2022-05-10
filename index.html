@@ -2391,6 +2391,13 @@ function displaySetsFull() {
   }
 }
 
+function loadFirstSet() {
+  loadSetID(1);
+  updatePattern();
+  updateSequenceDisplay();
+  updateVisibility();
+}
+
 function loadFirstEmptySet() {
   var index = firstEmptySet()
   if (index >= 0) {
@@ -2713,9 +2720,10 @@ function decodeMeta(values) {
 
 importSetFromURL();
 loadDefaultSets();
-loadFirstEmptySet();
 if (shouldImportSet()) {
   selectLoadSet(0)
+} else {
+  loadFirstSet();
 }
 displaySetsFull();
 
