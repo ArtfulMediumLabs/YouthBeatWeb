@@ -1789,6 +1789,7 @@ var presetList = document.getElementById("presetList");
 addPresetButton.addEventListener('click', 
   function() {
     addPreset(capturePreset());
+    saveSet(currentSetID);
     updateVisibility()
   }, 
   false
@@ -1796,6 +1797,7 @@ addPresetButton.addEventListener('click',
 
 function savePreset(id) {
   presets[id] = capturePreset();
+  saveSet(currentSetID);
 }
 
 function addPreset(preset) {
@@ -1848,6 +1850,7 @@ function deleteButton(preset) {
     (function(index) {
       return function() {
         deletePreset(index, this.parentNode);
+        saveSet(currentSetID);
       }
     })(preset),
     false
@@ -2313,6 +2316,7 @@ saveSetButton.onclick = function(){
   var setID = saveSetsList.options[saveSetsList.selectedIndex].value
   saveSet(setID)
   selectLoadSet(setID)
+  currentSetID = setID;
   displaySetsFull()
 }
 
