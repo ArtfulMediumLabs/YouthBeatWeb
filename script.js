@@ -2051,22 +2051,22 @@ enableAllButton.addEventListener('click', toggleAll, false);
 var level = 0
 
 function toggleAll() {
-    level = ++level % 3
+    level = ++level % 2
     updateVisibility()
     displaySetsFull()
 }
 
 
 function updateVisibility() {
-  const levelText = ["Note Entry", "Sequencing", "Special Tools"][level]
+  const levelText = ["Note Entry", "Special Tools"][level]
   enableAllButton.innerText = localizedString(levelText);
-    var controls = document.querySelectorAll(".level2")
+    // var controls = document.querySelectorAll(".level2")
+    // for (var i = 0; i < controls.length; i++) {
+    //     controls[i].style.visibility = level >= 1 ? 'visible' : 'hidden';
+    // }
+    var controls = document.querySelectorAll(".level3")
     for (var i = 0; i < controls.length; i++) {
         controls[i].style.visibility = level >= 1 ? 'visible' : 'hidden';
-    }
-    controls = document.querySelectorAll(".level3")
-    for (var i = 0; i < controls.length; i++) {
-        controls[i].style.visibility = level >= 2 ? 'visible' : 'hidden';
     }
 }
 
