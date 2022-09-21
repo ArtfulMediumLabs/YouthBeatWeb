@@ -1,6 +1,7 @@
 import { emptyPattern } from '../utils.js';
 
 var offset = 0
+
 function currentBeat() {
   if (offset == 0) { return 0; }
   var duration = Tone.now() - offset;
@@ -43,7 +44,6 @@ var samplerVoices = {
     baseDir: "Sounds/RnB/",
     baseVoice: "RnB Shorter Note "
   }
-
 }
 
 var chordVoices = {
@@ -83,7 +83,7 @@ setVoice("synth");
 var sequence = [];
 var currentSequence = -1;
 
-function emptyPreset() {
+export function emptyPreset() {
   return {meta: patternMeta(),
           innerCustomPattern: emptyPattern(),
           outerCustomPattern: emptyPattern(),
@@ -101,7 +101,7 @@ function patternMeta() {
 }
 
 
-function updatePattern(time) {
+export function updatePattern(time) {
   var progressStep = Math.floor(Tone.Transport.progress * 64) % 32
 
   drawPattern(innerPatternNotes, innerCustomPattern, innerMidRadius, progressStep, 32)
@@ -280,7 +280,6 @@ function playActiveNote(customPattern, step, time) {
   } else {
     var velocity = velocityFor(customPattern, step);
     var duration = durationFor(customPattern, step);
-    // sampler.triggerAttack(note, time, velocity);
     sampler.triggerAttackRelease(note, duration, time, velocity);
   }
 }
@@ -360,7 +359,7 @@ function durationFor(pattern, step) {
   }
 }
 
-var buffersLoaded = false
+export var buffersLoaded = false
 
 Tone.loaded().then(function(){
   buffersLoaded = true
@@ -388,7 +387,6 @@ var samplerMidRadius = innerRadius + patternWidth * 2 + samplerWidth * 0.5
 var outerRadius = samplerMidRadius + samplerWidth * 0.5
 
 
-
 // https://jsfiddle.net/PimpTrizkit/a7ac0qvp/
 var noteColors = {
     "_" : "#D9D9D9",
@@ -406,7 +404,7 @@ for (var i = 0; i < scale.length; i++) {
 }
 
 noteColors.getColor = function(note, amplitude=3) {
-  var p = (3 - amplitude) * 0.1;
+  var p = (3 - amplitude) * 0.3;
   return pSBC(p, this[note]);
 }
 
@@ -902,7 +900,7 @@ function toggleStep(index, pattern, length, instrument=activeInstrument) {
   }
 
   if (mirrorHorizontal.checked) {
-    horizontalIndex = reflectPatternHorizontal(index, value, amplitude, pattern, duration);
+    var horizontalIndex = reflectPatternHorizontal(index, value, amplitude, pattern, duration);
   }
 
   updatePattern();
@@ -1176,7 +1174,7 @@ function drawPattern(targetGroup, pattern, radius, step = 0) {
         var duration = pattern.duration[i] || 1;
         var noteNode = createHarmonicNote(i, duration, noteColor, note, patternOriginX, patternOriginY, radius)
       } else {
-        var noteNode = createNote(i, noteColor, patternOriginX, patternOriginY, radius)
+        var noteNode = createNote(i, noteColor, patternOriginX, patternOriginY, radius, amplitude)
       }
       targetGroup.add(noteNode)
     }
@@ -1227,15 +1225,17 @@ function createTick(originX, originY, radius, step) {
   return tick
 }
 
-function createNote(step, color, originX, originY, radius) {
+function createNote(step, color, originX, originY, radius, amplitude) {
   var segmentDegree = 360/32;
   var rotation = -90 + step * segmentDegree;
   var angle = step % 2 == 0 ? 360/16 : 360/32;
+  var innerRadius = radius - patternWidth/2;
+  var outerRadius = radius + patternWidth/2;
   var note = new Konva.Arc({
     x: originX,
     y: originY,
-    innerRadius: radius - patternWidth/2,
-    outerRadius: radius + patternWidth/2,
+    innerRadius: innerRadius,
+    outerRadius: outerRadius,
     angle: angle,
     fill: color,
     stroke: 'rgba(255,255,255,0.5)',
@@ -1417,14 +1417,18 @@ Array.prototype.forEach.call(rhythmButtons, function(button){
   var instrument = button.dataset.instrument;
   button.addEventListener('click', 
     function() { 
-      activeInstrument = instrument;
-      showSelectedButton();
-      updateVoiceDisplay(getVoice());
-      selectRing();
+      setActiveInstrument(instrument);
     }, 
     false
   );
 })
+
+export function setActiveInstrument(instrument) {
+  activeInstrument = instrument;
+  showSelectedButton();
+  updateVoiceDisplay(getVoice());
+  selectRing();
+}
 
 function showSelectedButton() {
   Array.prototype.forEach.call(rhythmButtons, function(button){
@@ -1710,7 +1714,7 @@ function captureMeta() {
   }
 }
 
-function loadPreset(preset) {
+export function loadPreset(preset) {
   loadPattern(preset.innerCustomPattern, innerCustomPattern);
   loadPattern(preset.outerCustomPattern, outerCustomPattern);
   loadPattern(preset.samplerCustomPattern, samplerCustomPattern);
@@ -1777,7 +1781,6 @@ sequenceClear.addEventListener('click',
 
 
 var rhythmPolygon = document.getElementById('rhythmPolygon');
-
 
 rhythmPolygon.addEventListener('change', 
   function() {
@@ -1857,7 +1860,7 @@ function drawPolygon(pattern, radius) {
     return new Konva.Shape();
   }
 
-  polygon = new Konva.Line({
+  var polygon = new Konva.Line({
         points: points,
         stroke: 'black',
         strokeWidth: 1,

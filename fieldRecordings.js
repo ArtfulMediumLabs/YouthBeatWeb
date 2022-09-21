@@ -1,3 +1,5 @@
+import { buffersLoaded } from './script.js';
+
 const src = "Sounds/FieldRecordings/";
 const fieldRecordings = {
     "Footsteps" : src + "347850__inspectorj__footsteps-dry-leaves-g.mp3",
