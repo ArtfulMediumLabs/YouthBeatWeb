@@ -2343,7 +2343,7 @@ function encodeMeta(pattern) {
 }
 
 function base62Meta(encoded) {
-  base62Encoded = [];
+  var base62Encoded = [];
   base62Encoded.push(toBase62(parseInt(encoded[0], 8)).padStart(2, 0));
   base62Encoded.push(toBase62(parseInt(encoded[1], 8)).padStart(2, 0));
   base62Encoded.push(toBase62(parseInt(encoded.slice(2).join(''), 8)).padStart(2, 0));

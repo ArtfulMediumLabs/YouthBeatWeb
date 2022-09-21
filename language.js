@@ -26,6 +26,5 @@ function updateLanguage(code, event) {
   lang = code;
   var url = new URL(window.location);
   (url.searchParams.has('lang') ? url.searchParams.set('lang', code) : url.searchParams.append('lang', code));
-  console.log(url);
   window.location.assign(url);
 }
