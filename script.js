@@ -1,3 +1,5 @@
+import { emptyPattern } from '../utils.js';
+
 var offset = 0
 function currentBeat() {
   if (offset == 0) { return 0; }
@@ -86,14 +88,6 @@ function emptyPreset() {
           innerCustomPattern: emptyPattern(),
           outerCustomPattern: emptyPattern(),
           samplerCustomPattern: emptyPattern()}
-}
-
-function emptyPattern() {
-  return {
-    value: Array(32).fill('-'), 
-    amplitude: Array(32).fill(0),
-    duration: Array(32).fill(0)
-  }
 }
 
 function patternMeta() {
