@@ -90,6 +90,17 @@ export function emptyPreset() {
           samplerCustomPattern: emptyPattern()}
 }
 
+function basicPreset() {
+    return {meta: patternMeta(),
+            innerCustomPattern: emptyPattern(),
+            outerCustomPattern: {
+                value: Array(32).fill('-').map((e, i) => (i % 8 == 0 ? 'B' : '-')),
+                amplitude: Array(32).fill(0).map((e, i) => (i % 8 == 0 ? 1 : 0)),
+                duration: Array(32).fill(0),
+              },
+            samplerCustomPattern: emptyPattern()}
+  }
+
 function patternMeta() {
   return {
     tempo: 90,
@@ -2098,6 +2109,7 @@ saveSetButton.onclick = function(){
 }
 
 function saveSet(setID) {
+    console.log("save set", setID)
   if (checkSetRange(setID)) {
       var set = {presets: clonePresets(), sequence: sequence.slice()}; 
       storeSet(set, setID);
@@ -2210,10 +2222,10 @@ function loadSet(set){
   presetCounter = 1;
   presets = [];
   
-  if (typeof set === 'object' && set.hasOwnProperty('presets') ) {
+  if (typeof set === 'object' && set.hasOwnProperty('presets') && set.presets.length > 0) {
     loadPresets(set.presets);
   } else {
-    loadPreset(emptyPreset());
+    loadPreset(basicPreset());
   }
 
   if (typeof set === 'object' && set.hasOwnProperty('sequence') ) {
