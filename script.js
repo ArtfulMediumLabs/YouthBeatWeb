@@ -2088,32 +2088,41 @@ var sets = [];
 var currentSetID = 0;
 var exportSetButton = document.getElementById("exportSetButton");
 
-var saveSetButton = document.getElementById("saveSetButton");
-var saveSetsList = document.getElementById("saveSetList");
-
-function selectSaveSet(setID) {
-  var options = saveSetsList.options
-  for (var i=0; i<options.length; i++) {
-    if (options[i].value == setID) {
-      saveSetsList.selectedIndex = i
-    }
-  }
-}
-
-saveSetButton.onclick = function(){
-  var setID = saveSetsList.options[saveSetsList.selectedIndex].value
-  saveSet(setID)
-  selectLoadSet(setID)
+var setsList = document.getElementById("setsList");
+setsList.onchange = function() {
+  var setID = setsList.options[setsList.selectedIndex].value;
+  loadSetID(setID);
+  updatePattern();
+  updateSequenceDisplay();
+  updateVisibility();
   currentSetID = setID;
-  displaySetsFull()
-}
+};
+
+// var saveSetButton = document.getElementById("saveSetButton");
+// var saveSetsList = document.getElementById("saveSetList");
+
+// function selectSaveSet(setID) {
+//   var options = saveSetsList.options
+//   for (var i=0; i<options.length; i++) {
+//     if (options[i].value == setID) {
+//       saveSetsList.selectedIndex = i
+//     }
+//   }
+// }
+
+// saveSetButton.onclick = function(){
+//   var setID = saveSetsList.options[saveSetsList.selectedIndex].value
+//   saveSet(setID)
+//   selectLoadSet(setID)
+//   currentSetID = setID;
+//   displaySetsFull()
+// }
 
 function saveSet(setID) {
-    console.log("save set", setID)
   if (checkSetRange(setID)) {
-      var set = {presets: clonePresets(), sequence: sequence.slice()}; 
-      storeSet(set, setID);
-    }
+    var set = {presets: clonePresets(), sequence: sequence.slice()}; 
+    storeSet(set, setID);
+  }
 }
 
 function clonePresets() {
@@ -2155,34 +2164,34 @@ var addSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fil
 var deleteSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square" viewBox="0 0 16 16"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>';
 var exportSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right-square" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.854 8.803a.5.5 0 1 1-.708-.707L9.243 6H6.475a.5.5 0 1 1 0-1h3.975a.5.5 0 0 1 .5.5v3.975a.5.5 0 1 1-1 0V6.707l-4.096 4.096z"/></svg>';
 
-var loadSetButton = document.getElementById("loadSetButton");
-var loadSetsList = document.getElementById("loadSetList");
+// var loadSetButton = document.getElementById("loadSetButton");
+// var loadSetsList = document.getElementById("loadSetList");
 
-function selectLoadSet(setID) {
-  var options = loadSetsList.options
-  for (var i=0; i<options.length; i++) {
-    if (options[i].value == setID) {
-      loadSetsList.selectedIndex = i
-    }
-  }
-}
+// function selectLoadSet(setID) {
+//   var options = loadSetsList.options
+//   for (var i=0; i<options.length; i++) {
+//     if (options[i].value == setID) {
+//       loadSetsList.selectedIndex = i
+//     }
+//   }
+// }
 
-loadSetButton.onclick = function(){
-  var setID = loadSetsList.options[loadSetsList.selectedIndex].value
-  loadSetID(setID);
-  updatePattern();
-  updateSequenceDisplay();
-  updateVisibility();
-}
+// loadSetButton.onclick = function(){
+//   var setID = loadSetsList.options[loadSetsList.selectedIndex].value
+//   loadSetID(setID);
+//   updatePattern();
+//   updateSequenceDisplay();
+//   updateVisibility();
+// }
 
-var setsFull = document.getElementById("setsFull");
-function displaySetsFull() {
-  if (level >= 1 && firstEmptySet() == -1) {
-    setsFull.style.visibility = 'visible'
-  } else {
-    setsFull.style.visibility = 'hidden'
-  }
-}
+// var setsFull = document.getElementById("setsFull");
+// function displaySetsFull() {
+//   if (level >= 1 && firstEmptySet() == -1) {
+//     setsFull.style.visibility = 'visible'
+//   } else {
+//     setsFull.style.visibility = 'hidden'
+//   }
+// }
 
 function loadFirstSet() {
   loadSetID(1);
@@ -2518,4 +2527,4 @@ if (shouldImportSet()) {
 } else {
   loadFirstSet();
 }
-displaySetsFull();
+// displaySetsFull();
