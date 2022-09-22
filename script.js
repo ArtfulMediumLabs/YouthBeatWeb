@@ -1,4 +1,4 @@
-import { emptyPattern } from '../utils.js';
+import { emptyPattern } from './utils.js';
 
 var offset = 0
 
