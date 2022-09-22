@@ -120,6 +120,11 @@ button.rhythm, button.note {
     background-color: #DB3352;
 }
 
+#voices img {
+    vertical-align: middle;
+    height: 24px;
+}
+
 #notes {
     position: absolute;
     right: 10px;
