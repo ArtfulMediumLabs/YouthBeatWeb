@@ -2098,6 +2098,15 @@ setsList.onchange = function() {
   currentSetID = setID;
 };
 
+function selectSet(setID) {
+  var options = setsList.options
+  for (var i=0; i<options.length; i++) {
+    if (options[i].value == setID) {
+      setsList.selectedIndex = i
+    }
+  }
+}
+
 // var saveSetButton = document.getElementById("saveSetButton");
 // var saveSetsList = document.getElementById("saveSetList");
 
@@ -2404,7 +2413,7 @@ function importSetFromURL() {
     var option = document.createElement("option");
     option.value = "0";
     option.text = "URL";
-    loadSetsList.insertBefore(option, loadSetsList.firstChild)
+    setsList.insertBefore(option, setsList.firstChild)
   }
   var importSequenceString = urlParams.get("seq") ?? '';
   if (importSequenceString.length > 0) {
@@ -2523,7 +2532,7 @@ function decodeMeta(values) {
 importSetFromURL();
 loadDefaultSets();
 if (shouldImportSet()) {
-  selectLoadSet(0)
+  selectSet(0)
 } else {
   loadFirstSet();
 }
