@@ -120,10 +120,15 @@ button.rhythm, button.note {
     background-color: #DB3352;
 }
 
+#voices img {
+    vertical-align: middle;
+    height: 24px;
+}
+
 #notes {
     position: absolute;
     right: 10px;
-    top: 40px;
+    top: 35px;
     width: 100px;
 }
 
@@ -138,7 +143,7 @@ button.rhythm, button.note {
 }
 
 #presets {
-    height: 260px;
+    height: 235px;
     overflow: hidden;
     float: right;
 }
@@ -177,6 +182,11 @@ ul {
     position: relative;
 }
 
+#setsList {
+    float: right;
+    width: 100px;
+}
+
 #footer {
     width: 1018px;
     margin: 5px auto;
@@ -212,12 +222,12 @@ ul {
     width: 20px;
 }
 
-#sets ul, #sets li {
+/* #sets ul, #sets li {
     display: inline;
     text-align: center;
     padding: 5px;
     margin: 0px;
-}
+} */
 
 #fieldRecordings div {
     display: inline-block;
@@ -267,7 +277,7 @@ ul {
     background-color: #DB3352;
 }
 
-.level2, .level3 {
+.level3 {
     visibility: hidden;
 }
 
