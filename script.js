@@ -143,11 +143,15 @@ function createSequence() {
     return keys; 
 }
 
-var scale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'];
-var semitones = [2,3,2,2,3,2,3];
+var oldScale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'];
+var scale = ['B3', 'C#4', 'D4', 'E4', 'F#4', 'G4', 'A4', 'B4', 'C#5', 'D5'];
+
+var oldSemitones = [2,3,2,2,3,2,3];
+var semitones = [2,2,1,2,2,1,2,2,2,1];
 // https://mycolor.space/?hex=%23845EC2&sub=1
 // var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#FFC75F'];
-var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#0089BA','#2C73D2'];
+var oldGradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#0089BA','#2C73D2'];
+var gradient = ['#008F7A','#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#008F7A','#0089BA','#2C73D2'];
 
 function createSampler(voice) {
   var extension = ".wav";
@@ -1290,8 +1294,8 @@ function createHarmonicNote(step, duration, color, label, originX, originY, radi
   var dx = Math.cos(dAlpha) * radius;
   var dy = Math.sin(dAlpha) * radius;
 
-  var size = 32;
-    
+  var size = 48;
+
   var noteLabel = new Konva.Text({
     x: patternOriginX + dx,
     y: patternOriginY + dy,
@@ -2513,7 +2517,6 @@ function decodeValueAmplitudePattern(values, filter) {
     }
     pattern.value[i] = note;
     pattern.amplitude[i] = amplitude;
-    // console.log(i,value,noteValue,note,amplitude)
   }
   return pattern
 }
