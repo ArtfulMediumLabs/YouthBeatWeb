@@ -175,13 +175,15 @@ Em: E,(G),B
 G: (G),B,D
 */
 
-var oldScale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'];
-var scale = ['B3', 'C#4', 'D4', 'E4', 'F#4', 'G4', 'A4', 'B4', 'C#5', 'D5'];
+var pentatonicScale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'];
+var diatonicScale = ['B3', 'C#4', 'D4', 'E4', 'F#4', 'G4', 'A4', 'B4', 'C#5', 'D5'];
+var scale = pentatonicScale;
 
-var oldSemitones = [2,3,2,2,3,2,3];
-var semitones = [2,2,1,2,2,1,2,2,2,1];
+var pentatonicSemitones = [2,3,2,2,3,2,3];
+var diatonicSemitones = [2,2,1,2,2,1,2,2,2,1];
+var semitones = pentatonicSemitones;
 
-var oldChordHighlights = {
+var pentatonicChordHighlights = {
   'A1' : [1,2,4,6],
   'B1' : [0,1,3,5,6],
   'D2' : [1,3,4,6],
@@ -189,7 +191,7 @@ var oldChordHighlights = {
   'G2' : [0,1,5,6]
 }
 
-var chordHighlights = {
+var diatonicChordHighlights = {
   'A1' : [2,3,6,9],
   'B1' : [0,2,4,7,9],
   'D2' : [2,4,6,9],
@@ -197,10 +199,13 @@ var chordHighlights = {
   'G2' : [0,2,5,7,9]
 }
 
+var chordHighlights = pentatonicChordHighlights;
+
 // https://mycolor.space/?hex=%23845EC2&sub=1
 // var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#FFC75F'];
-var oldGradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#0089BA','#2C73D2'];
-var gradient = ['#008F7A','#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#008F7A','#0089BA','#2C73D2'];
+var pentatonicGradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#0089BA','#2C73D2'];
+var diatonicGradient = ['#008F7A','#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#008F7A','#0089BA','#2C73D2'];
+var gradient = pentatonicGradient;
 
 function createSampler(voice) {
   var extension = ".wav";
@@ -253,6 +258,38 @@ function getVoice() {
 }
 
 updateVoiceDisplay("synth");
+
+var scaleSelect = document.getElementById("scaleSelect");
+
+scaleSelect.addEventListener('change', function() {
+  selectScale(scaleSelect.value);
+
+  createNoteColors();
+  createNoteRings(noteRings);
+  selectNoteRings(chordSelect.value);
+
+  updatePattern();
+  
+  layer.batchDraw();
+});
+
+function selectScale(newScale) {
+  if (newScale == 'diatonic') {
+    scale = diatonicScale;
+    semitones = diatonicSemitones;
+    chordHighlights = diatonicChordHighlights;
+    gradient = diatonicGradient;
+  } else {
+    scale = pentatonicScale;
+    semitones = pentatonicSemitones;
+    chordHighlights = pentatonicChordHighlights;
+    gradient = pentatonicGradient;
+  }
+}
+
+function updateScale(scale) {
+  selectScale(scale)
+}
 
 function createChords(voice) {
   var extension = ".wav";
@@ -454,9 +491,13 @@ var noteColors = {
     "C" : "#41C398",
   }
 
-for (var i = 0; i < scale.length; i++) {
-  noteColors[scale[i]] = gradient[i];
+function createNoteColors() {
+  for (var i = 0; i < scale.length; i++) {
+    noteColors[scale[i]] = gradient[i];
+  }
 }
+
+createNoteColors();
 
 noteColors.getColor = function(note, amplitude=3) {
   var p = (3 - amplitude) * 0.3;
@@ -514,7 +555,8 @@ layer.add(innerPatternRing);
 var slices = createSlices();
 layer.add(slices);
 
-var noteRings = createNoteRings();
+var noteRings = new Konva.Group();
+createNoteRings(noteRings);
 layer.add(noteRings);
 
 layer.add(innerPatternNotes);
@@ -527,17 +569,16 @@ layer.add(samplerPatternControls);
 
 
 
-function createNoteRings() {
+function createNoteRings(group) {
+  group.destroyChildren();
   // var color = '#F5F1F0';
   // var color = '#FFF2C6';
   // var color = '#B5B5B5';
   var color = 'white';
-  var group = new Konva.Group();
   for (var i=0; i < scale.length; i++) {
     var noteRing = createNoteRing(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 2 + samplerWidth, color, i);
     group.add(noteRing)
   }
-  return group
 }
 
 function createNoteRing(originX, originY, innerRadius, outerRadius, fill, index) {
