@@ -143,11 +143,60 @@ function createSequence() {
     return keys; 
 }
 
+
+/*
+var oldScale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'];
+0: 'B3'
+1: 'D4'
+2: 'E4'
+3: 'F#4'
+4: 'A4'
+5: 'B4'
+6: 'D5'
+
+var scale = ['B3', 'C#4', 'D4', 'E4', 'F#4', 'G4', 'A4', 'B4', 'C#5', 'D5'];
+0: 'B3'
+1: 'C#4'
+2: 'D4'
+3: 'E4'
+4: 'F#4'
+5: 'G4'
+6: 'A4'
+7: 'B4'
+8: 'C#5'
+9: 'D5'
+/*
+
+/*
+Asus: A,D,E
+Bm: B,D,F#
+D: D,F#,A
+Em: E,(G),B
+G: (G),B,D
+*/
+
 var oldScale = ['B3', 'D4', 'E4', 'F#4', 'A4', 'B4', 'D5'];
 var scale = ['B3', 'C#4', 'D4', 'E4', 'F#4', 'G4', 'A4', 'B4', 'C#5', 'D5'];
 
 var oldSemitones = [2,3,2,2,3,2,3];
 var semitones = [2,2,1,2,2,1,2,2,2,1];
+
+var oldChordHighlights = {
+  'A1' : [1,2,4,6],
+  'B1' : [0,1,3,5,6],
+  'D2' : [1,3,4,6],
+  'E2' : [0,2,5],
+  'G2' : [0,1,5,6]
+}
+
+var chordHighlights = {
+  'A1' : [2,3,6,9],
+  'B1' : [0,2,4,7,9],
+  'D2' : [2,4,6,9],
+  'E2' : [0,3,5,7],
+  'G2' : [0,2,5,7,9]
+}
+
 // https://mycolor.space/?hex=%23845EC2&sub=1
 // var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#FFC75F'];
 var oldGradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#0089BA','#2C73D2'];
@@ -214,14 +263,6 @@ function createChords(voice) {
   var sampler = new Tone.Sampler(config).toDestination();
   sampler.volume.value = +2;
   return sampler;
-}
-
-var chordHighlights = {
-  'A1' : [1,2,4,6],
-  'B1' : [0,1,3,5,6],
-  'D2' : [1,3,4,6],
-  'E2' : [0,2,5],
-  'G2' : [0,1,5,6]
 }
 
 var options = document.getElementsByName("chord")
