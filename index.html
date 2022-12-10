@@ -131,21 +131,15 @@
     </div>
 
     <div id="notes">
-        <fieldset>
-          <legend lang="en">Chords</legend>
-          <input type="radio" id="none" name="chord" value="" checked>
-          <label for="none" lang="en">None</label><br/>
-          <input type="radio" id="Asus" name="chord" value="A1">
-          <label for="Asus" lang="en">Asus</label><br/>
-          <input type="radio" id="Bm" name="chord" value="B1">
-          <label for="Bm" lang="en">Bm</label><br/>
-          <input type="radio" id="D" name="chord" value="D2">
-          <label for="D" lang="en">D</label><br/>
-          <input type="radio" id="Em" name="chord" value="E2">
-          <label for="Em" lang="en">Em</label><br/>
-          <input type="radio" id="G" name="chord" value="G2">
-          <label for="G" lang="en">G</label><br/>
-        </fieldset>
+        <label for="chord">Chords:</label>
+        <select name="chord" id="chordSelect">
+          <option value="" lang="en">None</option>
+          <option value="A1" lang="en">Asus</option>
+          <option value="B1" lang="en">Bm</option>
+          <option value="D2" lang="en">D</option>
+          <option value="E2" lang="en">Em</option>
+          <option value="G2" lang="en">G</option>
+        </select>
     </div>
 </div>
 

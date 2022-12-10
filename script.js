@@ -265,14 +265,6 @@ function createChords(voice) {
   return sampler;
 }
 
-var options = document.getElementsByName("chord")
-for (var i=0; i < options.length; i++) {
-  options[i].addEventListener('change', function() {
-    selectNoteRings(this.value);
-    layer.batchDraw();
-  });
-}
-
 function selectNoteRings(chord) {
   var children = noteRings.getChildren()
   var highlights = chordHighlights[chord] ?? [];
@@ -283,8 +275,15 @@ function selectNoteRings(chord) {
   }
 }
 
+var chordSelect = document.getElementById("chordSelect");
+
+chordSelect.addEventListener('change', function() {
+  selectNoteRings(this.value);
+  layer.batchDraw();
+});
+
 function updateChordDisplay(chord) {
-  document.querySelector('input[name="chord"][value="' + chord + '"').checked = true;
+  chordSelect.value = chord;
   selectNoteRings(chord);
 }
 
@@ -304,7 +303,7 @@ function updateMuteGroupDisplay(muteGroup) {
 }
 
 var loop = new Tone.Sequence(function(time, step){
-  var chordNote = document.querySelector('input[name="chord"]:checked').value
+  var chordNote = chordSelect.value
   if (step == 0 & chordNote.length > 0) {
     chords.triggerAttackRelease(chordNote, '1m', time, 0.5);
   }
@@ -1757,7 +1756,7 @@ function capturePreset() {
 }
 
 function captureMeta() {
-  var chordNote = document.querySelector('input[name="chord"]:checked').value ?? "";
+  var chordNote = chordSelect.value ?? "";
   return {
     tempo: Tone.Transport.bpm.value,
     volume: getVolume(),
