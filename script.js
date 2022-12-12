@@ -107,6 +107,7 @@ function patternMeta() {
     volume: 60,
     mute: {bassSnare: true, hiHat: true, melody: true},
     chord: "",
+    scale: "",
     voice: "synth"
   }
 }
@@ -262,7 +263,13 @@ updateVoiceDisplay("synth");
 var scaleSelect = document.getElementById("scaleSelect");
 
 scaleSelect.addEventListener('change', function() {
-  selectScale(scaleSelect.value);
+  updateScale(scaleSelect.value);
+});
+
+function updateScale(scale) {
+  selectScale(scale)
+
+  scaleSelect.value = scale ?? 'pentatonic';
 
   createNoteColors();
   createNoteRings(noteRings);
@@ -271,7 +278,7 @@ scaleSelect.addEventListener('change', function() {
   updatePattern();
   
   layer.batchDraw();
-});
+}
 
 function selectScale(newScale) {
   if (newScale == 'diatonic') {
@@ -285,10 +292,6 @@ function selectScale(newScale) {
     chordHighlights = pentatonicChordHighlights;
     gradient = pentatonicGradient;
   }
-}
-
-function updateScale(scale) {
-  selectScale(scale)
 }
 
 function createChords(voice) {
@@ -1797,6 +1800,7 @@ function capturePreset() {
 }
 
 function captureMeta() {
+  var scale = scaleSelect.value ?? "";
   var chordNote = chordSelect.value ?? "";
   return {
     tempo: Tone.Transport.bpm.value,
@@ -1806,6 +1810,7 @@ function captureMeta() {
       hiHat: hiHat.checked, 
       melody: melody.checked},
     chord: chordNote,
+    scale: scale,
     voice: getVoice()
   }
 }
@@ -1838,6 +1843,7 @@ function metaFrom(meta) {
       hiHat: meta.mute.hiHat, 
       melody: meta.mute.melody},
     chord: meta.chord,
+    scale: meta.scale,
     voice: meta.voice
   }  
 }
@@ -1858,6 +1864,8 @@ function loadMeta(meta) {
   updateMuteGroupDisplay(meta.mute);
 
   updateChordDisplay(meta.chord);
+
+  updateScale(meta.scale);
 
   setVoice(meta.voice);
   updateVoiceDisplay(meta.voice);
