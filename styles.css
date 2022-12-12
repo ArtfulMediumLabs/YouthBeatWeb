@@ -133,9 +133,9 @@ button.rhythm, button.note {
     margin: 10px 0;  
 }
 
-#chordSelect {
-    float: right;
+#scaleSelect, #chordSelect {
     width: 100px;
+    margin: 5px 0;
 }
 
 #muteGroup, #rotateGroup {
