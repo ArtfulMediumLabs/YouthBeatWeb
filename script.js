@@ -373,9 +373,11 @@ function playActiveNote(customPattern, step, time) {
     keys.player(note).volume.value = amplitudeFor(customPattern, step);
     keys.player(note).start(time);
   } else {
-    var velocity = velocityFor(customPattern, step);
-    var duration = durationFor(customPattern, step);
-    sampler.triggerAttackRelease(note, duration, time, velocity);
+    if (scale.includes(note)) {
+      var velocity = velocityFor(customPattern, step);
+      var duration = durationFor(customPattern, step);
+      sampler.triggerAttackRelease(note, duration, time, velocity);
+    }
   }
 }
 
