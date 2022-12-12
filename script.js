@@ -269,7 +269,7 @@ scaleSelect.addEventListener('change', function() {
 function updateScale(scale) {
   selectScale(scale)
 
-  scaleSelect.value = scale ?? 'pentatonic';
+  scaleSelect.value = scale || 'pentatonic';
 
   createNoteColors();
   createNoteRings(noteRings);
