@@ -2159,7 +2159,7 @@ var level = 0
 function toggleAll() {
     level = ++level % 2
     updateVisibility()
-    displaySetsFull()
+    // displaySetsFull()
 }
 
 
