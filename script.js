@@ -2394,8 +2394,17 @@ function exportSequence(set) {
   return encodeURIComponent(JSON.stringify(set.sequence))
 }
 
+// 3 instruments + 3 amplitudes + off status = 10 options
 // base 10 x 8 = base 62 x 5 -> 20 (x2)
+// legacy pentatonic: 7 notes + 3 amplitudes + off status = 22 options
+// 22^8: 54875873536
+// 62^6: 56800235584
+// new diatonic mode: 10 notes + 3 amplitudes + off status = 31 options
+// 31^8: 852891037441
+// 62^7: 3521614606208
+// 1 extra character, 32 
 // base 22 x 8 = base 62 x 6 -> 24
+// 5 durations + off = 6 options
 // base 6 x 8 = base 62 x 4  -> 16
 
 function shortEncode(preset) {
@@ -2405,8 +2414,8 @@ function shortEncode(preset) {
   var outer = encodeValueAmplitudePattern(preset.outerCustomPattern, outerFilter);
   var outer62 = base62(outer, 5);
 
-  var sampler = encodeValueAmplitudePattern(preset.samplerCustomPattern, scale).map(function(value){ return value.toString(22) });
-  var sampler62 = base62(sampler, 6, 22);
+  var sampler = encodeValueAmplitudePattern(preset.samplerCustomPattern, diatonicScale).map(function(value){ return value.toString(32) });
+  var sampler62 = base62(sampler, 7, 32);
 
   var samplerDuration = encodeDurationPattern(preset.samplerCustomPattern);
   var samplerDuration62 = base62(samplerDuration, 4, 6);
@@ -2463,16 +2472,25 @@ function encodeMeta(pattern) {
   encoded.push(Number(meta.mute.bassSnare) << 0 | Number(meta.mute.hiHat) << 1 | Number(meta.mute.melody) << 2);
   encoded.push(chordFilter.indexOf(meta.chord));
   encoded.push(voiceFilter.indexOf(meta.voice));
-
+  encoded.push(meta.scale == 'diatonic' ? 1: 0);
   return encoded
 }
+
+// tempo: < 200 
+// volume: < 100 
+// mutes: 8 (2 x 2 x 2)
+// chordFilter: 6
+// voice: 3
+// 863 x8, 62^2 3844
+// scale: 2
+// 8632 x8, 62^3
+// legacy length 6, scale length 7
 
 function base62Meta(encoded) {
   var base62Encoded = [];
   base62Encoded.push(toBase62(parseInt(encoded[0], 8)).padStart(2, 0));
   base62Encoded.push(toBase62(parseInt(encoded[1], 8)).padStart(2, 0));
-  base62Encoded.push(toBase62(parseInt(encoded.slice(2).join(''), 8)).padStart(2, 0));
-
+  base62Encoded.push(toBase62(parseInt(encoded.slice(2).join(''), 8)).padStart(3, 0));
   return base62Encoded.join('')
 }
 
@@ -2536,8 +2554,14 @@ function importSet(setString) {
     var outerValues = parseBase62(patterns[1].split(''), 5);
     var outerPattern = decodeValueAmplitudePattern(outerValues, outerFilter);
 
-    var samplerValues = parseBase62(patterns[2].split(''), 6, 22).map(function(value){ return parseInt(value, 22).toString(10) });
-    var samplerPattern = decodeValueAmplitudePattern(samplerValues, samplerFilter);
+    if (patterns[2].length < 28) {
+      var samplerValues = parseBase62(patterns[2].split(''), 6, 22).map(function(value){ return parseInt(value, 22).toString(10) });
+      var samplerPattern = decodeValueAmplitudePattern(samplerValues, pentatonicScale);
+    } else {
+      var samplerValues = parseBase62(patterns[2].split(''), 7, 32).map(function(value){ return parseInt(value, 32).toString(10) });
+      var samplerPattern = decodeValueAmplitudePattern(samplerValues, diatonicScale);
+    }
+
     var durationValues = parseBase62(patterns[3].split(''), 4, 6).map(function(value) { return parseInt(value, 6); });
     samplerPattern.duration = durationValues;
 
@@ -2575,7 +2599,14 @@ function parseBase62Meta(values) {
   decoded.push(parseInt(fromBase62(chunks[0].join(''), 10)));
   decoded.push(parseInt(fromBase62(chunks[1].join(''), 10)));
 
-  var octalValues = fromBase62(chunks[2].join('')).toString(8).padStart(3,0).split('');
+  var octalString = chunks[2].join('')
+  if (chunks.length > 3) {
+    octalString = octalString.concat(chunks[3]);
+    var octalValues = fromBase62(octalString).toString(8).padStart(4,0).split('');
+  } else {
+    var octalValues = fromBase62(octalString).toString(8).padStart(3,0).split('');
+    octalValues.push(0);
+  }
 
   return decoded.concat(octalValues);
 }
@@ -2618,9 +2649,9 @@ function decodeMeta(values) {
     volume: values[1], // 0-100 -> oct x 3
     mute: {bassSnare: Boolean(values[2] & (1 << 0)), hiHat: Boolean(values[2] & (1 << 1)), melody: Boolean(values[2] & (1 << 2))}, // 3 bits -> oct
     chord: chordFilter[values[3]], // 5 values -> oct
-    voice: voiceFilter[values[4]] // 3 values -> oct
+    voice: voiceFilter[values[4]], // 3 values -> oct
+    scale: (values[5] ?? 0) == 1 ? 'diatonic' : 'pentatonic',
   }
-
 }
 
 importSetFromURL();
