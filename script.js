@@ -204,8 +204,11 @@ var chordHighlights = pentatonicChordHighlights;
 
 // https://mycolor.space/?hex=%23845EC2&sub=1
 // var gradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#FFC75F'];
+// https://colorkit.io to interpolate new colors for diatonic
 var pentatonicGradient = ['#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#0089BA','#2C73D2'];
-var diatonicGradient = ['#008F7A','#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#008F7A','#0089BA','#2C73D2'];
+// var pentatonicGradient = ['#008F7A','#2C73D2','#845EC2','#D65DB1','#FF9671','#008F7A','#2C73D2'];
+var diatonicGradient = ['#0089BA','#157DC6','#2C73D2','#845EC2','#D65DB1','#EB66A2','#FF6F91','#0089BA','#157DC6','#2C73D2'];
+// var diatonicGradient = ['#008F7A','#0089BA','#2C73D2','#845EC2','#D65DB1','#FF6F91','#FF9671','#008F7A','#0089BA','#2C73D2'];
 var gradient = pentatonicGradient;
 
 function createSampler(voice) {
