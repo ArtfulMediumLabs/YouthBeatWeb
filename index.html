@@ -73,8 +73,10 @@
           Melody +90
         </button>
       </div>
-      <label for="tempo" id="tempoLabel" lang="en">Tempo</label><br>
-      <input type="range" name="tempo" id="tempo" min="20" max="180" value="90" class="slider">
+      <div>
+        <label for="tempo" id="tempoLabel" lang="en">Tempo: <input type="number" name="tempoInput" id="tempoInput"></input></label>
+        <input type="range" name="tempo" id="tempo" min="20" max="180" value="90" class="slider">
+      </div>
     </div>
     <div id="volumeControl">
       <label for="volume" id="volumeLabel" lang="en">Volume</label><br>

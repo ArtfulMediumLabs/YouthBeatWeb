@@ -97,7 +97,12 @@ button.rhythm, button.note {
 
 #tempoLabel {
     display: block;
-    margin-top: 20px
+    margin-top: 20px;
+    margin-bottom: 18px;
+}
+
+#tempoInput {
+    width: 50px;
 }
 
 #voices {

@@ -1462,22 +1462,23 @@ function someHHLoop() {
 stage.add(layer);
 
 var slider = document.getElementById("tempo");
-var tempoLabel = document.getElementById("tempoLabel");
+var tempoInput = document.getElementById("tempoInput");
 setTempo(90);
 updateTempoDisplay(90);
 
 function updateTempoDisplay(value) {
   slider.value = value;
-  updateTempoLabel(value);
+  tempoInput.value = value;
 }
       
 slider.oninput = function() {
-  updateTempoLabel(this.value);
+  tempoInput.value = this.value;
   setTempo(this.value);
 }
 
-function updateTempoLabel(value) {
-  tempoLabel.innerHTML = localizedString("Tempo") + ": " + value;
+tempoInput.oninput = function() {
+  slider.value = this.value;
+  setTempo(this.value);
 }
 
 function setTempo(value) {
