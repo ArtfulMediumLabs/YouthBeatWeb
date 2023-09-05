@@ -1476,9 +1476,13 @@ slider.oninput = function() {
   setTempo(this.value);
 }
 
-tempoInput.oninput = function() {
-  slider.value = this.value;
-  setTempo(this.value);
+tempoInput.onchange = function() {
+  if ( !isNaN(this.value) && this.value >= 20 && this.value <= 180) {
+    slider.value = this.value;
+    setTempo(this.value);
+  } else {
+    this.value = Tone.Transport.bpm.value;
+  }
 }
 
 function setTempo(value) {
