@@ -470,7 +470,7 @@ Tone.loaded().then(function(){
 var stage = new Konva.Stage({
   container: 'container',   // id of container <div>
   width: 1028,
-  height: 768 - 200
+  height: 768 - 100
 });
 
 var layer = new Konva.Layer();

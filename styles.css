@@ -21,14 +21,29 @@ audio {
 #controlA {
     position: absolute;
     left: 10px;
-    bottom: 10px;
+    top: 250px;
+}
+
+#tempoLabel {
+    display: block;
+    margin-top: 35px;
+    margin-bottom: 18px;
+}
+
+#tempoInput {
+    width: 50px;
+}
+
+#volumeLabel {
+    display: block;
+    margin-top: 20px
 }
 
 #controlB {
     position: absolute;
     width: 175px;
     right: 10px;
-    bottom: 10px;
+    top: 205px;
     overflow: hidden;
     clear: both;
 }
@@ -37,17 +52,6 @@ audio {
     position: absolute;
     left: 150px;
     top: 10px;
-}
-
-#volumeControl {
-    position: absolute;
-    left: 150px;
-    bottom: 10px;
-}
-
-#volumeLabel {
-    display: block;
-    margin-top: 20px
 }
 
 #rhythmButtons {
@@ -93,16 +97,6 @@ button.rhythm, button.note {
 .active {
     font-weight: bold;
     color: #DB3352;
-}
-
-#tempoLabel {
-    display: block;
-    margin-top: 20px;
-    margin-bottom: 18px;
-}
-
-#tempoInput {
-    width: 50px;
 }
 
 #voices {
