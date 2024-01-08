@@ -1,4 +1,5 @@
 import { emptyPattern } from './utils.js';
+import { numberLine } from './numberLine.js';
 
 var offset = 0
 
@@ -470,7 +471,7 @@ Tone.loaded().then(function(){
 var stage = new Konva.Stage({
   container: 'container',   // id of container <div>
   width: 1028,
-  height: 768 - 100
+  height: 768
 });
 
 var layer = new Konva.Layer();
@@ -676,6 +677,14 @@ var stop = new Konva.Rect({
         listening: false
       });
 layer.add(stop)
+
+//var samplerPatternRing = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 2 + samplerWidth, controlBackgrounds[2], samplerPatternControls, samplerCustomPattern, samplerFilter, 16, false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
+
+var patternLine = numberLine(outerRadius * 2);
+patternLine.x(patternOriginX - outerRadius);
+patternLine.y(patternOriginY + outerRadius + 48.0 + 16.0);
+console.log(patternOriginX, outerRadius, patternLine.x(), patternLine.y())
+layer.add(patternLine);
 
 
 var positionGroup = createPositionGroup(stage.width() - 200,98, 0);
