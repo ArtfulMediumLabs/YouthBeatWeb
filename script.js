@@ -134,7 +134,7 @@ export function updatePattern(time) {
   });
   let pattern = [innerCustomPattern, outerCustomPattern, samplerCustomPattern][index];
 
-  drawLinePattern(patternLineNotes, pattern, outerRadius * 2, noteColors);
+  drawLinePattern(patternLineNotes, pattern, outerRadius * 2, noteColors, scale, semitones);
 
   layer.batchDraw();
 }
@@ -690,7 +690,7 @@ layer.add(stop)
 
 var patternLine = numberLine(outerRadius * 2);
 patternLine.x(patternOriginX - outerRadius);
-patternLine.y(patternOriginY + outerRadius + 48.0 + 16.0);
+patternLine.y(patternOriginY + outerRadius + 96.0 + 16.0);
 
 var patternLineNotes = new Konva.Group();
 patternLine.add(patternLineNotes);
