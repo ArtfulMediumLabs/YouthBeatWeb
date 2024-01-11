@@ -1,5 +1,5 @@
 import { emptyPattern } from './utils.js';
-import { numberLine } from './numberLine.js';
+import { numberLine, drawLinePattern } from './numberLine.js';
 
 var offset = 0
 
@@ -128,6 +128,9 @@ export function updatePattern(time) {
   }
 
   updatePosition(positionGroup, currentBeat());
+
+  drawLinePattern(patternLineNotes, outerCustomPattern, outerRadius * 2, noteColors);
+
   layer.batchDraw();
 }
 
@@ -683,9 +686,11 @@ layer.add(stop)
 var patternLine = numberLine(outerRadius * 2);
 patternLine.x(patternOriginX - outerRadius);
 patternLine.y(patternOriginY + outerRadius + 48.0 + 16.0);
-console.log(patternOriginX, outerRadius, patternLine.x(), patternLine.y())
-layer.add(patternLine);
 
+var patternLineNotes = new Konva.Group();
+patternLine.add(patternLineNotes);
+
+layer.add(patternLine);
 
 var positionGroup = createPositionGroup(stage.width() - 200,98, 0);
 layer.add(positionGroup);
