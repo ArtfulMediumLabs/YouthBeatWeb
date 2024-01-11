@@ -129,14 +129,18 @@ export function updatePattern(time) {
 
   updatePosition(positionGroup, currentBeat());
 
+  updateLinePattern();
+
+  layer.batchDraw();
+}
+
+function updateLinePattern() {
   let index = [innerFilter, outerFilter, samplerFilter].findIndex((filter) => {
     return filter.includes(activeInstrument)
   });
   let pattern = [innerCustomPattern, outerCustomPattern, samplerCustomPattern][index];
 
   drawLinePattern(patternLineNotes, pattern, outerRadius * 2, noteColors, scale, semitones);
-
-  layer.batchDraw();
 }
 
 loop.start();
@@ -236,12 +240,8 @@ var voiceButtons = document.getElementById("voices").children;
 
 for (var i=0; i < voiceButtons.length; i++) {
   voiceButtons[i].addEventListener('click', function() {
-    activeInstrument = scale[0];
-    showSelectedButton();
-    selectRing();
-
     setVoice(this.dataset.voice);
-    updateVoiceDisplay(this.dataset.voice);
+    setActiveInstrument(scale[0]);
   });
 }
 
@@ -1556,6 +1556,8 @@ export function setActiveInstrument(instrument) {
   showSelectedButton();
   updateVoiceDisplay(getVoice());
   selectRing();
+  updateLinePattern();
+  layer.batchDraw();
 }
 
 function showSelectedButton() {
