@@ -129,7 +129,12 @@ export function updatePattern(time) {
 
   updatePosition(positionGroup, currentBeat());
 
-  drawLinePattern(patternLineNotes, outerCustomPattern, outerRadius * 2, noteColors);
+  let index = [innerFilter, outerFilter, samplerFilter].findIndex((filter) => {
+    return filter.includes(activeInstrument)
+  });
+  let pattern = [innerCustomPattern, outerCustomPattern, samplerCustomPattern][index];
+
+  drawLinePattern(patternLineNotes, pattern, outerRadius * 2, noteColors);
 
   layer.batchDraw();
 }
