@@ -93,6 +93,7 @@ function createHarmonicNote(step, color, note, scale, semitones, width, duration
 
   let segmentWidth = step % 2 == 0 ? width/16 : width/32;
   let noteWidth = Math.pow(2, duration-1) * segmentWidth;
+  noteWidth = Math.min(noteWidth, width - x);
 
   let scaleDegree = scale.indexOf(note);
   let noteHeight = sizeFor(scaleDegree, semitones, 64.0);
