@@ -1,3 +1,5 @@
+let maxHeight = 64.0;
+
 export function numberLine(width) {
     let lineGroup = new Konva.Group();
 
@@ -88,6 +90,8 @@ export function drawLinePattern(targetGroup, pattern, width, noteColors, scale, 
 }
 
 function createHarmonicNote(step, color, note, scale, semitones, width, duration) {
+  let group = new Konva.Group()
+
   let stepWidth = width/32;
   let x = step * stepWidth;
 
@@ -96,7 +100,7 @@ function createHarmonicNote(step, color, note, scale, semitones, width, duration
   noteWidth = Math.min(noteWidth, width - x);
 
   let scaleDegree = scale.indexOf(note);
-  let noteHeight = sizeFor(scaleDegree, semitones, 64.0);
+  let noteHeight = sizeFor(scaleDegree, semitones, maxHeight);
 
   var note = new Konva.Rect({
       x: x,
@@ -108,12 +112,37 @@ function createHarmonicNote(step, color, note, scale, semitones, width, duration
       strokeWidth: 1,
       listening: false
   });
+  group.add(note);
 
-  return note
+  for (var i = 0; i <= scaleDegree; i++) {
+    let lower = i == 0 ? 0 : sizeFor(i-1, semitones, maxHeight);;
+    let upper = lower + incrementalSizeFor(i, semitones, maxHeight);
+    let line = new Konva.Rect({
+      x: x,
+      y: 0 - upper,
+      width: noteWidth,
+      height: upper - lower,
+      fill: color,
+      stroke: 'rgba(255,255,255,0.5)',
+      strokeWidth: 1,
+      listening: false
+    });
+    group.add(line);
+  }
+
+  return group
 }
 
 function sizeFor(index, semitones, height) {
   var semitonesWithin = semitones.slice(0, index + 1).reduce(function(acc, val) { return acc + val; }, 0)
+  var semitonesTotal = semitones.reduce(function(acc, val) { return acc + val; }, 0);
+  var percent = semitonesWithin / semitonesTotal;
+  var size = height * percent;
+  return size;
+}
+
+function incrementalSizeFor(index, semitones, height) {
+  var semitonesWithin = semitones[index]
   var semitonesTotal = semitones.reduce(function(acc, val) { return acc + val; }, 0);
   var percent = semitonesWithin / semitonesTotal;
   var size = height * percent;
