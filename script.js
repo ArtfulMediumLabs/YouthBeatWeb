@@ -694,6 +694,7 @@ patternLine.y(patternOriginY + outerRadius + 96.0 + 16.0);
 
 var patternLineNotes = new Konva.Group();
 patternLine.add(patternLineNotes);
+patternLineNotes.zIndex(0);
 
 layer.add(patternLine);
 
