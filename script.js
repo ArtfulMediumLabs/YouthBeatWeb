@@ -1,5 +1,5 @@
 import { emptyPattern } from './utils.js';
-import { numberLine, drawLinePattern } from './numberLine.js';
+import { numberLine, drawLinePattern, drawRhythmLinePatternTop, drawRhythmLinePatternBottom, drawMelodicLinePattern } from './numberLine.js';
 
 var offset = 0
 
@@ -135,12 +135,12 @@ export function updatePattern(time) {
 }
 
 function updateLinePattern() {
-  let index = [innerFilter, outerFilter, samplerFilter].findIndex((filter) => {
-    return filter.includes(activeInstrument)
-  });
-  let pattern = [innerCustomPattern, outerCustomPattern, samplerCustomPattern][index];
-
-  drawLinePattern(patternLineNotes, pattern, outerRadius * 2, noteColors, scale, semitones);
+  if (samplerFilter.includes(activeInstrument)) {
+    drawMelodicLinePattern(patternLineNotes, samplerCustomPattern, outerRadius * 2, noteColors, scale, semitones);  
+  } else {
+    drawRhythmLinePatternTop(patternLineNotes, outerCustomPattern, outerRadius * 2, noteColors);
+    drawRhythmLinePatternBottom(patternLineNotes, innerCustomPattern, outerRadius * 2, noteColors);
+  }
 }
 
 loop.start();

@@ -89,7 +89,52 @@ export function drawLinePattern(targetGroup, pattern, width, noteColors, scale, 
 
 }
 
-function createHarmonicNote(step, color, note, scale, semitones, width, duration) {
+export function drawRhythmLinePatternTop(targetGroup, pattern, width, noteColors) {
+  targetGroup.destroyChildren()
+  drawRhythmLinePattern(targetGroup, pattern, width, noteColors, 1);
+}
+
+export function drawRhythmLinePatternBottom(targetGroup, pattern, width, noteColors) {
+  drawRhythmLinePattern(targetGroup, pattern, width, noteColors, -1);
+}
+
+function drawRhythmLinePattern(targetGroup, pattern, width, noteColors, direction) {
+  for (var i = 0; i < pattern.value.length; i++) {
+
+    var note = pattern.value[i];
+    var amplitude = pattern.amplitude[i] || 0;
+    if (note == '-' && i % 2 == 0) {
+
+    } else if (noteColors.hasOwnProperty(note)) {
+      var noteColor = noteColors.getColor(note, amplitude);
+      var noteNode = createNote(i, noteColor, width, amplitude, direction)
+
+      targetGroup.add(noteNode)
+    }
+  }
+}
+
+export function drawMelodicLinePattern(targetGroup, pattern, width, noteColors, scale, semitones) {
+  targetGroup.destroyChildren()
+  
+  for (var i = 0; i < pattern.value.length; i++) {
+    var note = pattern.value[i];
+    var amplitude = pattern.amplitude[i] || 0;
+    if (note == '-' && i % 2 == 0) {
+
+    } else if (noteColors.hasOwnProperty(note)) {
+      var noteColor = noteColors.getColor(note, amplitude);
+      var duration = pattern.duration[i] || 1;
+      var noteNode = createMelodicNote(i, noteColor, note, scale, semitones, width, duration);
+
+      targetGroup.add(noteNode)
+    }
+  }
+}
+
+
+
+function createMelodicNote(step, color, note, scale, semitones, width, duration) {
   let group = new Konva.Group()
 
   let stepWidth = width/32;
@@ -149,15 +194,18 @@ function incrementalSizeFor(index, semitones, height) {
   return size;
 }
 
-function createNote(step, color, width, amplitude) {
+function createNote(step, color, width, amplitude, direction=-1) {
     let stepWidth = width/32;
     let x = step * stepWidth;
+
     let noteWidth = step % 2 == 0 ? width/16 : width/32;
     let noteHeight = 20.0;
 
+    let y = direction > 0 ? 0 - noteHeight : 0;
+  
     var note = new Konva.Rect({
         x: x,
-        y: 0 - noteHeight,
+        y: y,
         width: noteWidth,
         height: noteHeight,
         fill: color,
