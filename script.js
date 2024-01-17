@@ -524,19 +524,16 @@ noteColors.getColor = function(note, amplitude=3) {
 function createSlices() {
   var sliceGroup = new Konva.Group()
   for (var i = 0; i < 16; i++) {
+    var originPoint = pointBeginning(i, innerRadius, patternOriginX, patternOriginY, 16);
     var point = pointBeginning(i, outerRadius, patternOriginX, patternOriginY, 16);
     var strokeWidth = 4
     var strokeColor = 'rgba(255,255,255,0.5)'
-    if (i % 8 == 0) {
-      strokeWidth = 6
-      // strokeColor = '#cccccc'
-    }
-    if ((i-4) % 8 == 0) {
-      strokeWidth = 6
-      // strokeColor = '#cccccc'
+    if (i % 4 == 0) {
+      // strokeWidth = 6;
+      strokeColor = 'green';
     }
     var line = new Konva.Line({
-      points: [patternOriginX, patternOriginY, point.x, point.y],
+      points: [originPoint.x, originPoint.y, point.x, point.y],
       stroke: strokeColor,
       strokeWidth: strokeWidth,
       // opacity: 0.8,
@@ -569,9 +566,6 @@ layer.add(samplerPatternRing);
 layer.add(outerPatternRing);
 layer.add(innerPatternRing);
 
-var slices = createSlices();
-layer.add(slices);
-
 var noteRings = new Konva.Group();
 createNoteRings(noteRings);
 layer.add(noteRings);
@@ -584,7 +578,8 @@ layer.add(innerPatternControls);
 layer.add(outerPatternControls);
 layer.add(samplerPatternControls);
 
-
+var slices = createSlices();
+layer.add(slices);
 
 function createNoteRings(group) {
   group.destroyChildren();
@@ -812,11 +807,6 @@ function createPatternControl(originX, originY, innerRadius, outerRadius, fill, 
   patternRing.on('tap', patternRingEvent);
       
   patternControl.add(patternRing);
-
-  // [0,4,8,12].forEach(function(step) { 
-  //   var pulse = createPulse(originX, originY, innerRadius, outerRadius, step); 
-  //   patternControl.add(pulse);
-  // })
 
   var highlightRing = createHighlightRing(originX, originY, innerRadius, outerRadius, '#F0E6C3');
   highlightRing.visible(false);
