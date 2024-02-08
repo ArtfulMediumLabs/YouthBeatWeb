@@ -529,8 +529,8 @@ function createSlices() {
     var strokeWidth = 4
     var strokeColor = 'rgba(255,255,255,0.5)'
     if (i % 4 == 0) {
-      // strokeWidth = 6;
-      strokeColor = 'green';
+      strokeWidth = 6;
+      // strokeColor = 'green';
     }
     var line = new Konva.Line({
       points: [originPoint.x, originPoint.y, point.x, point.y],
