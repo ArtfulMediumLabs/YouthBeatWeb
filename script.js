@@ -1,5 +1,6 @@
 import { emptyPattern } from './utils.js';
 import { numberLine, drawLinePattern, drawRhythmLinePatternTop, drawRhythmLinePatternBottom, drawMelodicLinePattern } from './numberLine.js';
+import { drawStave } from './stave.js';
 
 var offset = 0
 
@@ -692,6 +693,8 @@ patternLine.add(patternLineNotes);
 patternLineNotes.zIndex(0);
 
 layer.add(patternLine);
+
+drawStave();
 
 var positionGroup = createPositionGroup(stage.width() - 200,98, 0);
 layer.add(positionGroup);
