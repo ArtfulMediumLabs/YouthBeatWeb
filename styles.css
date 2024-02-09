@@ -251,3 +251,8 @@ ul {
     visibility: hidden;
     overflow: hidden;
 }
+
+#output {
+    margin: auto;
+    width: 30%;
+}

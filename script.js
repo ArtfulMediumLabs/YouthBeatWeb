@@ -131,6 +131,7 @@ export function updatePattern(time) {
   updatePosition(positionGroup, currentBeat());
 
   updateLinePattern();
+  updateStave();
 
   layer.batchDraw();
 }
@@ -142,6 +143,10 @@ function updateLinePattern() {
     drawRhythmLinePatternTop(patternLineNotes, outerCustomPattern, outerRadius * 2, noteColors);
     drawRhythmLinePatternBottom(patternLineNotes, innerCustomPattern, outerRadius * 2, noteColors);
   }
+}
+
+function updateStave() {
+  drawStave(samplerCustomPattern);
 }
 
 loop.start();
@@ -530,7 +535,7 @@ function createSlices() {
     var strokeWidth = 4
     var strokeColor = 'rgba(255,255,255,0.5)'
     if (i % 4 == 0) {
-      strokeWidth = 6;
+      // strokeWidth = 6;a
       // strokeColor = 'green';
     }
     var line = new Konva.Line({
@@ -693,8 +698,6 @@ patternLine.add(patternLineNotes);
 patternLineNotes.zIndex(0);
 
 layer.add(patternLine);
-
-drawStave();
 
 var positionGroup = createPositionGroup(stage.width() - 200,98, 0);
 layer.add(positionGroup);
@@ -1551,6 +1554,7 @@ export function setActiveInstrument(instrument) {
   updateVoiceDisplay(getVoice());
   selectRing();
   updateLinePattern();
+  updateStave();
   layer.batchDraw();
 }
 
