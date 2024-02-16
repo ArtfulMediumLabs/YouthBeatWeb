@@ -11,7 +11,7 @@ export function drawStave(pattern) {
     document.getElementById(elementId).innerHTML = '';
 
     const vf = new Factory({
-      renderer: { elementId: elementId, width: 800, height: 200 },
+      renderer: { elementId: elementId, width: 750, height: 150 },
     });
 
     const score = vf.EasyScore();

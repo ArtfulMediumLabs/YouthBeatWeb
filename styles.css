@@ -253,6 +253,13 @@ ul {
 }
 
 #output {
+    position: absolute;
+    left: 150px;
+    bottom: 10px;
+    width: 600px;
+}
+
+#output svg {
     margin: auto;
-    width: 30%;
+    display: block;
 }
