@@ -1,5 +1,4 @@
 import { emptyPattern } from './utils.js';
-import { numberLine, drawLinePattern, drawRhythmLinePatternTop, drawRhythmLinePatternBottom, drawMelodicLinePattern } from './numberLine.js';
 import { drawStave } from './stave.js';
 
 var offset = 0
@@ -130,19 +129,9 @@ export function updatePattern(time) {
 
   updatePosition(positionGroup, currentBeat());
 
-  updateLinePattern();
   updateStave();
 
   layer.batchDraw();
-}
-
-function updateLinePattern() {
-  if (samplerFilter.includes(activeInstrument)) {
-    drawMelodicLinePattern(patternLineNotes, samplerCustomPattern, outerRadius * 2, noteColors, scale, semitones);  
-  } else {
-    drawRhythmLinePatternTop(patternLineNotes, outerCustomPattern, outerRadius * 2, noteColors);
-    drawRhythmLinePatternBottom(patternLineNotes, innerCustomPattern, outerRadius * 2, noteColors);
-  }
 }
 
 function updateStave() {
@@ -688,16 +677,6 @@ var stop = new Konva.Rect({
 layer.add(stop)
 
 //var samplerPatternRing = createPatternControl(patternOriginX, patternOriginY, innerRadius + patternWidth * 2, innerRadius + patternWidth * 2 + samplerWidth, controlBackgrounds[2], samplerPatternControls, samplerCustomPattern, samplerFilter, 16, false, true, function(){ toggleSequence();}, function(){  toggleSequence(); })
-
-var patternLine = numberLine(outerRadius * 2);
-patternLine.x(patternOriginX - outerRadius);
-patternLine.y(patternOriginY + outerRadius + 96.0 + 16.0);
-
-var patternLineNotes = new Konva.Group();
-patternLine.add(patternLineNotes);
-patternLineNotes.zIndex(0);
-
-layer.add(patternLine);
 
 var positionGroup = createPositionGroup(stage.width() - 200,98, 0);
 layer.add(positionGroup);
@@ -1553,7 +1532,6 @@ export function setActiveInstrument(instrument) {
   showSelectedButton();
   updateVoiceDisplay(getVoice());
   selectRing();
-  updateLinePattern();
   updateStave();
   layer.batchDraw();
 }
