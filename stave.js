@@ -120,6 +120,15 @@ function insertRests(notes) {
     });
     return
   }
+  if (notes[0].position > 0) {
+    let initialDuration = notes[0].position;
+    let rest = {
+      position: 0,
+      value: '-',
+      duration: initialDuration
+    };
+    notes.unshift(rest);
+  }
   for (let i = 1; i < notes.length; i++) {
     if (!isNote(notes[i])) {
       continue;
