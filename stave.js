@@ -4,9 +4,9 @@ const elementId = 'output';
 
 
 
-export function drawStave(pattern) {
-    // var notes = directReplacement(pattern);
-    var notes = processNotes(pattern);
+export function drawStave(pattern, harmonicPitches = []) {
+    // let notes = directReplacement(pattern);
+    let notes = processNotes(pattern);
 
     document.getElementById(elementId).innerHTML = '';
 
@@ -17,15 +17,31 @@ export function drawStave(pattern) {
     const score = vf.EasyScore();
     const system = vf.System();
 
-    system.addStave({
-      voices: [
-        score.voice(score.notes(notes.join(', ')))
-      ],
-    })
+    let melody = score.voice(score.notes(notes.join(', ')));
+    colorHarmonicNotes(melody, harmonicPitches);
+    let voices = [melody];
+
+    // if ( harmonicPitches.length > 0 ) {
+    //   let harmonicNotes = '(' + harmonicPitches.join(' ') + ')/w';
+    //   voices.push(score.voice(score.notes(harmonicNotes)));
+    // }
+
+    system.addStave({ voices: voices })
     .addClef('treble')
     .addTimeSignature('4/4');
 
     vf.draw();
+}
+
+function colorHarmonicNotes(voice, pitches) {
+  voice.tickables.forEach(staveNote => {
+    let key = staveNote.keys[0].replace(/\//g, '');
+    if (pitches.indexOf(key) >= 0 || staveNote.isRest() || pitches.length == 0) {
+      staveNote.setStyle({});
+    } else {
+      staveNote.setStyle({fillStyle: "#a3a3a3", strokeStyle: "#d3d3d3"});
+    }
+  });
 }
 
 function directReplacement(pattern) {

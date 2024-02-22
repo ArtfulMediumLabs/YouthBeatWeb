@@ -135,7 +135,7 @@ export function updatePattern(time) {
 }
 
 function updateStave() {
-  drawStave(samplerCustomPattern);
+  drawStave(samplerCustomPattern, harmonicNotes[chordSelect.value]);
 }
 
 loop.start();
@@ -207,6 +207,11 @@ var diatonicChordHighlights = {
   'E2' : [0,3,5,7],
   'G2' : [0,2,5,7,9]
 }
+let harmonicNotes = {}
+
+Object.keys(pentatonicChordHighlights).forEach(function(key) {
+  harmonicNotes[key] = pentatonicChordHighlights[key].map( i => pentatonicScale[i]);
+});
 
 var chordHighlights = pentatonicChordHighlights;
 
@@ -326,6 +331,7 @@ var chordSelect = document.getElementById("chordSelect");
 
 chordSelect.addEventListener('change', function() {
   selectNoteRings(this.value);
+  updateStave();
   layer.batchDraw();
 });
 
