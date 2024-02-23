@@ -80,7 +80,7 @@ function processNotes(pattern) {
       let durations = noteDuration(el);
       newNotes = durations.map(d => el.value + "/" + d);
     } else {
-      let durations = restDuration(el);
+      let durations = idiomaticRestDuration(el);
       newNotes = durations.map(d => 'B4' + "/" + d + '/r');
     }
     noteString.push.apply(noteString, newNotes);
@@ -208,4 +208,27 @@ function restDuration(el) {
     '1'
   ].map( el =>  Array.isArray(el) ? el : [el] );
   return durations[el.duration];
+}
+
+
+function idiomaticRestDuration(el) {
+
+  let durations = [];
+  let remainingDuration = el.duration;
+  let currentPosition = el.position;
+  
+  while(remainingDuration > 0) {
+    for (let i = 4; i >= 0; i--) {
+      let divisor = Math.pow(2, i);
+      console.log(currentPosition, remainingDuration, divisor);
+      if (divisor <= remainingDuration && currentPosition % divisor == 0) {
+        durations.push(Math.pow(2, 4-i));
+        remainingDuration -= divisor;
+        currentPosition += divisor;
+        break;
+      }
+    }   
+  }
+
+  return durations;
 }
