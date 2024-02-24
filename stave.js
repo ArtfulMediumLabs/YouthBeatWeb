@@ -6,7 +6,7 @@ const elementId = 'output';
 
 export function drawStave(pattern, harmonicPitches = []) {
     // let notes = directReplacement(pattern);
-    let notes = processNotes(pattern);
+    let {notes, ties} = processNotes(pattern);
 
     document.getElementById(elementId).innerHTML = '';
 
@@ -29,6 +29,18 @@ export function drawStave(pattern, harmonicPitches = []) {
     system.addStave({ voices: voices })
     .addClef('treble')
     .addTimeSignature('4/4');
+
+    let staveNotes = melody.tickables;
+    ties.forEach( tie => {
+      for (let i = tie.start; i < tie.start + tie.length - 1; i++) {
+        vf.StaveTie({
+          from: staveNotes[i],
+          to: staveNotes[i + 1],
+          first_indices: [0],
+          last_indices: [0],
+        });
+      }
+    })
 
     vf.draw();
 }
@@ -73,20 +85,24 @@ function processNotes(pattern) {
 
   notes.pop();
 
+  let ties = [];
   let noteString = [];
   notes.forEach( (el, i) => {
     let newNotes;
     if (isNote(el)) {
-      let durations = noteDuration(el);
+      let durations = idiomaticDuration(el);
       newNotes = durations.map(d => el.value + "/" + d);
+      if (newNotes.length > 1) {
+        ties.push({start: noteString.length, length: newNotes.length})
+      }
     } else {
-      let durations = idiomaticRestDuration(el);
+      let durations = idiomaticDuration(el);
       newNotes = durations.map(d => 'B4' + "/" + d + '/r');
     }
     noteString.push.apply(noteString, newNotes);
   })
 
-  return noteString;
+  return {notes: noteString, ties: ties};
 }
 
 function mapPattern(pattern) {
@@ -211,7 +227,7 @@ function restDuration(el) {
 }
 
 
-function idiomaticRestDuration(el) {
+function idiomaticDuration(el) {
 
   let durations = [];
   let remainingDuration = el.duration;
@@ -220,7 +236,6 @@ function idiomaticRestDuration(el) {
   while(remainingDuration > 0) {
     for (let i = 4; i >= 0; i--) {
       let divisor = Math.pow(2, i);
-      console.log(currentPosition, remainingDuration, divisor);
       if (divisor <= remainingDuration && currentPosition % divisor == 0) {
         durations.push(Math.pow(2, 4-i));
         remainingDuration -= divisor;
