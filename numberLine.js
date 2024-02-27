@@ -35,10 +35,10 @@ export function numberLine(width) {
           });
         lineGroup.add(hatchLine);
 
-        let valueMarks = ["0", "1/16", "1/8", "3/16", "1/4"]
-        valueMarks[8] = "1/2";
-        valueMarks[12] = "3/4";
-        valueMarks[16] = "1";
+        let valueMarks = ["0", "1", "2", "3", "4"]
+        valueMarks[8] = "8";
+        valueMarks[12] = "12";
+        valueMarks[16] = "16";
 
         
         let fontSizes = [16, 12, 14, 12];

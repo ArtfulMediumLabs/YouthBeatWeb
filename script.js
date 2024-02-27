@@ -1106,10 +1106,10 @@ function createNumbers(radius) {
     if (i % 4 == 0) {
       var number0 = drawNumber(radius - patternWidth/4, 0, i)
       numbers.add(number0);
-      var number4 = drawNumber(radius + patternWidth/4, 4, i)
+      var number4 = drawNumber(radius + patternWidth/4, 16, i)
       numbers.add(number4);
     } else {
-      var numberLabel = drawNumber(radius, i % 4, i * 4)
+      var numberLabel = drawNumber(radius, i * 4, i * 4)
       numbers.add(numberLabel)
     }
   }
