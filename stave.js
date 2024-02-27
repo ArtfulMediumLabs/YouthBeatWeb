@@ -90,13 +90,13 @@ function processNotes(pattern) {
   notes.forEach( (el, i) => {
     let newNotes;
     if (isNote(el)) {
-      let durations = idiomaticDuration(el);
+      let durations = idiomaticNoteDuration(el);
       newNotes = durations.map(d => el.value + "/" + d);
       if (newNotes.length > 1) {
         ties.push({start: noteString.length, length: newNotes.length})
       }
     } else {
-      let durations = idiomaticDuration(el);
+      let durations = idiomaticRestDuration(el);
       newNotes = durations.map(d => 'B4' + "/" + d + '/r');
     }
     noteString.push.apply(noteString, newNotes);
@@ -226,8 +226,28 @@ function restDuration(el) {
   return durations[el.duration];
 }
 
+function idiomaticNoteDuration(el) {
 
-function idiomaticDuration(el) {
+  let durations = [];
+  let remainingDuration = el.duration;
+  let currentPosition = el.position;
+  
+  while(remainingDuration > 0) {
+    for (let i = 4; i >= 0; i--) {
+      let divisor = Math.pow(2, i);
+      if (divisor <= remainingDuration) {
+        durations.push(Math.pow(2, 4-i));
+        remainingDuration -= divisor;
+        currentPosition += divisor;
+        break;
+      }
+    }   
+  }
+
+  return durations;
+}
+
+function idiomaticRestDuration(el) {
 
   let durations = [];
   let remainingDuration = el.duration;
